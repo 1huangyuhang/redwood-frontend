@@ -282,9 +282,16 @@ const AdminLayout: React.FC = () => {
         width={280}
         onClose={() => setMobileMenuOpen(false)}
         open={isCompact && mobileMenuOpen}
-        styles={{ body: { padding: 0, background: '#141a1f' } }}
+        styles={{
+          body: { padding: 0, background: 'var(--admin-sider-bg, #121820)' },
+        }}
       >
-        <div style={{ background: '#141a1f', minHeight: '100%' }}>
+        <div
+          style={{
+            background: 'var(--admin-sider-bg, #121820)',
+            minHeight: '100%',
+          }}
+        >
           <div
             className="admin-shell__logo"
             style={{ borderBottom: '1px solid rgba(255,255,255,.08)' }}
@@ -305,7 +312,7 @@ const AdminLayout: React.FC = () => {
             items={menuItems}
             onClick={onMenuClick}
             className="admin-shell__menu"
-            style={{ background: '#141a1f' }}
+            style={{ background: 'var(--admin-sider-bg, #121820)' }}
           />
         </div>
       </Drawer>

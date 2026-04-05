@@ -24,6 +24,15 @@ cd backend && npm install && npm run dev
 
 环境变量参考：`backend/.env.example`、根目录 `.env.example`、`management/.env.example`。
 
+## API Key（`API_KEY` / `VITE_API_KEY`）
+
+- **必须一致**：后端环境变量 `API_KEY` 与官网、管理端构建时的 `VITE_API_KEY` 须相同，否则带 `x-api-key` 的请求会返回 401。本地默认均为 `default-api-key`（见各目录 `.env.example`）。
+- **浏览器可见**：官网与管理端会在请求头中发送 `x-api-key`。该值会进入前端打包产物，用户也可在开发者工具的网络面板中看到。因此它**不是**机密，不能用来保护「只能内网知道」的数据。
+- **实际语义**：凡走 [管理类中间件](backend/src/middleware/managementAuthMiddleware.ts)、且仅用 API Key（无 JWT）即可访问的读接口（例如 `GET /api/site-assets`、分页列表等），在密钥泄露意义下等同于**对持有站点的人可读**。若业务需要真正的私密数据，应改为登录态（JWT）+ 角色控制，或把敏感接口放到不暴露给浏览器的 BFF/内网服务。
+- **生产建议**：为防脚本滥用可换成足够长的随机密钥，并在部署流水线中**同时**更新后端 `API_KEY` 与前端构建参数 `VITE_API_KEY`；不要将真实生产密钥提交到仓库。
+
+更细的 JSON 响应形态说明见 [docs/api-response-conventions.md](docs/api-response-conventions.md)。
+
 ## 目录
 
 - `src/` — 官网

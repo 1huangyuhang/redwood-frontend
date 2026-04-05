@@ -10,6 +10,7 @@ import {
   RocketOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { ScrollAnimatedSection } from '@/animations';
 import { MarketingPageShell } from '@/components/page-shell/MarketingPageShell';
 import './index.less';
 
@@ -94,41 +95,46 @@ export default function Applications() {
         </div>
       }
     >
-      <Row gutter={[20, 20]} className="applications-grid">
-        {applications.map((app) => (
-          <Col xs={24} sm={12} lg={8} key={app.key}>
-            <Card className="applications-card" bordered={false}>
-              <div className="applications-card-icon">{app.icon}</div>
-              <div className="applications-card-head">
-                <Title level={4} className="applications-card-title">
-                  {app.title}
-                </Title>
-                {app.tag ? (
-                  <Tag className="applications-card-tag">{app.tag}</Tag>
-                ) : null}
-              </div>
-              <Text type="secondary" className="applications-card-desc">
-                {app.description}
-              </Text>
-              <Button
-                type="primary"
-                block
-                className="applications-card-cta"
-                onClick={() => navigate(app.path)}
-              >
-                进入
-              </Button>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+      <ScrollAnimatedSection
+        reveal
+        className="marketing-section-block section-stack"
+      >
+        <Row gutter={[20, 20]} className="applications-grid">
+          {applications.map((app) => (
+            <Col xs={24} sm={12} lg={8} key={app.key}>
+              <Card className="applications-card" bordered={false}>
+                <div className="applications-card-icon">{app.icon}</div>
+                <div className="applications-card-head">
+                  <Title level={4} className="applications-card-title">
+                    {app.title}
+                  </Title>
+                  {app.tag ? (
+                    <Tag className="applications-card-tag">{app.tag}</Tag>
+                  ) : null}
+                </div>
+                <Text type="secondary" className="applications-card-desc">
+                  {app.description}
+                </Text>
+                <Button
+                  type="primary"
+                  block
+                  className="applications-card-cta"
+                  onClick={() => navigate(app.path)}
+                >
+                  进入
+                </Button>
+              </Card>
+            </Col>
+          ))}
+        </Row>
 
-      <Card className="applications-footnote" bordered={false}>
-        <Text type="secondary">
-          更多端侧应用（如移动端
-          App）上线后，将同步展示在此页面的「客户端下载」区域。
-        </Text>
-      </Card>
+        <Card className="applications-footnote" bordered={false}>
+          <Text type="secondary">
+            更多端侧应用（如移动端
+            App）上线后，将同步展示在此页面的「客户端下载」区域。
+          </Text>
+        </Card>
+      </ScrollAnimatedSection>
     </MarketingPageShell>
   );
 }

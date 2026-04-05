@@ -1,5 +1,5 @@
 import { Card, Typography, Row, Col, Image, Divider } from 'antd';
-import redwoodImages from '@/assets/images/redwood';
+import { redwoodImages } from '@/assets/images/redwood';
 import {
   processImageUrl,
   handleImageError,

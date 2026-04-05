@@ -15,12 +15,7 @@ export default function HomeHeritageSection({
   heritageSrcs,
 }: Props) {
   return (
-    <ScrollAnimatedSection
-      className="heritage-section home-unified-flow-section"
-      animationType="fadeIn"
-      duration={1000}
-      threshold={0.2}
-    >
+    <ScrollAnimatedSection className="heritage-section home-unified-flow-section">
       <div className="heritage-content">
         <div className="heritage-text">
           <span className="section-kicker section-kicker--left">匠心传承</span>

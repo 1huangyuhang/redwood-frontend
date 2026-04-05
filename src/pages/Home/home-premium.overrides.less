@@ -41,8 +41,8 @@
   /* 数据 / 价值 / 产品 / 匠心 / CTA：同一套毛玻璃群聚底板 + 圆角，削弱「一块一块」割裂感 */
   .home-unified-flow-section {
     .home-unified-section-surface();
-    margin-top: clamp(10px, 2vw, 28px);
-    margin-bottom: clamp(8px, 1.5vw, 22px);
+    margin-top: clamp(6px, 1.2vw, 20px);
+    margin-bottom: clamp(6px, 1.2vw, 20px);
     padding-left: @section-gutter-x !important;
     padding-right: @section-gutter-x !important;
     padding-top: clamp(44px, 6.5vw, 80px) !important;
@@ -330,41 +330,36 @@
   }
 }
 
-/* 夜间：统计数字卡深色玻璃（避免在日间误用） */
+/* 夜间：数字卡与价值主张 .value-unified-panel 同一套内层玻璃 token */
 html[data-theme='dark'] .home-page.home-premium .stats-section.home-unified-flow-section .stat-item {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border-radius: @premium-radius-xl;
-  background: linear-gradient(
-    152deg,
-    rgba(48, 36, 36, 0.5) 0%,
-    rgba(30, 26, 30, 0.38) 48%,
-    rgba(40, 32, 34, 0.46) 100%
-  );
-  backdrop-filter: blur(28px) saturate(1.15);
-  -webkit-backdrop-filter: blur(28px) saturate(1.15);
-  border: 1px solid rgba(255, 236, 228, 0.12);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
-    0 18px 52px rgba(18, 12, 16, 0.36),
-    0 0 64px -26px rgba(212, 101, 92, 0.16);
+  border-radius: var(--app-saas-card-radius);
+  background: var(--home-inner-card-bg);
+  backdrop-filter: blur(var(--home-inner-card-blur)) saturate(var(--home-inner-card-saturate));
+  -webkit-backdrop-filter: blur(var(--home-inner-card-blur)) saturate(var(--home-inner-card-saturate));
+  border: 1px solid var(--home-inner-card-border);
+  box-shadow: var(--home-inner-card-shadow);
   transition:
     transform 0.5s @premium-ease-out,
     box-shadow 0.5s @premium-ease-soft,
     border-color 0.35s ease;
 
   &::after {
-    .app-liquid-gloss-layer();
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
     z-index: 0;
+    background: var(--app-saas-card-shine);
     opacity: 0.42;
-    mix-blend-mode: soft-light;
   }
 
   .stat-value,
   .stat-label {
     position: relative;
-    z-index: 1;
+    z-index: 3; /* 高于静态 ::after 与 card-sheen-motion 的 ::before 扫光 */
   }
 
   .stat-value {
@@ -377,11 +372,42 @@ html[data-theme='dark'] .home-page.home-premium .stats-section.home-unified-flow
 
   &:hover {
     transform: translateY(-4px);
-    border-color: rgba(212, 101, 92, 0.38);
-    box-shadow:
-      @premium-shadow-lift,
-      0 0 0 1px rgba(255, 255, 255, 0.09) inset,
-      0 0 80px -24px rgba(212, 101, 92, 0.28);
+    border-color: var(--app-card-border-hover);
+    box-shadow: var(--app-saas-card-shadow-hover);
+  }
+}
+
+/* 夜间：产品栅格卡片 — 外沿与价值区面板一致（内容仍为全幅配图） */
+html[data-theme='dark'] .home-page.home-premium .products-section .product-item {
+  border-radius: var(--app-saas-card-radius) !important;
+  border: 1px solid var(--home-inner-card-border) !important;
+  box-shadow: var(--home-inner-card-shadow) !important;
+  transition:
+    transform 0.5s @premium-ease-out,
+    box-shadow 0.5s @premium-ease-soft,
+    border-color 0.35s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: var(--app-card-border-hover) !important;
+    box-shadow: var(--app-saas-card-shadow-hover) !important;
+  }
+}
+
+/* 夜间：匠心图卡 — 与价值区内层一致 */
+html[data-theme='dark'] .home-page.home-premium .heritage-section .heritage-item {
+  border-radius: var(--app-saas-card-radius) !important;
+  border: 1px solid var(--home-inner-card-border) !important;
+  box-shadow: var(--home-inner-card-shadow) !important;
+  transition:
+    transform 0.45s @premium-ease-out,
+    box-shadow 0.45s @premium-ease-soft,
+    border-color 0.3s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: var(--app-card-border-hover) !important;
+    box-shadow: var(--app-saas-card-shadow-hover) !important;
   }
 }
 
@@ -570,6 +596,29 @@ html[data-theme='dark'] .home-page.home-premium .stats-section.home-unified-flow
   box-shadow: 0 0 32px rgba(212, 101, 92, 0.2);
 }
 
+/* 暗色：弱化区块间「硬线」与高饱和光带，避免与 body 画布形成拼接条 */
+html[data-theme='dark'] .home-page .home-flow-bridge::before {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(212, 101, 92, 0.035) 50%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  filter: blur(40px);
+  opacity: 0.75;
+}
+
+html[data-theme='dark'] .home-page .home-flow-bridge::after {
+  opacity: 0.2;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.045) 50%,
+    transparent 100%
+  );
+  box-shadow: none;
+}
+
 /* 价值主张：淡科技网格，与上文柔化衔接 */
 .home-page.home-premium .value-proposition-section {
   margin-top: clamp(-8px, -1vw, 0);
@@ -584,28 +633,6 @@ html[data-theme='dark'] .home-page.home-premium .stats-section.home-unified-flow
 .home-page.home-premium .value-proposition-section .value-content {
   position: relative;
   z-index: 1;
-}
-
-/* 产品区：暗色下加深顶光；日间由下方 html[data-theme='light'] 统一阴影 */
-html[data-theme='dark'] .home-page.home-premium .products-section.home-unified-flow-section {
-  border-radius: 28px;
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.045) inset,
-    0 36px 80px -40px rgba(10, 8, 14, 0.62),
-    0 -20px 48px -36px rgba(128, 50, 46, 0.1);
-}
-
-/* 匠心区：卡片悬浮光晕 */
-.home-page.home-premium .heritage-section .heritage-item {
-  box-shadow:
-    @premium-shadow-ambient,
-    0 0 0 1px rgba(128, 50, 46, 0.06) inset;
-}
-
-.home-page.home-premium .heritage-section .heritage-item:hover {
-  box-shadow:
-    @premium-shadow-lift,
-    0 0 36px rgba(128, 50, 46, 0.08);
 }
 
 /* =============================================================================
@@ -697,28 +724,24 @@ html[data-theme='light'] {
     }
 
     .value-proposition-section .value-unified-panel {
-      backdrop-filter: blur(12px) saturate(1.04);
-      -webkit-backdrop-filter: blur(12px) saturate(1.04);
-      background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--ly-bg-card) 98%, var(--ly-bg-canvas) 2%) 0%,
-        color-mix(in srgb, var(--ly-bg-card) 93%, var(--ly-bg-canvas) 7%) 100%
-      ) !important;
-      border: 1px solid var(--app-saas-card-border) !important;
-      box-shadow: var(--app-saas-card-shadow) !important;
+      backdrop-filter: blur(var(--home-inner-card-blur)) saturate(var(--home-inner-card-saturate));
+      -webkit-backdrop-filter: blur(var(--home-inner-card-blur)) saturate(var(--home-inner-card-saturate));
+      background: var(--home-inner-card-bg) !important;
+      border: 1px solid var(--home-inner-card-border) !important;
+      box-shadow: var(--home-inner-card-shadow) !important;
 
       &::before {
         opacity: 0.28;
       }
     }
 
-    /* 数字卡：与日间卡片表面一致，不用深色玻璃 */
+    /* 数字卡：与价值区内层、SaaS 卡片同一 token */
     .stats-section.home-unified-flow-section .stat-item {
-      background: var(--ly-bg-card);
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
-      border: 1px solid var(--app-saas-card-border);
-      box-shadow: var(--app-saas-card-shadow);
+      background: var(--home-inner-card-bg);
+      backdrop-filter: blur(var(--home-inner-card-blur)) saturate(var(--home-inner-card-saturate));
+      -webkit-backdrop-filter: blur(var(--home-inner-card-blur)) saturate(var(--home-inner-card-saturate));
+      border: 1px solid var(--home-inner-card-border);
+      box-shadow: var(--home-inner-card-shadow);
 
       &::after {
         display: none;
@@ -726,6 +749,26 @@ html[data-theme='light'] {
 
       &:hover {
         transform: translateY(-4px);
+        border-color: var(--app-card-border-hover);
+        box-shadow: var(--app-saas-card-shadow-hover);
+      }
+    }
+
+    .products-section .product-item {
+      border: 1px solid var(--home-inner-card-border) !important;
+      box-shadow: var(--home-inner-card-shadow) !important;
+
+      &:hover {
+        border-color: var(--app-card-border-hover) !important;
+        box-shadow: var(--app-saas-card-shadow-hover) !important;
+      }
+    }
+
+    .heritage-section .heritage-item {
+      border: 1px solid var(--home-inner-card-border);
+      box-shadow: var(--home-inner-card-shadow);
+
+      &:hover {
         border-color: var(--app-card-border-hover);
         box-shadow: var(--app-saas-card-shadow-hover);
       }
@@ -771,14 +814,6 @@ html[data-theme='light'] {
 
     .value-proposition-section::before {
       content: none;
-    }
-
-    .heritage-section .heritage-item {
-      box-shadow: var(--app-card-shadow);
-
-      &:hover {
-        box-shadow: var(--app-card-shadow-hover);
-      }
     }
   }
 

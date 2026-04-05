@@ -67,6 +67,15 @@ html[data-theme='dark'] {
   --motion-duration-sm: 0.22s;
   --motion-duration-md: 0.55s;
   --motion-duration-lg: 0.85s;
+  --app-page-gutter: var(--ly-container-pad-x);
+  --app-section-y: clamp(48px, 8vw, 96px);
+  --app-section-y-sm: clamp(28px, 5vw, 56px);
+  --app-content-max-width: var(--ly-container-wide);
+  --app-prose-width: min(42rem, 100%);
+  --app-page-hero-pad-y: clamp(28px, 4vw, 48px);
+  --app-page-hero-pad-x: clamp(24px, 3vw, 40px);
+  --app-marketing-stack-gap: clamp(28px, 4.5vw, 52px);
+  --app-marketing-pad-bottom: clamp(40px, 7vw, 88px);
   --app-card-bg: var(--ly-bg-card);
   --app-card-bg-solid: var(--ly-bg-card);
   --app-card-border: var(--ly-border-subtle);
@@ -109,22 +118,28 @@ html[data-theme='dark'] {
   --chrome-card-shadow-lg: 0 1px 2px rgba(0, 0, 0, 0.15), 0 20px 50px rgba(0, 0, 0, 0.4);
 
   --home-unified-radius: 22px;
-  --home-unified-border: rgba(255, 255, 255, 0.1);
+  --home-unified-border: rgba(255, 255, 255, 0.08);
   --home-unified-blur: 16px;
   --home-unified-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset, 0 28px 64px -36px rgba(0, 0, 0, 0.55),
     0 0 56px -24px rgba(212, 101, 92, 0.14);
+  /* 仅一层与画布同系的渐变，不再叠 section-veil，避免多段区块重复叠出横向「拼接带」 */
   --home-unified-bg: linear-gradient(
-      168deg,
-      rgba(39, 39, 42, 0.58) 0%,
-      rgba(24, 24, 27, 0.45) 48%,
-      rgba(32, 28, 34, 0.55) 100%
-    ),
-    linear-gradient(
-      180deg,
-      var(--section-veil-top) 0%,
-      var(--section-veil-mid) 48%,
-      var(--section-veil-bottom) 100%
-    );
+    168deg,
+    color-mix(in srgb, var(--ly-bg-raised) 55%, transparent) 0%,
+    color-mix(in srgb, var(--ly-bg-card) 48%, transparent) 52%,
+    color-mix(in srgb, var(--ly-bg-card) 58%, #09090b) 100%
+  );
+  /* 与价值主张 .value-unified-panel 一致：下方统计/产品/匠心等内层卡片共用 */
+  --home-inner-card-bg: linear-gradient(
+    125deg,
+    rgba(38, 36, 44, 0.62) 0%,
+    rgba(26, 24, 30, 0.48) 100%
+  );
+  --home-inner-card-border: rgba(255, 255, 255, 0.1);
+  --home-inner-card-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 0 0 1px rgba(0, 0, 0, 0.28),
+    0 18px 48px -24px rgba(0, 0, 0, 0.45);
+  --home-inner-card-blur: 20px;
+  --home-inner-card-saturate: 1.12;
 }
 
 html[data-theme='light'] {
@@ -191,6 +206,15 @@ html[data-theme='light'] {
   --motion-duration-sm: 0.22s;
   --motion-duration-md: 0.55s;
   --motion-duration-lg: 0.85s;
+  --app-page-gutter: var(--ly-container-pad-x);
+  --app-section-y: clamp(48px, 8vw, 96px);
+  --app-section-y-sm: clamp(28px, 5vw, 56px);
+  --app-content-max-width: var(--ly-container-wide);
+  --app-prose-width: min(42rem, 100%);
+  --app-page-hero-pad-y: clamp(28px, 4vw, 48px);
+  --app-page-hero-pad-x: clamp(24px, 3vw, 40px);
+  --app-marketing-stack-gap: clamp(28px, 4.5vw, 52px);
+  --app-marketing-pad-bottom: clamp(40px, 7vw, 88px);
   --app-card-bg: var(--ly-bg-card);
   --app-card-bg-solid: var(--ly-bg-card);
   --app-card-border: var(--ly-border-subtle);
@@ -242,4 +266,13 @@ html[data-theme='light'] {
     color-mix(in srgb, var(--ly-bg-card) 100%, var(--ly-bg-canvas) 0%) 0%,
     color-mix(in srgb, var(--ly-bg-card) 94%, var(--ly-bg-canvas) 6%) 100%
   );
+  --home-inner-card-bg: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--ly-bg-card) 98%, var(--ly-bg-canvas) 2%) 0%,
+    color-mix(in srgb, var(--ly-bg-card) 93%, var(--ly-bg-canvas) 7%) 100%
+  );
+  --home-inner-card-border: var(--app-saas-card-border);
+  --home-inner-card-shadow: var(--app-saas-card-shadow);
+  --home-inner-card-blur: 12px;
+  --home-inner-card-saturate: 1.04;
 }

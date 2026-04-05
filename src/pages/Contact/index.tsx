@@ -1,5 +1,6 @@
 import { Typography, Tag } from 'antd';
 import { TeamOutlined } from '@ant-design/icons';
+import { ScrollAnimatedSection } from '@/animations';
 import { MarketingPageShell } from '@/components/page-shell/MarketingPageShell';
 import ContactView from './ContactView';
 import './index.less';
@@ -32,7 +33,9 @@ export default function Contact() {
         </Paragraph>
       }
     >
-      <ContactView />
+      <ScrollAnimatedSection reveal className="marketing-section-block">
+        <ContactView />
+      </ScrollAnimatedSection>
     </MarketingPageShell>
   );
 }

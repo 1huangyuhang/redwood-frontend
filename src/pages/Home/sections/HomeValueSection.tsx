@@ -19,12 +19,7 @@ export default function HomeValueSection({
   valueEyebrow = '红木 · 匠心',
 }: Props) {
   return (
-    <ScrollAnimatedSection
-      className="value-proposition-section home-unified-flow-section"
-      animationType="fadeIn"
-      duration={1000}
-      threshold={0.2}
-    >
+    <ScrollAnimatedSection className="value-proposition-section home-unified-flow-section">
       <div className="value-proposition-section__ambient" aria-hidden />
       <div className="value-content">
         <div className="value-unified-panel">

@@ -1,86 +1,317 @@
-import React, { useCallback, useState } from 'react';
-import { Calendar } from 'antd';
+import React, { useCallback, useMemo, useState } from 'react';
+import { Button, Popover, Select, Tooltip } from 'antd';
+import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
 import type { Dayjs } from 'dayjs';
+import type { ActivityDTO } from '@/types/dto/activity.dto';
 import './index.less';
 
-type ActivityDTO = import('@/types/dto/activity.dto').ActivityDTO;
+dayjs.locale('zh-cn');
+
+const MAX_EVENTS_VISIBLE = 3;
+
+const WEEK_LABELS = ['一', '二', '三', '四', '五', '六', '日'] as const;
+
+function pillClassForTitle(title: string): string {
+  if (/文化/.test(title)) return 'event-calendar__event--culture';
+  if (/工艺/.test(title)) return 'event-calendar__event--craft';
+  if (/展览/.test(title)) return 'event-calendar__event--expo';
+  if (/原材料|材料|原木/.test(title)) return 'event-calendar__event--material';
+  return 'event-calendar__event--default';
+}
+
+function buildMonthGrid(visibleMonth: Dayjs): Dayjs[] {
+  const monthStart = visibleMonth.startOf('month');
+  const monthEnd = visibleMonth.endOf('month');
+  const startDow = monthStart.day();
+  const leadingBlank = startDow === 0 ? 6 : startDow - 1;
+  const gridStart = monthStart.subtract(leadingBlank, 'day');
+  const daysInMonth = monthEnd.date();
+  const totalUsed = leadingBlank + daysInMonth;
+  const rows = Math.ceil(totalUsed / 7);
+  const cellCount = rows * 7;
+  return Array.from({ length: cellCount }, (_, i) => gridStart.add(i, 'day'));
+}
+
+function activityDayKey(a: ActivityDTO): string | null {
+  const d = dayjs(a.date);
+  return d.isValid() ? d.format('YYYY-MM-DD') : null;
+}
 
 interface EventCalendarProps {
   activities: ActivityDTO[];
   onActivityClick: (activity: ActivityDTO) => void;
 }
 
+function chunkWeeks<T>(days: T[]): T[][] {
+  const rows: T[][] = [];
+  for (let i = 0; i < days.length; i += 7) {
+    rows.push(days.slice(i, i + 7));
+  }
+  return rows;
+}
+
 const EventCalendar: React.FC<EventCalendarProps> = ({
   activities,
   onActivityClick,
 }) => {
-  // 保存当前显示的日期
-  const [currentDate, setCurrentDate] = useState<Dayjs>(dayjs());
+  const [cursorMonth, setCursorMonth] = useState<Dayjs>(() =>
+    dayjs().startOf('month')
+  );
+  const [selectedDay, setSelectedDay] = useState<Dayjs | null>(() => dayjs());
 
-  // 获取指定日期的活动
   const getActivitiesForDate = useCallback(
     (date: Dayjs) => {
-      const formattedDate = date.format('YYYY-MM-DD');
-      return activities.filter((activity) => {
-        const activityDate = dayjs(activity.date).format('YYYY-MM-DD');
-        return activityDate === formattedDate;
-      });
+      const key = date.format('YYYY-MM-DD');
+      return activities.filter((a) => activityDayKey(a) === key);
     },
     [activities]
   );
 
-  // 渲染日历单元格内容
-  const renderCell = useCallback(
-    (current: Dayjs) => {
-      const dayActivities = getActivitiesForDate(current);
+  const monthStats = useMemo(() => {
+    const y = cursorMonth.year();
+    const m = cursorMonth.month();
+    const inMonth = activities.filter((a) => {
+      const k = activityDayKey(a);
+      if (!k) return false;
+      const d = dayjs(k);
+      return d.year() === y && d.month() === m;
+    });
+    const daysWithEvents = new Set(
+      inMonth.map((a) => activityDayKey(a)).filter(Boolean)
+    ).size;
+    return { count: inMonth.length, activeDays: daysWithEvents };
+  }, [activities, cursorMonth]);
 
-      // 只渲染活动列表，日期数字由Ant Design自动处理
-      if (dayActivities.length > 0) {
-        return (
-          <div className="event-list" role="list" aria-label="当天活动">
-            {dayActivities.map((activity) => (
-              <div
-                key={activity.id}
-                className="event-item"
-                onClick={() => onActivityClick(activity)}
-                role="listitem"
-                aria-label={`活动: ${activity.title}`}
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    onActivityClick(activity);
-                  }
-                }}
-              >
-                <div className="event-title">{activity.title}</div>
-              </div>
-            ))}
-          </div>
-        );
-      }
+  const gridDays = useMemo(() => buildMonthGrid(cursorMonth), [cursorMonth]);
 
-      // 没有活动时返回null，不渲染任何内容
-      return null;
-    },
-    [getActivitiesForDate, onActivityClick]
+  const gridWeeks = useMemo(() => chunkWeeks(gridDays), [gridDays]);
+
+  const yearOptions = useMemo(() => {
+    const y = cursorMonth.year();
+    const start = y - 12;
+    const end = y + 8;
+    return Array.from({ length: end - start + 1 }, (_, i) => {
+      const year = start + i;
+      return { value: year, label: `${year}年` };
+    });
+  }, [cursorMonth]);
+
+  const monthOptions = useMemo(
+    () =>
+      Array.from({ length: 12 }, (_, i) => ({
+        value: i,
+        label: dayjs().month(i).format('M月'),
+      })),
+    []
   );
 
-  // 处理日历月份变化
-  const handleDateChange = useCallback((value: Dayjs | null) => {
-    if (value) {
-      setCurrentDate(value);
-    }
-  }, []);
+  const goPrevMonth = () => setCursorMonth((d) => d.subtract(1, 'month'));
+  const goNextMonth = () => setCursorMonth((d) => d.add(1, 'month'));
+  const goToday = () => {
+    const n = dayjs();
+    setCursorMonth(n.startOf('month'));
+    setSelectedDay(n);
+  };
+
+  const titleText = cursorMonth.format('YYYY年M月');
+  const now = dayjs();
 
   return (
     <div className="event-calendar">
-      <Calendar
-        fullscreen={false}
-        dateCellRender={renderCell}
-        value={currentDate}
-        onChange={handleDateChange}
-      />
+      <div className="event-calendar__meta" aria-live="polite">
+        <div className="event-calendar__meta-main">
+          <span className="event-calendar__meta-kicker">本月排期</span>
+          <p className="event-calendar__meta-stats">
+            本月共 <strong>{monthStats.count}</strong>
+            <span className="event-calendar__meta-unit"> 场</span>
+            <span className="event-calendar__meta-sep" aria-hidden>
+              ·
+            </span>
+            <span className="event-calendar__meta-days">
+              覆盖 <strong>{monthStats.activeDays}</strong> 个日期
+            </span>
+          </p>
+        </div>
+        <Button
+          type="default"
+          className="event-calendar__today-btn"
+          onClick={goToday}
+        >
+          今天
+        </Button>
+      </div>
+
+      <div className="event-calendar__chrome">
+        <div className="event-calendar__nav">
+          <div className="event-calendar__nav-primary">
+            <Button
+              type="text"
+              className="event-calendar__icon-btn"
+              icon={<LeftOutlined />}
+              aria-label="上一月"
+              onClick={goPrevMonth}
+            />
+            <h2 className="event-calendar__title">{titleText}</h2>
+            <Button
+              type="text"
+              className="event-calendar__icon-btn"
+              icon={<RightOutlined />}
+              aria-label="下一月"
+              onClick={goNextMonth}
+            />
+          </div>
+          <div className="event-calendar__nav-jump">
+            <Select
+              size="middle"
+              className="event-calendar__select event-calendar__select--year"
+              popupMatchSelectWidth={false}
+              options={yearOptions}
+              value={cursorMonth.year()}
+              onChange={(y) =>
+                setCursorMonth(cursorMonth.year(y).startOf('month'))
+              }
+              aria-label="选择年份"
+            />
+            <Select
+              size="middle"
+              className="event-calendar__select event-calendar__select--month"
+              popupMatchSelectWidth={false}
+              options={monthOptions}
+              value={cursorMonth.month()}
+              onChange={(m) =>
+                setCursorMonth(cursorMonth.month(m).startOf('month'))
+              }
+              aria-label="选择月份"
+            />
+          </div>
+        </div>
+
+        <div className="event-calendar__weekdays" role="row">
+          {WEEK_LABELS.map((label) => (
+            <div
+              key={label}
+              className="event-calendar__weekday"
+              role="columnheader"
+            >
+              {label}
+            </div>
+          ))}
+        </div>
+
+        <div className="event-calendar__grid" role="grid" aria-label="活动月历">
+          {gridWeeks.map((week, wi) => (
+            <div key={wi} role="row" className="event-calendar__row">
+              {week.map((date) => {
+                const inMonth = date.month() === cursorMonth.month();
+                const isToday = date.isSame(now, 'day');
+                const isSelected = selectedDay?.isSame(date, 'day') ?? false;
+                const list = getActivitiesForDate(date);
+                const visible = list.slice(0, MAX_EVENTS_VISIBLE);
+                const overflow = list.slice(MAX_EVENTS_VISIBLE);
+                const overflowCount = overflow.length;
+
+                const cellClasses = [
+                  'event-calendar__day',
+                  !inMonth && 'event-calendar__day--outside',
+                  isToday && 'event-calendar__day--today',
+                  isSelected && 'event-calendar__day--selected',
+                ]
+                  .filter(Boolean)
+                  .join(' ');
+
+                return (
+                  <div
+                    key={date.format('YYYY-MM-DD')}
+                    role="gridcell"
+                    className={cellClasses}
+                    aria-label={`${date.format('M月D日')}${
+                      list.length ? `，${list.length} 场活动` : ''
+                    }`}
+                    onClick={() => setSelectedDay(date)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedDay(date);
+                      }
+                    }}
+                    tabIndex={isSelected ? 0 : -1}
+                  >
+                    <div className="event-calendar__day-num">{date.date()}</div>
+                    <div className="event-calendar__day-events">
+                      {visible.map((activity) => (
+                        <Tooltip
+                          key={activity.id}
+                          title={
+                            <span className="event-calendar__tip">
+                              <strong>{activity.title}</strong>
+                              <br />
+                              {activity.description?.slice(0, 160)}
+                              {activity.description &&
+                              activity.description.length > 160
+                                ? '…'
+                                : ''}
+                            </span>
+                          }
+                          placement="topLeft"
+                          mouseEnterDelay={0.35}
+                        >
+                          <button
+                            type="button"
+                            className={`event-calendar__event ${pillClassForTitle(activity.title)}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              onActivityClick(activity);
+                            }}
+                            aria-label={`查看活动：${activity.title}`}
+                          >
+                            <span className="event-calendar__event-title">
+                              {activity.title}
+                            </span>
+                          </button>
+                        </Tooltip>
+                      ))}
+                      {overflowCount > 0 ? (
+                        <Popover
+                          placement="bottomLeft"
+                          trigger={['click']}
+                          styles={{ content: { padding: 8, maxWidth: 320 } }}
+                          content={
+                            <ul className="event-calendar__overflow-list">
+                              {overflow.map((activity) => (
+                                <li key={activity.id}>
+                                  <button
+                                    type="button"
+                                    className="event-calendar__overflow-item"
+                                    onClick={() => onActivityClick(activity)}
+                                  >
+                                    {activity.title}
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          }
+                        >
+                          <button
+                            type="button"
+                            className="event-calendar__more-btn"
+                            onClick={(e) => e.stopPropagation()}
+                            aria-label={`另有 ${overflowCount} 场，点击查看`}
+                          >
+                            +{overflowCount} 场
+                          </button>
+                        </Popover>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

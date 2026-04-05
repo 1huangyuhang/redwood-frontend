@@ -1,4 +1,5 @@
 import { Typography } from 'antd';
+import { ScrollAnimatedSection } from '@/animations';
 import { MarketingPageShell } from '@/components/page-shell/MarketingPageShell';
 import CaseView from './CaseView';
 import './index.less';
@@ -13,7 +14,9 @@ export default function Case() {
       title={<Title level={1}>成功案例</Title>}
       lead={<Text>了解我们的成功项目和客户合作经验</Text>}
     >
-      <CaseView />
+      <ScrollAnimatedSection reveal className="marketing-section-block">
+        <CaseView />
+      </ScrollAnimatedSection>
     </MarketingPageShell>
   );
 }

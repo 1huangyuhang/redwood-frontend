@@ -1,4 +1,5 @@
 import { Typography } from 'antd';
+import { ScrollAnimatedSection } from '@/animations';
 import { MarketingPageShell } from '@/components/page-shell/MarketingPageShell';
 import CoursesView from './CoursesView';
 import './index.less';
@@ -12,7 +13,9 @@ export default function Courses() {
       title={<Title level={1}>红木课程</Title>}
       lead={<Paragraph>学习红木工艺，传承传统文化</Paragraph>}
     >
-      <CoursesView />
+      <ScrollAnimatedSection reveal className="marketing-section-block">
+        <CoursesView />
+      </ScrollAnimatedSection>
     </MarketingPageShell>
   );
 }

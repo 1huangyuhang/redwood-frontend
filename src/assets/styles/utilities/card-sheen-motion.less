@@ -1,0 +1,130 @@
+/**
+ * 全站卡片「光泽扫过」：hover / focus-within 触发一次；transform + opacity 合成层友好；
+ * 尊重 prefers-reduced-motion；桌面端用 @media (hover: hover) 避免触摸设备误触粘连。
+ * 退出：.no-card-sheen
+ */
+
+@keyframes app-card-sheen-pass {
+  0% {
+    transform: translate3d(-120%, 0, 0) skewX(-14deg);
+    opacity: 0;
+  }
+  22% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(220%, 0, 0) skewX(-14deg);
+    opacity: 0;
+  }
+}
+
+.app-card-sheen-layer() {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 3;
+  opacity: 0;
+  mix-blend-mode: soft-light;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(255, 255, 255, 0.38) 50%,
+    transparent 60%,
+    transparent 100%
+  );
+  width: 55%;
+  height: 180%;
+  top: -40%;
+  left: 0;
+  transform: translate3d(-160%, 0, 0) skewX(-14deg);
+}
+
+/* 伪元素层（全设备挂载；动画仅在下文 hover 媒体查询中启用） */
+.top-layout .ant-card:not(.no-card-sheen)::after,
+.top-layout .card:not(.no-card-sheen)::after,
+.home-page .product-item.animate-card:not(.no-card-sheen)::after,
+.home-page .gallery-item:not(.no-card-sheen)::after,
+.home-page .heritage-item:not(.no-card-sheen)::after {
+  .app-card-sheen-layer();
+}
+
+.home-page .stat-item.animate-card:not(.no-card-sheen)::before {
+  .app-card-sheen-layer();
+  z-index: 2;
+}
+
+.top-layout .ant-card:not(.no-card-sheen) > * {
+  position: relative;
+  z-index: 1;
+}
+
+.top-layout .card:not(.no-card-sheen) > * {
+  position: relative;
+  z-index: 2;
+}
+
+.home-page .product-item.animate-card:not(.no-card-sheen) > *,
+.home-page .gallery-item:not(.no-card-sheen) > *,
+.home-page .heritage-item:not(.no-card-sheen) > * {
+  position: relative;
+  z-index: 1;
+}
+
+.home-page .stat-item.animate-card:not(.no-card-sheen) .stat-value,
+.home-page .stat-item.animate-card:not(.no-card-sheen) .stat-label {
+  position: relative;
+  z-index: 3;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .top-layout .ant-card:not(.no-card-sheen):hover::after,
+  .top-layout .ant-card:not(.no-card-sheen):focus-within::after,
+  .top-layout .card:not(.no-card-sheen):hover::after,
+  .top-layout .card:not(.no-card-sheen):focus-within::after,
+  .home-page .product-item.animate-card:not(.no-card-sheen):hover::after,
+  .home-page .product-item.animate-card:not(.no-card-sheen):focus-within::after,
+  .home-page .gallery-item:not(.no-card-sheen):hover::after,
+  .home-page .gallery-item:not(.no-card-sheen):focus-within::after,
+  .home-page .heritage-item:not(.no-card-sheen):hover::after,
+  .home-page .heritage-item:not(.no-card-sheen):focus-within::after {
+    animation: app-card-sheen-pass 0.95s var(--motion-ease-out, cubic-bezier(0.16, 1, 0.3, 1))
+      forwards;
+  }
+
+  .home-page .stat-item.animate-card:not(.no-card-sheen):hover::before,
+  .home-page .stat-item.animate-card:not(.no-card-sheen):focus-within::before {
+    animation: app-card-sheen-pass 0.95s var(--motion-ease-out, cubic-bezier(0.16, 1, 0.3, 1))
+      forwards;
+  }
+}
+
+/* 触摸为主设备：轻点卡片时播放一次扫光（无 hover 媒体时） */
+@media (hover: none) and (prefers-reduced-motion: no-preference) {
+  .top-layout .ant-card:not(.no-card-sheen):active::after,
+  .top-layout .card:not(.no-card-sheen):active::after,
+  .home-page .product-item.animate-card:not(.no-card-sheen):active::after,
+  .home-page .gallery-item:not(.no-card-sheen):active::after,
+  .home-page .heritage-item:not(.no-card-sheen):active::after {
+    animation: app-card-sheen-pass 0.85s var(--motion-ease-out, cubic-bezier(0.16, 1, 0.3, 1))
+      forwards;
+  }
+
+  .home-page .stat-item.animate-card:not(.no-card-sheen):active::before {
+    animation: app-card-sheen-pass 0.85s var(--motion-ease-out, cubic-bezier(0.16, 1, 0.3, 1))
+      forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .top-layout .ant-card:not(.no-card-sheen)::after,
+  .top-layout .card:not(.no-card-sheen)::after,
+  .home-page .product-item.animate-card:not(.no-card-sheen)::after,
+  .home-page .gallery-item:not(.no-card-sheen)::after,
+  .home-page .heritage-item:not(.no-card-sheen)::after,
+  .home-page .stat-item.animate-card:not(.no-card-sheen)::before {
+    display: none !important;
+  }
+}

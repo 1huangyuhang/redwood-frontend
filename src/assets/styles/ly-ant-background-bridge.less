@@ -136,6 +136,28 @@
     border: 1px solid var(--ly-glass-border);
     box-shadow: var(--ly-glass-inset), var(--ly-shadow-card);
   }
+
+  /* 表单控件与 SaaS 卡片圆角、焦点环一致 */
+  .ant-input-affix-wrapper,
+  .ant-input,
+  .ant-input-number,
+  .ant-picker,
+  .ant-select .ant-select-selector {
+    border-radius: var(--app-card-radius) !important;
+  }
+
+  .ant-input-outlined:focus,
+  .ant-input-outlined:focus-within,
+  .ant-input-affix-wrapper-focused,
+  .ant-picker-focused .ant-picker-input > input:focus,
+  .ant-select-focused .ant-select-selector {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-accent-cinnabar) 24%, transparent) !important;
+  }
+
+  .ant-btn-variant-solid:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--app-accent-cinnabar) 45%, transparent);
+    outline-offset: 2px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

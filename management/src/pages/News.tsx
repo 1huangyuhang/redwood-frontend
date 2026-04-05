@@ -18,7 +18,6 @@ import AdminListPageShell from '@/components/AdminListPageShell';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { queryKeys } from '@/queryKeys';
 import { fetchNewsPage, type NewsRow } from '@/api/adminLists';
-import './index.less';
 
 const NewsManagement: React.FC = () => {
   const queryClient = useQueryClient();

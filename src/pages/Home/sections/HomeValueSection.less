@@ -5,15 +5,18 @@
 @import (reference) '@/assets/styles/foundation/index.less';
 
 .home-page .value-proposition-section {
-  @vp-pad-x: var(--site-main-pad-x, clamp(16px, 4vw, 48px));
-
   position: relative;
   box-sizing: border-box;
-  margin-left: calc(-1 * @vp-pad-x);
-  margin-right: calc(-1 * @vp-pad-x);
-  width: calc(100% + 2 * @vp-pad-x);
-  max-width: none;
-  padding: clamp(32px, 5vw, 56px) @vp-pad-x;
+  /* 与其它 home-unified-flow-section 一致：不占满视口出血，避免视觉上比统计/产品区更宽 */
+  margin-left: 0;
+  margin-right: 0;
+  width: 100%;
+  max-width: 100%;
+  /* 横向留白由 .home-unified-flow-section 的 section-gutter 统一提供 */
+  padding-top: clamp(32px, 5vw, 56px);
+  padding-bottom: clamp(32px, 5vw, 56px);
+  padding-left: 0;
+  padding-right: 0;
   margin-bottom: clamp(48px, 7vw, 80px);
   overflow: visible;
   /* 外圈只做氛围，不用「第二道卡片框」，避免与内层毛玻璃割裂 */
@@ -40,7 +43,7 @@
   .value-content {
     position: relative;
     z-index: 1;
-    max-width: min(100%, var(--rf-container-max, 1200px));
+    max-width: min(100%, var(--ly-container-max, 1120px));
     margin: 0 auto;
     padding: 0;
   }
@@ -55,25 +58,19 @@
     transition: box-shadow var(--motion-duration-md) var(--motion-ease-soft);
 
     @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-      backdrop-filter: blur(20px) saturate(1.12);
-      -webkit-backdrop-filter: blur(20px) saturate(1.12);
-      background: linear-gradient(
-        118deg,
-        rgba(255, 255, 255, 0.45) 0%,
-        rgba(255, 252, 248, 0.32) 42%,
-        rgba(255, 249, 244, 0.26) 100%
-      );
+      backdrop-filter: blur(var(--home-inner-card-blur, 20px))
+        saturate(var(--home-inner-card-saturate, 1.12));
+      -webkit-backdrop-filter: blur(var(--home-inner-card-blur, 20px))
+        saturate(var(--home-inner-card-saturate, 1.12));
+      background: var(--home-inner-card-bg);
     }
 
     @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
       background: color-mix(in srgb, var(--app-surface-glass) 92%, transparent);
     }
 
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.65) inset,
-      0 0 0 1px color-mix(in srgb, var(--app-accent-cinnabar) 7%, transparent),
-      0 10px 40px -18px rgba(15, 23, 42, 0.07);
+    border: 1px solid var(--home-inner-card-border);
+    box-shadow: var(--home-inner-card-shadow);
 
     &::before {
       content: '';
@@ -237,21 +234,7 @@ html[data-theme='dark'] .home-page .value-proposition-section {
     );
   }
 
-  .value-unified-panel {
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.06) inset,
-      0 0 0 1px rgba(0, 0, 0, 0.28),
-      0 18px 48px -24px rgba(0, 0, 0, 0.45);
-
-    @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-      background: linear-gradient(
-        125deg,
-        rgba(38, 36, 44, 0.62) 0%,
-        rgba(26, 24, 30, 0.48) 100%
-      );
-    }
-  }
+  /* 内层玻璃与 token 一致，此处仅保留暗色下分割线微调 */
 
   .value-unified-split {
     background: linear-gradient(

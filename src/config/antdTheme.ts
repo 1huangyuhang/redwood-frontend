@@ -3,7 +3,8 @@ import { theme } from 'antd';
 import type { ThemeMode } from '@/redux/slices/themeSlice';
 
 const shared = {
-  borderRadius: 11,
+  /** 与 theme-css --app-card-radius 对齐 */
+  borderRadius: 14,
   borderRadiusLG: 18,
   borderRadiusSM: 8,
   fontFamily:

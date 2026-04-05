@@ -1,5 +1,6 @@
 import { Typography, Tag } from 'antd';
 import { CustomerServiceOutlined } from '@ant-design/icons';
+import { ScrollAnimatedSection } from '@/animations';
 import { MarketingPageShell } from '@/components/page-shell/MarketingPageShell';
 import HelpView from './HelpView';
 import './index.less';
@@ -32,7 +33,9 @@ export default function Help() {
         </Paragraph>
       }
     >
-      <HelpView />
+      <ScrollAnimatedSection reveal className="marketing-section-block">
+        <HelpView />
+      </ScrollAnimatedSection>
     </MarketingPageShell>
   );
 }

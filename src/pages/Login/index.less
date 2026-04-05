@@ -69,6 +69,16 @@
   position: relative;
 }
 
+/* 双栏主体：ScrollAnimatedSection 根节点需参与 flex，避免揭示层破坏布局 */
+.login-page.login-page--premium .login-page__reveal-row.scroll-animated-section {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  min-height: 100vh;
+}
+
 /* 登录/注册不在 Layout 内：固定角标切换明暗，与顶栏按钮同款交互 */
 .login-page__theme-corner {
   position: fixed;
@@ -240,6 +250,11 @@
 @media (max-width: 899px) {
   .login-page.login-page--premium {
     flex-direction: column;
+  }
+
+  .login-page.login-page--premium .login-page__reveal-row.scroll-animated-section {
+    flex-direction: column;
+    min-height: auto;
   }
 
   .login-page__panel {

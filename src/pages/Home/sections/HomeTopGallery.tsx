@@ -16,12 +16,7 @@ export default function HomeTopGallery({
   galleryDescription,
 }: Props) {
   return (
-    <ScrollAnimatedSection
-      className="top-gallery-section"
-      animationType="fadeIn"
-      duration={1000}
-      threshold={0.2}
-    >
+    <ScrollAnimatedSection className="top-gallery-section">
       <div className="gallery-text ly-container">
         <span className="section-kicker">品牌叙事</span>
         <Title level={2} className="gallery-title">

@@ -37,6 +37,7 @@ export function MarketingPageShell({
 }: MarketingPageShellProps) {
   const rootClass = [
     'marketing-page-shell',
+    'page-shell',
     pageClass,
     'ly-container',
     wide ? 'ly-container--wide' : '',

@@ -72,7 +72,7 @@
 | Hero 变体    | 默认 `.page-title`；活动页等用 `defaultHeroClass="page-header"`；账户页 `account-page-title`；应用聚合页用 `customHeader`（如 `.applications-hero`）                                                                                 |
 | 玻璃样式锚点 | `.marketing-page-shell` 首子节点，见 [`ly-mahogany-glass-pages.less`](../../src/assets/styles/ly-mahogany-glass-pages.less)                                                                                                          |
 | 懒加载       | [`router.tsx`](../../src/router.tsx) 使用 `React.lazy`；[`Layout`](../../src/components/business/Layout/index.tsx) 内 `Outlet` 外包 `Suspense`；[`App.tsx`](../../src/App.tsx) 对 `RouterProvider` 再包一层 `Suspense`               |
-| 演示路由     | `/demo/animated-image` 仅在 `import.meta.env.DEV` 注册                                                                                                                                                                               |
+| 动效组件演示 | 见首页 [`Home/sections/`](../../src/pages/Home/sections/) 内 `AnimatedImage`；独立 demo 页已移除以降低维护面                                                                                                                         |
 | 首页         | [`Home/index.tsx`](../../src/pages/Home/index.tsx) **不**使用 `MarketingPageShell`；区块拆至 [`Home/sections/`](../../src/pages/Home/sections/)，站点素材与兜底数据在 `Home` 内 `useQuery` + `useMemo` 组装后以 props 传入各 section |
 
 ## 4. 模板边界（全局 — 页面 — 组件）

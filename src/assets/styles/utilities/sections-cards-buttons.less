@@ -14,8 +14,8 @@
   font-size: 18px;
   color: @text-color-secondary;
   text-align: center;
-  margin-bottom: 60px;
-  max-width: 600px;
+  margin-bottom: clamp(40px, 6vw, 60px);
+  max-width: var(--app-prose-width);
   margin-left: auto;
   margin-right: auto;
 }
@@ -50,7 +50,7 @@
 
 .card > * {
   position: relative;
-  z-index: 1;
+  z-index: 2; /* 高于 ::before 静态高光与 ::after 扫光层（见 card-sheen-motion.less） */
 }
 
 .card:hover {

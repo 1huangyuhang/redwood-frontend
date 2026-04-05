@@ -130,7 +130,13 @@ export default function ActivitiesView() {
       </div>
 
       <div className="calendar-section">
-        <Title level={3}>活动日历</Title>
+        <div className="calendar-section__intro">
+          <span className="calendar-section__kicker">排期一览</span>
+          <Title level={3}>活动日历</Title>
+          <Paragraph type="secondary" className="calendar-section__lede">
+            按月份浏览展会与文化活动；悬停卡片可预览简介，点击打开详情。
+          </Paragraph>
+        </div>
         <div className="calendar-container">
           <EventCalendar
             activities={activities}

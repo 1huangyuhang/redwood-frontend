@@ -2,23 +2,105 @@
 
 /* ========== 工作台 ========== */
 .admin-dashboard {
+  padding-bottom: 8px;
+
   .admin-dashboard__hero {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    max-width: 720px;
   }
 
   .admin-dashboard__title {
-    margin: 0 0 4px;
-    font-size: 22px;
+    margin: 0 0 8px;
+    font-size: clamp(22px, 2.4vw, 28px);
     font-weight: 600;
     color: var(--admin-color-text);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
   }
 
   .admin-dashboard__subtitle {
     margin: 0;
     font-size: 14px;
     color: var(--admin-color-text-secondary);
-    line-height: 1.6;
+    line-height: 1.65;
+  }
+
+  .admin-dashboard__stats {
+    margin-top: 4px;
+  }
+
+  .admin-dashboard__kpi-card.ant-card {
+    height: 100%;
+    border-radius: var(--admin-radius-lg);
+    border: 1px solid var(--admin-color-border);
+    box-shadow: var(--admin-shadow-card);
+    background: var(--admin-bg-elevated);
+    transition: box-shadow var(--admin-motion-duration) var(--admin-motion-ease),
+      border-color var(--admin-motion-duration) var(--admin-motion-ease),
+      transform var(--admin-motion-duration) var(--admin-motion-ease);
+
+    &:hover {
+      box-shadow: var(--admin-shadow-float);
+      border-color: rgba(128, 50, 46, 0.14);
+    }
+
+    .ant-card-body {
+      padding: 18px 20px 20px;
+    }
+  }
+
+  .admin-dashboard__kpi-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .admin-dashboard__kpi-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+
+    &--primary {
+      color: var(--admin-color-primary);
+      background: rgba(128, 50, 46, 0.1);
+    }
+
+    &--slate {
+      color: #4a5568;
+      background: rgba(74, 85, 104, 0.1);
+    }
+
+    &--amber {
+      color: #9a6b2d;
+      background: rgba(184, 134, 11, 0.12);
+    }
+
+    &--teal {
+      color: #2c6e62;
+      background: rgba(47, 122, 69, 0.1);
+    }
+  }
+
+  .admin-dashboard__kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--admin-color-text);
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .admin-dashboard__kpi-label {
+    margin-top: 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--admin-color-text-secondary);
   }
 
   .admin-dashboard__stat-card {
@@ -29,8 +111,8 @@
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
 
     &:hover {
-      box-shadow: 0 4px 24px rgba(44, 24, 16, 0.1);
-      border-color: rgba(128, 50, 46, 0.2);
+      box-shadow: var(--admin-shadow-float);
+      border-color: rgba(128, 50, 46, 0.16);
     }
 
     &--clickable {
@@ -63,7 +145,7 @@
 /* 表格外框：可在任意页面使用（不限于 .admin-page） */
 .admin-table-card {
   border: 1px solid var(--admin-color-border);
-  border-radius: 10px;
+  border-radius: var(--admin-radius-md);
   overflow: hidden;
   background: var(--admin-bg-muted);
 
@@ -83,10 +165,10 @@
 
   .admin-page__filter {
     margin: -8px 0 16px;
-    padding: 12px 16px;
-    background: rgba(128, 50, 46, 0.04);
+    padding: 14px 18px;
+    background: var(--admin-bg-muted);
     border: 1px solid var(--admin-color-border);
-    border-radius: 10px;
+    border-radius: var(--admin-radius-md);
   }
 
   .admin-page__header {
@@ -139,7 +221,55 @@
   }
 
   .ant-btn-primary {
-    box-shadow: 0 2px 6px rgba(128, 50, 46, 0.2);
+    box-shadow: 0 2px 8px rgba(128, 50, 46, 0.22);
+  }
+
+  /* 列表页弹窗/表格内操作区（原 pages/index.less .management-page 子选择器，迁入 admin-page） */
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .edit-button {
+    color: var(--admin-color-primary);
+  }
+
+  .delete-button {
+    color: #cf1322;
+  }
+
+  .form-help-text {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: var(--admin-color-text-secondary);
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+  }
+}
+
+/* Modal 挂载在 body，需单独作用域（与上列表单项类名一致） */
+.ant-modal {
+  .form-help-text {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: var(--admin-color-text-secondary);
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
   }
 }
 
@@ -153,12 +283,13 @@
   }
 
   .ant-table-tbody > tr > td {
-    border-bottom: 1px solid rgba(224, 216, 210, 0.6);
+    border-bottom: 1px solid rgba(228, 221, 214, 0.85);
   }
 
   .ant-table-tbody > tr:hover > td {
-    background: rgba(128, 50, 46, 0.03) !important;
+    background: rgba(128, 50, 46, 0.035) !important;
   }
+
 }
 
 /* ========== 主内容区内所有表格：横向滚动条 + 左右边缘提示 ========== */

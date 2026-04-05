@@ -19,7 +19,6 @@ import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useListQueryErrorToast } from '@/hooks/useListQueryErrorToast';
 import { queryKeys } from '@/queryKeys';
 import { fetchActivitiesPage, type ActivityRow } from '@/api/adminLists';
-import './index.less';
 
 const ActivityManagement: React.FC = () => {
   const queryClient = useQueryClient();

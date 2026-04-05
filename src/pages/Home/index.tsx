@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import './index.less';
-import { animateNumber, checkAndAnimate, checkVisibility } from '@/animations';
+import { useHomeScrollAnimations } from '@/animations';
 import { redwoodImages } from '@/assets/images/redwood';
 import {
   assetsInGroup,
@@ -148,8 +148,6 @@ export default function Home() {
     ctaCopy?.content?.trim() ||
     '我们邀请您深入了解红木文化，感受红木的独特魅力， 选择最适合您的红木产品。';
 
-  const animatedElementsRef = useRef<Set<Element>>(new Set());
-
   useEffect(() => {
     if (isError) {
       console.warn(
@@ -158,56 +156,7 @@ export default function Home() {
     }
   }, [isError]);
 
-  useEffect(() => {
-    if (!('IntersectionObserver' in window)) {
-      console.warn(
-        'IntersectionObserver not supported, animations will not work'
-      );
-      return;
-    }
-
-    const observer = new IntersectionObserver(checkAndAnimate, {
-      threshold: 0.15,
-      rootMargin: '0px 0px -8% 0px',
-    });
-
-    const cards = document.querySelectorAll('.animate-card');
-    const numbers = document.querySelectorAll('.animate-number');
-
-    cards.forEach((card) => observer.observe(card));
-    numbers.forEach((number) => observer.observe(number));
-
-    const checkImmediately = () => {
-      numbers.forEach((element) => {
-        if (checkVisibility(element)) {
-          if (element.classList.contains('animate-number')) {
-            animateNumber(element);
-          }
-        }
-      });
-    };
-
-    checkImmediately();
-
-    const savedAnimatedElementsRef = animatedElementsRef.current;
-
-    return () => {
-      observer.disconnect();
-      if (
-        (window as unknown as { scrollTimeout?: ReturnType<typeof setTimeout> })
-          .scrollTimeout
-      ) {
-        clearTimeout(
-          (
-            window as unknown as {
-              scrollTimeout: ReturnType<typeof setTimeout>;
-            }
-          ).scrollTimeout
-        );
-      }
-      savedAnimatedElementsRef.clear();
-    };
-  }, [stats, assets]);
+  useHomeScrollAnimations(stats, assets);
 
   return (
     <div className="home-page home-premium">

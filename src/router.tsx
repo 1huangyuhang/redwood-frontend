@@ -18,8 +18,6 @@ const About = lazy(() => import('./pages/Company/About'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 
-const AnimatedImageDemo = lazy(() => import('./pages/AnimatedImageDemo'));
-
 const layoutChildren: { path: string; element: ReactNode }[] = [
   {
     path: '',
@@ -74,13 +72,6 @@ const layoutChildren: { path: string; element: ReactNode }[] = [
     element: <About />,
   },
 ];
-
-if (import.meta.env.DEV) {
-  layoutChildren.push({
-    path: 'demo/animated-image',
-    element: <AnimatedImageDemo />,
-  });
-}
 
 const router = createBrowserRouter([
   {

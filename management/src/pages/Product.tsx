@@ -35,7 +35,6 @@ import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useListQueryErrorToast } from '@/hooks/useListQueryErrorToast';
 import { queryKeys } from '@/queryKeys';
 import { fetchProductsPage, type ProductRow } from '@/api/adminLists';
-import './index.less';
 
 const { Option } = Select;
 
