@@ -34,6 +34,16 @@ dist-ssr
 build/
 out/
 
+# 管理端 / 多入口构建产物（应通过 npm run build 生成）
+dist-management/
+management/dist-management/
+
+# Rollup 可视化分析报告（构建时生成）
+build-analysis.html
+
+# 本地工具生成的计划文档
+.trae/
+
 # Testing
 coverage/
 .nyc_output/
