@@ -1,0 +1,220 @@
+@import (reference) '../../../assets/styles/foundation/index.less';
+
+/* 首页 / 营销区块（由 global.less 统一引入一次，勿在其它 chunk 重复 import） */
+
+.gallery-title {
+  font-size: @font-size-h2;
+  font-weight: @font-weight-bold;
+  color: @dark-color;
+  margin-bottom: 20px;
+  text-align: center;
+  letter-spacing: @letter-spacing-tight;
+  line-height: @line-height-display;
+  font-family: @font-family-heading;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.gallery-description {
+  font-size: @font-size-lg;
+  color: @text-color-secondary;
+  line-height: @line-height-base;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 32px;
+  font-weight: @font-weight-normal;
+  font-family: @font-family-base;
+}
+
+.value-title {
+  font-size: @font-size-h3;
+  font-weight: @font-weight-bold;
+  color: #ffffff;
+  margin-bottom: 24px;
+  text-align: left;
+  letter-spacing: @letter-spacing-tight;
+  line-height: @line-height-heading;
+  font-family: @font-family-heading;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.value-description {
+  font-size: @font-size-base;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: @line-height-base;
+  margin-bottom: 36px;
+  text-align: left;
+  max-width: 500px;
+  font-weight: @font-weight-normal;
+  font-family: @font-family-base;
+}
+
+.products-section .section-title {
+  font-size: @font-size-h2;
+  font-weight: var(--app-heading-weight, @font-weight-bold);
+  color: var(--app-heading);
+  margin-bottom: 16px;
+  text-align: center;
+  letter-spacing: var(--track-heading, @letter-spacing-tight);
+  line-height: @line-height-display;
+  font-family: var(--font-heading, @font-family-heading);
+}
+
+.products-section .section-subtitle {
+  font-size: @font-size-lg;
+  color: var(--app-text-secondary);
+  line-height: @line-height-base;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 60px;
+  font-weight: @font-weight-normal;
+  font-family: var(--font-body, @font-family-base);
+}
+
+/* 与全站 links-and-misc 一致：Ant Design Link 按钮默认色易偏粉，改为主题 link token */
+.products-section .section-more.ant-btn.ant-btn-link {
+  color: var(--app-link) !important;
+  font-size: var(--type-body, @font-size-base);
+  font-weight: @font-weight-medium;
+  font-family: var(--font-body, @font-family-base);
+  padding: 0 !important;
+  height: auto !important;
+  line-height: var(--leading-snug, 1.5) !important;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--app-link-hover) !important;
+  }
+}
+
+.heritage-section .section-title {
+  font-size: @font-size-h2;
+  font-weight: @font-weight-bold;
+  color: @dark-color;
+  margin-bottom: 16px;
+  text-align: center;
+  letter-spacing: @letter-spacing-tight;
+  line-height: @line-height-display;
+  font-family: @font-family-heading;
+}
+
+.heritage-section .section-subtitle {
+  font-size: @font-size-lg;
+  color: @text-color-secondary;
+  line-height: @line-height-base;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 60px;
+  font-weight: @font-weight-normal;
+  font-family: @font-family-base;
+}
+
+.action-title {
+  font-size: @font-size-h2;
+  font-weight: @font-weight-bold;
+  color: @dark-color;
+  margin-bottom: 20px;
+  text-align: center;
+  letter-spacing: @letter-spacing-tight;
+  line-height: @line-height-display;
+  font-family: @font-family-heading;
+}
+
+.action-description {
+  font-size: @font-size-lg;
+  color: @text-color-secondary;
+  line-height: @line-height-base;
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 40px;
+  font-weight: @font-weight-normal;
+  font-family: @font-family-base;
+}
+
+.category-name {
+  font-size: @font-size-xxl;
+  font-weight: @font-weight-bold;
+  color: #ffffff;
+  text-align: center;
+  font-family: @font-family-heading;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+  .app-tx-surface-colors-sm();
+  padding: 16px;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.5) 100%);
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+@media (max-width: 992px) {
+  .gallery-title {
+    font-size: @font-size-h2;
+  }
+
+  .value-title {
+    font-size: @font-size-h3;
+  }
+
+  .action-title {
+    font-size: @font-size-h2;
+  }
+}
+
+@media (max-width: 768px) {
+  .gallery-title {
+    font-size: @font-size-h2;
+  }
+
+  .gallery-description {
+    font-size: @font-size-base;
+  }
+
+  .value-title {
+    font-size: @font-size-h3;
+  }
+
+  .value-description {
+    font-size: @font-size-sm;
+  }
+
+  .action-title {
+    font-size: @font-size-h2;
+  }
+
+  .action-description {
+    font-size: @font-size-base;
+  }
+
+  .category-name {
+    font-size: @font-size-h5;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-title {
+    font-size: @font-size-h2;
+  }
+
+  .gallery-description {
+    font-size: @font-size-sm;
+  }
+
+  .value-title {
+    font-size: @font-size-h3;
+  }
+
+  .value-description {
+    font-size: @font-size-sm;
+  }
+
+  .action-title {
+    font-size: @font-size-h2;
+  }
+
+  .action-description {
+    font-size: @font-size-sm;
+  }
+
+  .category-name {
+    font-size: @font-size-h6;
+  }
+}

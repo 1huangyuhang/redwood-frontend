@@ -1,0 +1,809 @@
+@import (reference) '../../assets/styles/foundation/index.less';
+@import (reference) '../../assets/styles/premium-tokens.less';
+@import (reference) '../../assets/styles/surface-system.less';
+
+.home-page-loading--premium {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56vh;
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 40%,
+    rgba(176, 61, 54, 0.08),
+    transparent 70%
+  );
+}
+
+.home-page.home-premium {
+  position: relative;
+  isolation: isolate;
+
+  /* 固定视口环境光：弱化「一块一块」拼贴感，偏 DeFi 展台气质 */
+  &::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.52;
+    background:
+      radial-gradient(ellipse 58% 42% at 10% 28%, rgba(212, 101, 92, 0.11), transparent 52%),
+      radial-gradient(ellipse 48% 36% at 92% 62%, rgba(196, 165, 116, 0.085), transparent 50%),
+      radial-gradient(ellipse 72% 48% at 52% 102%, rgba(128, 50, 46, 0.09), transparent 58%);
+    animation: homePremiumAmbientDrift 32s @premium-ease-soft infinite alternate;
+  }
+
+  > *:not(.home-flow-bridge) {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* 数据 / 价值 / 产品 / 匠心 / CTA：同一套毛玻璃群聚底板 + 圆角，削弱「一块一块」割裂感 */
+  .home-unified-flow-section {
+    .home-unified-section-surface();
+    margin-top: clamp(10px, 2vw, 28px);
+    margin-bottom: clamp(8px, 1.5vw, 22px);
+    padding-left: @section-gutter-x !important;
+    padding-right: @section-gutter-x !important;
+    padding-top: clamp(44px, 6.5vw, 80px) !important;
+    padding-bottom: clamp(44px, 6.5vw, 80px) !important;
+    overflow: hidden;
+  }
+
+  .section-kicker {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto 16px;
+    font-family: var(--font-display);
+    font-size: clamp(14px, 2.6vw, 20px);
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-indent: 0;
+    text-transform: none;
+    color: var(--app-accent-cinnabar);
+    opacity: 1;
+    text-shadow: 0 0 36px rgba(var(--app-rgb-glow), 0.28);
+
+    &--left {
+      margin-left: 0;
+      margin-right: auto;
+      letter-spacing: 0.12em;
+    }
+  }
+
+  .top-gallery-section {
+    padding-top: clamp(8px, 2vw, 24px);
+
+    .gallery-item {
+      border-radius: @premium-radius-xl;
+      box-shadow: @premium-shadow-ambient;
+      transition: transform 0.55s @premium-ease-out,
+        box-shadow 0.55s @premium-ease-soft;
+
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: @premium-shadow-lift;
+      }
+
+      img {
+        border-radius: @premium-radius-xl;
+      }
+    }
+
+    .gallery-text .section-kicker {
+      margin-bottom: 12px;
+    }
+
+    .gallery-title {
+      font-family: @font-family-heading;
+    }
+  }
+
+  /* 数据见证：与群聚模板同宽，顶部细线与内晕保留在玻璃板内 */
+  .stats-section.home-unified-flow-section {
+    position: relative;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: clamp(18px, 3vw, 28px);
+      transform: translateX(-50%);
+      width: min(72%, 520px);
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(212, 101, 92, 0.5),
+        rgba(196, 165, 116, 0.42),
+        transparent
+      );
+      opacity: 0.85;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+      width: min(100%, 900px);
+      height: 48%;
+      pointer-events: none;
+      z-index: 0;
+      background: radial-gradient(
+        ellipse 58% 70% at 50% 0%,
+        rgba(212, 101, 92, 0.12),
+        transparent 70%
+      );
+    }
+
+    .stats-description,
+    .stats-grid {
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-item {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      border-radius: @premium-radius-xl;
+      background: linear-gradient(
+        152deg,
+        rgba(48, 36, 36, 0.5) 0%,
+        rgba(30, 26, 30, 0.38) 48%,
+        rgba(40, 32, 34, 0.46) 100%
+      );
+      backdrop-filter: blur(28px) saturate(1.15);
+      -webkit-backdrop-filter: blur(28px) saturate(1.15);
+      border: 1px solid rgba(255, 236, 228, 0.12);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+        0 18px 52px rgba(18, 12, 16, 0.36),
+        0 0 64px -26px rgba(212, 101, 92, 0.16);
+      transition:
+        transform 0.5s @premium-ease-out,
+        box-shadow 0.5s @premium-ease-soft,
+        border-color 0.35s ease;
+
+      &::after {
+        .app-liquid-gloss-layer();
+        z-index: 0;
+        opacity: 0.42;
+        mix-blend-mode: soft-light;
+      }
+
+      .stat-value,
+      .stat-label {
+        position: relative;
+        z-index: 1;
+      }
+
+      .stat-value {
+        font-family: @font-family-heading;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        display: inline-block;
+        font-size: clamp(28px, 2.8vw + 1.25rem, 64px);
+      }
+
+      &:hover {
+        transform: translateY(-6px);
+        border-color: rgba(212, 101, 92, 0.38);
+        box-shadow:
+          @premium-shadow-lift,
+          0 0 0 1px rgba(255, 255, 255, 0.09) inset,
+          0 0 80px -24px rgba(212, 101, 92, 0.28);
+      }
+    }
+  }
+
+  .value-proposition-section {
+    .value-text .value-title {
+      font-family: @font-family-heading;
+    }
+
+    .value-image {
+      border-radius: @premium-radius-2xl;
+      box-shadow: @premium-shadow-ambient;
+    }
+  }
+
+  .products-section {
+    .section-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+
+      .section-kicker {
+        margin-bottom: 0;
+      }
+
+      .section-more {
+        margin-top: 4px;
+      }
+    }
+
+    .section-title {
+      font-family: var(--font-heading, @font-family-heading);
+      color: var(--app-heading);
+    }
+
+    .section-more.ant-btn.ant-btn-link {
+      color: var(--app-link) !important;
+
+      &:hover,
+      &:focus-visible {
+        color: var(--app-link-hover) !important;
+      }
+    }
+
+    .product-item {
+      border-radius: @premium-radius-xl;
+      overflow: hidden;
+      box-shadow: @premium-shadow-ambient;
+      transition: transform 0.5s @premium-ease-out,
+        box-shadow 0.5s @premium-ease-soft;
+
+      &:hover {
+        transform: translateY(-6px);
+        box-shadow: @premium-shadow-lift;
+      }
+
+      .product-title {
+        font-family: var(--font-heading, @font-family-heading);
+        color: var(--app-text-on-media);
+        text-shadow:
+          0 2px 16px rgba(0, 0, 0, 0.55),
+          0 1px 3px rgba(0, 0, 0, 0.85);
+      }
+
+      .product-more.ant-btn.ant-btn-link {
+        color: var(--app-text-on-media-muted) !important;
+
+        &:hover,
+        &:focus-visible {
+          color: var(--app-text-on-media) !important;
+        }
+      }
+    }
+  }
+
+  .heritage-section {
+    .heritage-title {
+      font-family: @font-family-heading;
+    }
+
+    .heritage-item {
+      border-radius: @premium-radius-xl;
+      box-shadow: @premium-shadow-ambient;
+      transition: transform 0.45s @premium-ease-out;
+
+      &:hover {
+        transform: translateY(-3px);
+      }
+    }
+  }
+
+  .action-section-container.home-unified-flow-section {
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid rgba(255, 236, 228, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.14);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.045) inset,
+      0 36px 80px -40px rgba(10, 8, 14, 0.62),
+      0 0 72px -28px rgba(128, 50, 46, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+    .section-kicker {
+      color: rgba(212, 184, 140, 0.88);
+      opacity: 1;
+      margin-bottom: 10px;
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      z-index: 0;
+      background:
+        radial-gradient(
+          ellipse 90% 70% at 70% 18%,
+          rgba(196, 165, 116, 0.1),
+          transparent 58%
+        ),
+        radial-gradient(
+          ellipse 55% 45% at 20% 88%,
+          rgba(128, 50, 46, 0.08),
+          transparent 60%
+        );
+      pointer-events: none;
+    }
+
+    .action-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .action-title {
+      color: rgba(252, 248, 244, 0.98);
+      font-family: @font-family-heading;
+
+      &::before {
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(156, 107, 60, 0.85),
+          transparent
+        );
+        opacity: 0.9;
+        height: 2px;
+        width: 120px;
+      }
+    }
+
+    .action-description {
+      color: rgba(245, 238, 230, 0.78);
+    }
+
+    .action-button {
+      border-radius: @premium-radius-xl !important;
+      box-shadow: 0 18px 48px rgba(18, 12, 16, 0.32) !important;
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  .home-page.home-premium .section-kicker--left {
+    margin-left: auto;
+    margin-right: auto;
+    text-indent: 0.42em;
+  }
+}
+
+@keyframes homePremiumAmbientDrift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.38;
+  }
+  100% {
+    transform: translate3d(-1.5%, 0.8%, 0) scale(1.04);
+    opacity: 0.5;
+  }
+}
+
+/* 进入视口后子卡片阶梯上浮（叠卡感），与 ScrollAnimatedSection 整块进场叠加 */
+@keyframes homeStackReveal {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-page.home-premium .home-unified-flow-section.scroll-section--inview {
+    .stats-grid .ant-col .stat-item {
+      animation: homeStackReveal 0.72s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .stats-grid .ant-col:nth-child(1) .stat-item {
+      animation-delay: 0.05s;
+    }
+    .stats-grid .ant-col:nth-child(2) .stat-item {
+      animation-delay: 0.12s;
+    }
+    .stats-grid .ant-col:nth-child(3) .stat-item {
+      animation-delay: 0.19s;
+    }
+    .stats-grid .ant-col:nth-child(4) .stat-item {
+      animation-delay: 0.26s;
+    }
+
+    .products-grid .ant-col .product-item {
+      animation: homeStackReveal 0.74s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .products-grid .ant-col:nth-child(1) .product-item {
+      animation-delay: 0.06s;
+    }
+    .products-grid .ant-col:nth-child(2) .product-item {
+      animation-delay: 0.14s;
+    }
+    .products-grid .ant-col:nth-child(3) .product-item {
+      animation-delay: 0.22s;
+    }
+    .products-grid .ant-col:nth-child(4) .product-item {
+      animation-delay: 0.3s;
+    }
+
+    .heritage-images .heritage-item {
+      animation: homeStackReveal 0.68s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .heritage-images .heritage-item:nth-child(1) {
+      animation-delay: 0.05s;
+    }
+    .heritage-images .heritage-item:nth-child(2) {
+      animation-delay: 0.11s;
+    }
+    .heritage-images .heritage-item:nth-child(3) {
+      animation-delay: 0.17s;
+    }
+    .heritage-images .heritage-item:nth-child(4) {
+      animation-delay: 0.23s;
+    }
+
+    .value-content {
+      animation: homeStackReveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.06s both;
+    }
+
+    .action-content {
+      animation: homeStackReveal 0.68s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page.home-premium::after {
+    animation: none;
+    opacity: 0.35;
+  }
+
+  .home-page.home-premium .stats-section .stat-item::after {
+    animation: none;
+  }
+
+  .home-page.home-premium .home-unified-flow-section .stat-item,
+  .home-page.home-premium .home-unified-flow-section .product-item,
+  .home-page.home-premium .home-unified-flow-section .heritage-item,
+  .home-page.home-premium .home-unified-flow-section .value-content,
+  .home-page.home-premium .home-unified-flow-section .action-content {
+    animation: none !important;
+  }
+}
+
+/* ---------- 区块之间的「流动桥」：光带 + 模糊叠化，衔接上下容器 ---------- */
+.home-flow-bridge {
+  position: relative;
+  z-index: 2;
+  height: clamp(48px, 7vw, 88px);
+  margin: clamp(-36px, -5vw, -24px) 0 clamp(-44px, -6vw, -32px);
+  pointer-events: none;
+  overflow: visible;
+}
+
+.home-flow-bridge::before {
+  content: '';
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  top: 50%;
+  height: 160%;
+  transform: translateY(-50%);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(128, 50, 46, 0.045) 42%,
+    rgba(196, 165, 116, 0.08) 50%,
+    rgba(252, 248, 245, 0) 100%
+  );
+  filter: blur(22px);
+}
+
+.home-flow-bridge::after {
+  content: '';
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 50%;
+  height: 1px;
+  transform: translateY(-50%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(128, 50, 46, 0.2) 22%,
+    rgba(196, 165, 116, 0.55) 50%,
+    rgba(128, 50, 46, 0.2) 78%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 20px rgba(128, 50, 46, 0.12),
+    0 0 48px rgba(196, 165, 116, 0.08);
+  opacity: 0.9;
+}
+
+.home-flow-bridge--soft::before {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(212, 101, 92, 0.14) 50%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  filter: blur(28px);
+}
+
+.home-flow-bridge--to-dark::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(196, 165, 116, 0.45),
+    rgba(255, 255, 255, 0.2),
+    rgba(196, 165, 116, 0.45),
+    transparent
+  );
+  box-shadow: 0 0 32px rgba(212, 101, 92, 0.2);
+}
+
+/* 价值主张：淡科技网格，与上文柔化衔接 */
+.home-page.home-premium .value-proposition-section {
+  margin-top: clamp(-8px, -1vw, 0);
+  padding-top: clamp(32px, 5vw, 56px);
+}
+
+.home-page.home-premium .value-proposition-section::before {
+  content: '';
+  position: absolute;
+  inset: -2% 8% 8%;
+  background-image:
+    linear-gradient(rgba(128, 50, 46, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(128, 50, 46, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 65% at 50% 40%, #000 20%, transparent 75%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.7;
+}
+
+.home-page.home-premium .value-proposition-section .value-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* 产品区：暗色下加深顶光；日间由下方 html[data-theme='light'] 统一阴影 */
+html[data-theme='dark'] .home-page.home-premium .products-section.home-unified-flow-section {
+  border-radius: 28px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.045) inset,
+    0 36px 80px -40px rgba(10, 8, 14, 0.62),
+    0 -20px 48px -36px rgba(128, 50, 46, 0.1);
+}
+
+/* 匠心区：卡片悬浮光晕 */
+.home-page.home-premium .heritage-section .heritage-item {
+  box-shadow:
+    @premium-shadow-ambient,
+    0 0 0 1px rgba(128, 50, 46, 0.06) inset;
+}
+
+.home-page.home-premium .heritage-section .heritage-item:hover {
+  box-shadow:
+    @premium-shadow-lift,
+    0 0 36px rgba(128, 50, 46, 0.08);
+}
+
+/* =============================================================================
+ * 日间：红木系一体画布 — 覆盖群聚区的暗色玻璃层，与 body 暖纸连续过渡
+ * ============================================================================= */
+@keyframes homePremiumLightAmbient {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    opacity: 0.52;
+    transform: translate3d(-1.4%, 0.7%, 0) scale(1.035);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme='light'] .home-page.home-premium::after {
+    animation: none !important;
+    opacity: 0.34 !important;
+  }
+}
+
+html[data-theme='light'] {
+  .home-page.home-premium {
+    &::after {
+      opacity: 0.32;
+      background:
+        radial-gradient(ellipse 58% 44% at 8% 22%, rgba(176, 61, 54, 0.05), transparent 56%),
+        radial-gradient(ellipse 48% 38% at 94% 34%, rgba(15, 23, 42, 0.035), transparent 54%),
+        radial-gradient(ellipse 70% 48% at 52% 102%, rgba(176, 61, 54, 0.04), transparent 58%);
+      animation: homePremiumLightAmbient 30s ease-in-out infinite alternate;
+    }
+
+    .section-kicker {
+      color: var(--app-accent-cinnabar);
+    }
+
+    /* 明亮：中性白底 + 轻朱红高光（与全站 token 一致） */
+    .home-unified-flow-section {
+      border: 1px solid var(--home-unified-border);
+      box-shadow: var(--home-unified-shadow);
+      backdrop-filter: blur(var(--home-unified-blur)) saturate(1.06);
+      -webkit-backdrop-filter: blur(var(--home-unified-blur)) saturate(1.06);
+      background: var(--home-unified-bg);
+    }
+
+    .stats-section.home-unified-flow-section {
+      background:
+        radial-gradient(ellipse 70% 55% at 50% -12%, rgba(176, 61, 54, 0.08), transparent 54%),
+        radial-gradient(ellipse 55% 42% at 100% 100%, rgba(200, 155, 95, 0.08), transparent 52%),
+        linear-gradient(
+          168deg,
+          rgba(255, 252, 248, 0.94) 0%,
+          rgba(248, 238, 228, 0.9) 48%,
+          rgba(255, 250, 244, 0.93) 100%
+        ),
+        linear-gradient(
+          180deg,
+          var(--section-veil-top) 0%,
+          var(--section-veil-mid) 52%,
+          var(--section-veil-bottom) 100%
+        );
+
+      &::before {
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(176, 61, 54, 0.28),
+          rgba(196, 145, 88, 0.35),
+          transparent
+        );
+        opacity: 0.75;
+      }
+
+      &::after {
+        background: radial-gradient(
+          ellipse 58% 70% at 50% 0%,
+          rgba(176, 61, 54, 0.1),
+          transparent 70%
+        );
+      }
+    }
+
+    .value-proposition-section.home-unified-flow-section {
+      background:
+        radial-gradient(ellipse 50% 42% at 0% 50%, rgba(128, 50, 46, 0.06), transparent 52%),
+        radial-gradient(ellipse 58% 48% at 100% 8%, rgba(200, 165, 120, 0.1), transparent 55%),
+        linear-gradient(
+          168deg,
+          rgba(255, 252, 248, 0.94) 0%,
+          rgba(248, 238, 228, 0.9) 48%,
+          rgba(255, 250, 244, 0.93) 100%
+        ),
+        linear-gradient(
+          180deg,
+          var(--section-veil-top) 0%,
+          var(--section-veil-mid) 52%,
+          var(--section-veil-bottom) 100%
+        );
+    }
+
+    .products-section.home-unified-flow-section {
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.9) inset,
+        0 28px 64px -48px rgba(42, 30, 26, 0.1),
+        0 -16px 44px -38px rgba(176, 61, 54, 0.055);
+      background:
+        radial-gradient(ellipse 62% 50% at 88% -10%, rgba(200, 155, 95, 0.1), transparent 54%),
+        radial-gradient(ellipse 48% 40% at 0% 100%, rgba(176, 61, 54, 0.06), transparent 52%),
+        linear-gradient(
+          168deg,
+          rgba(255, 252, 248, 0.94) 0%,
+          rgba(248, 238, 228, 0.9) 48%,
+          rgba(255, 250, 244, 0.93) 100%
+        ),
+        linear-gradient(
+          180deg,
+          var(--section-veil-top) 0%,
+          var(--section-veil-mid) 52%,
+          var(--section-veil-bottom) 100%
+        );
+    }
+
+    .heritage-section.home-unified-flow-section {
+      background:
+        radial-gradient(ellipse 55% 44% at 20% 100%, rgba(140, 72, 58, 0.07), transparent 52%),
+        radial-gradient(ellipse 70% 52% at 80% 0%, rgba(196, 155, 100, 0.09), transparent 56%),
+        linear-gradient(
+          168deg,
+          rgba(255, 252, 248, 0.94) 0%,
+          rgba(248, 238, 228, 0.9) 48%,
+          rgba(255, 250, 244, 0.93) 100%
+        ),
+        linear-gradient(
+          180deg,
+          var(--section-veil-top) 0%,
+          var(--section-veil-mid) 52%,
+          var(--section-veil-bottom) 100%
+        );
+    }
+
+    .stats-section .stat-item::after {
+      opacity: 0.22;
+      mix-blend-mode: multiply;
+      background:
+        radial-gradient(ellipse 45% 35% at 32% 42%, rgba(212, 175, 130, 0.35), transparent 62%),
+        radial-gradient(ellipse 38% 30% at 72% 58%, rgba(176, 61, 54, 0.18), transparent 58%),
+        radial-gradient(ellipse 30% 25% at 50% 50%, rgba(255, 255, 255, 0.12), transparent 55%);
+      animation: appLiquidGloss 22s ease-in-out infinite;
+    }
+
+    .action-section-container.home-unified-flow-section {
+      border-top: 1px solid rgba(92, 68, 58, 0.09);
+      border-bottom: 1px solid rgba(92, 68, 58, 0.07);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.88) inset,
+        0 28px 68px -44px rgba(42, 30, 26, 0.09),
+        0 0 56px -30px rgba(176, 61, 54, 0.06);
+
+      &::before {
+        background:
+          radial-gradient(ellipse 88% 68% at 72% 16%, rgba(200, 155, 95, 0.12), transparent 58%),
+          radial-gradient(ellipse 52% 44% at 22% 86%, rgba(176, 61, 54, 0.08), transparent 60%);
+      }
+    }
+
+    .value-proposition-section::before {
+      background-image:
+        linear-gradient(rgba(128, 50, 46, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(128, 50, 46, 0.05) 1px, transparent 1px);
+      opacity: 0.55;
+    }
+
+    .heritage-section .heritage-item {
+      box-shadow:
+        var(--app-card-shadow),
+        0 0 0 1px rgba(176, 61, 54, 0.05) inset;
+
+      &:hover {
+        box-shadow:
+          var(--app-card-shadow-hover),
+          0 0 28px rgba(176, 61, 54, 0.1);
+      }
+    }
+  }
+
+  .home-flow-bridge::before {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(176, 61, 54, 0.04) 42%,
+      rgba(200, 155, 95, 0.07) 50%,
+      rgba(252, 248, 245, 0) 100%
+    );
+    filter: blur(24px);
+  }
+
+  .home-flow-bridge::after {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(176, 61, 54, 0.12) 22%,
+      rgba(196, 145, 88, 0.4) 50%,
+      rgba(176, 61, 54, 0.12) 78%,
+      transparent 100%
+    );
+    box-shadow:
+      0 0 18px rgba(176, 61, 54, 0.08),
+      0 0 40px rgba(200, 155, 95, 0.07);
+  }
+}

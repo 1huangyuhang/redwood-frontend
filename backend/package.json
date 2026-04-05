@@ -9,6 +9,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:unit": "jest __tests__/unit",
+    "test:regression": "jest __tests__/regression",
     "seed": "ts-node src/seeds/seed.ts",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",

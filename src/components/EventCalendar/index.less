@@ -1,6 +1,6 @@
 // 活动日历样式
 
-@import '../../assets/styles/global.less';
+@import (reference) '../../assets/styles/foundation/index.less';
 
 // 日历容器
 .event-calendar {
@@ -51,7 +51,7 @@
       color: #fff !important;
       border-color: rgba(255, 255, 255, 0.3) !important;
       background-color: transparent !important;
-      transition: all 0.3s ease !important;
+      .app-tx-surface-colors-important();
 
       &:hover {
         color: #fff !important;
@@ -76,7 +76,7 @@
     background-color: rgba(255, 255, 255, 0.1) !important;
     border-color: rgba(255, 255, 255, 0.3) !important;
     color: #fff !important;
-    transition: all 0.3s ease !important;
+    .app-tx-surface-colors-important();
 
     &:hover {
       background-color: rgba(255, 255, 255, 0.2) !important;
@@ -120,7 +120,7 @@
   padding: 8px 6px;
   border-bottom: 1px solid @border-color;
   border-right: 1px solid @border-color;
-  transition: all 0.2s ease;
+  .app-tx-lift-sm();
   height: 120px; // 固定高度，防止布局变形
   min-height: 120px;
   max-height: 120px;
@@ -156,7 +156,7 @@
     margin-right: auto;
     padding: 0 4px;
     border-radius: 4px;
-    transition: all 0.2s ease;
+    .app-tx-surface-colors-sm();
   }
 
   // 当天日期样式 - 实现双div叠加效果
@@ -180,7 +180,7 @@
       overflow: hidden;
       position: relative;
       z-index: 2;
-      transition: all 0.3s ease;
+      .app-tx-surface-colors();
 
       // 第一个div效果 - 底层阴影
       &::before {
@@ -233,7 +233,7 @@
       overflow: hidden;
       position: relative;
       z-index: 2;
-      transition: all 0.3s ease;
+      .app-tx-surface-colors();
 
       // 第一个div效果 - 底层背景
       &::before {
@@ -377,7 +377,7 @@
   border-radius: 6px;
   cursor: pointer;
   display: block;
-  transition: all 0.2s ease;
+  .app-tx-lift-sm();
   text-decoration: none;
   overflow: hidden;
   text-overflow: ellipsis;

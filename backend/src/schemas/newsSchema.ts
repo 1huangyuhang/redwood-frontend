@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+const optionalImageUrl = z
+  .union([z.string().url().max(2048), z.literal('')])
+  .optional()
+  .transform((v) => (v === '' || v === undefined ? undefined : v));
+
 // 新闻创建请求的Zod schema
 export const createNewsSchema = z.object({
   title: z
@@ -13,6 +18,7 @@ export const createNewsSchema = z.object({
     .min(1, '新闻摘要不能为空')
     .max(500, '新闻摘要不能超过500个字符'),
   content: z.string().min(1, '新闻内容不能为空'),
+  imageUrl: optionalImageUrl,
 });
 
 // 新闻更新请求的Zod schema
@@ -36,6 +42,7 @@ export const updateNewsSchema = z.object({
     .max(500, '新闻摘要不能超过500个字符')
     .optional(),
   content: z.string().min(1, '新闻内容不能为空').optional(),
+  imageUrl: optionalImageUrl,
 });
 
 // 新闻查询参数的Zod schema

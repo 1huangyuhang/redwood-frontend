@@ -1,0 +1,82 @@
+/**
+ * rf-adaptive · 仅手机端 (max-width: 767.98px)
+ */
+@media (max-width: 767.98px) {
+  /* 统一页面标题区内边距，减少贴边 */
+  .page-title {
+    padding-left: var(--rf-gutter);
+    padding-right: var(--rf-gutter);
+    box-sizing: border-box;
+  }
+
+  .page-title h1,
+  .page-title .ant-typography h1 {
+    font-size: var(--rf-font-fluid-page-title);
+  }
+
+  .top-layout .site-main {
+    padding-left: var(--rf-gutter);
+    padding-right: var(--rf-gutter);
+    padding-bottom: clamp(40px, 10vw, 56px);
+  }
+
+  /* Layout：顶栏/导航更紧，避免横向挤压 */
+  .top-layout .top-bar {
+    padding-left: var(--rf-gutter);
+    padding-right: var(--rf-gutter);
+  }
+
+  .top-layout .nav-bar {
+    padding-left: var(--rf-gutter);
+    padding-right: var(--rf-gutter);
+  }
+
+  .top-layout .top-bar-icon-btn,
+  .top-layout .top-bar-icon-btn.cart-trigger,
+  .top-layout .top-bar-icon-btn.user-menu-trigger,
+  .top-layout .top-bar-icon-btn.theme-toggle-btn {
+    min-width: var(--rf-touch-min);
+    min-height: var(--rf-touch-min);
+  }
+
+  /* 首页 */
+  .home-page .gallery-title {
+    font-size: var(--rf-font-fluid-gallery-title);
+  }
+
+  .home-page .gallery-description,
+  .home-page .stats-text {
+    font-size: var(--rf-font-fluid-section);
+  }
+
+  /* 商城 / 联系页根容器 */
+  .shop-page .page-title,
+  .contact-page .page-title {
+    margin-bottom: clamp(12px, 3vw, 24px);
+  }
+
+  .contact-page .contact-form-card,
+  .contact-page .company-info-card {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .dashboard-page .page-title {
+    font-size: var(--rf-font-fluid-page-title);
+    padding-left: var(--rf-gutter);
+    padding-right: var(--rf-gutter);
+  }
+
+  .account-page .account-page-title {
+    font-size: var(--rf-font-fluid-page-title);
+    padding-left: var(--rf-gutter);
+    padding-right: var(--rf-gutter);
+  }
+}
+
+/* 极端扁屏：略减垂直节奏（不改变 DOM） */
+@media (max-width: 767.98px) and (max-aspect-ratio: 13/9) {
+  .page-title {
+    margin-bottom: 0.75rem;
+  }
+}

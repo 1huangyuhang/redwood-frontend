@@ -1,0 +1,222 @@
+@import './tokens.less';
+
+/* B 端登录：深色品牌区 + 浅色表单区，与主站双栏逻辑一致、视觉区分运营场景 */
+
+.mgmt-login {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background: var(--admin-sider-sub-bg);
+}
+
+.mgmt-login__brand {
+  display: none;
+  flex: 1;
+  position: relative;
+  min-height: 42vh;
+  padding: clamp(28px, 5vw, 56px);
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(
+    155deg,
+    var(--admin-sider-bg) 0%,
+    #1a2229 45%,
+    #0d1014 100%
+  );
+  color: rgba(255, 255, 255, 0.88);
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -20% -30% auto auto;
+    width: min(520px, 90vw);
+    height: min(520px, 90vw);
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(128, 50, 46, 0.35) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+}
+
+.mgmt-login__brand-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 400px;
+}
+
+.mgmt-login__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(
+    135deg,
+    var(--admin-color-primary) 0%,
+    var(--admin-color-primary-hover) 100%
+  );
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  margin-bottom: 20px;
+}
+
+.mgmt-login__eyebrow {
+  margin: 0 0 10px;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.mgmt-login__title {
+  margin: 0 0 12px;
+  font-size: clamp(26px, 3vw, 34px);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.mgmt-login__lede {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.62);
+  max-width: 28rem;
+}
+
+.mgmt-login__panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(20px, 4vw, 48px);
+  background: var(--admin-color-bg-layout);
+}
+
+.mgmt-login__panel-inner {
+  width: 100%;
+  max-width: 420px;
+}
+
+.mgmt-login__card.ant-card {
+  border-radius: var(--admin-radius-lg);
+  border: 1px solid var(--admin-color-border);
+  box-shadow: var(--admin-shadow-card);
+}
+
+.mgmt-login__card .ant-card-body {
+  padding: clamp(22px, 4vw, 36px);
+}
+
+.mgmt-login__card-head {
+  margin-bottom: 20px;
+  text-align: center;
+
+  h1 {
+    margin: 0 0 6px;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--admin-color-text);
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--admin-color-text-secondary);
+  }
+}
+
+.mgmt-login__form {
+  .ant-form-item:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+.mgmt-login__submit.ant-btn {
+  height: 44px;
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+.mgmt-login__footer {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.mgmt-login__site-link {
+  color: var(--admin-color-primary);
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--admin-color-primary-hover);
+    text-decoration: underline;
+  }
+}
+
+.mgmt-login__collapse {
+  margin-bottom: 16px;
+  background: rgba(128, 50, 46, 0.06);
+  border-radius: 10px;
+  border: 1px solid rgba(128, 50, 46, 0.12);
+
+  .ant-collapse-header {
+    font-size: 13px !important;
+    color: var(--admin-color-text-secondary) !important;
+    padding: 10px 14px !important;
+  }
+
+  .ant-collapse-content-box {
+    padding: 0 14px 12px !important;
+  }
+}
+
+.mgmt-login__help-text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--admin-color-text-secondary);
+
+  code {
+    font-size: 11px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(44, 24, 16, 0.06);
+  }
+}
+
+@media (min-width: 900px) {
+  .mgmt-login {
+    flex-direction: row;
+  }
+
+  .mgmt-login__brand {
+    display: flex;
+    min-height: 100vh;
+    max-width: 46%;
+  }
+
+  .mgmt-login__panel {
+    min-height: 100vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mgmt-login__brand::before {
+    animation: none;
+  }
+}

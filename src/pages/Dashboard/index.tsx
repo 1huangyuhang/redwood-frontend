@@ -12,7 +12,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="dashboard-page">
+    <div className="dashboard-page ly-container">
       <div className="dashboard-header">
         <h1 className="page-title">仪表盘</h1>
         <div className="header-actions">

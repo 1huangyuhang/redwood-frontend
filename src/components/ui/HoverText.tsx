@@ -16,8 +16,8 @@ interface HoverTextProps {
 const HoverText: React.FC<HoverTextProps> = ({
   text,
   className = '',
-  baseColor = '#2c1810', // 默认基础颜色 - 深棕色
-  hoverColor = '#165DFF', // 默认悬停颜色 - 蓝色
+  baseColor = 'var(--app-heading)',
+  hoverColor = 'var(--app-accent-cinnabar)',
 }) => {
   return (
     <span

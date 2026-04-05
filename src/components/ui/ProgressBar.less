@@ -1,5 +1,5 @@
 // 导入全局样式变量
-@import '../../assets/styles/global.less';
+@import (reference) '../../assets/styles/foundation/index.less';
 
 /**
  * 页面游览进度条样式
@@ -44,9 +44,8 @@
   
   // 初始宽度为0
   width: 0%;
-  
-  // 平滑的宽度变化过渡
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 由滚动直接驱动宽度：加 transition 会与高频 setState 冲突，产生条带抖动 */
+  transition: none;
   
   // 添加阴影效果，增强视觉层次感
   box-shadow: 0 0 8px rgba(128, 50, 46, 0.5);

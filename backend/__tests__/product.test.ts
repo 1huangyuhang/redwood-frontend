@@ -1,10 +1,29 @@
 import request from 'supertest';
 import app from '../src/app';
+import prisma from '../src/utils/prisma';
 
-// 测试产品API
+// 测试产品API（与 Category 外键、categoryId / category 解析一致）
 describe('Product API', () => {
   let createdProductId: number;
+  let testCategoryId: number;
   const apiKey = 'default-api-key';
+
+  beforeAll(async () => {
+    const c = await prisma.category.upsert({
+      where: { slug: 'jest-test-category' },
+      create: {
+        slug: 'jest-test-category',
+        name: 'Test Category',
+        sortOrder: 999,
+      },
+      update: { name: 'Test Category' },
+    });
+    testCategoryId = c.id;
+  });
+
+  afterAll(async () => {
+    await prisma.$disconnect();
+  });
 
   // 测试获取所有产品
   test('GET /api/products should return all products', async () => {
@@ -23,8 +42,8 @@ describe('Product API', () => {
     const productData = {
       name: 'Test Product',
       price: 99.99,
-      category: 'Test Category',
-      image: 'https://example.com/test.jpg',
+      categoryId: testCategoryId,
+      imageUrl: 'https://example.com/test.jpg',
       isNew: true,
     };
 
@@ -37,7 +56,8 @@ describe('Product API', () => {
     expect(response.body).toHaveProperty('id');
     expect(response.body.name).toBe(productData.name);
     expect(response.body.price).toBe(productData.price);
-    expect(response.body.category).toBe(productData.category);
+    expect(response.body.categoryId).toBe(testCategoryId);
+    expect(response.body.category).toBe('Test Category');
 
     // 保存创建的产品ID，用于后续测试
     createdProductId = response.body.id;
@@ -104,7 +124,7 @@ describe('Product API', () => {
     const invalidData = {
       name: '', // 产品名称不能为空
       price: -10, // 价格必须大于0
-      category: '', // 分类不能为空
+      // 既无 categoryId 也无有效 category
     };
 
     const response = await request(app)

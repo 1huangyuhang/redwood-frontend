@@ -10,6 +10,7 @@ import {
   RocketOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { MarketingPageShell } from '@/components/page-shell/MarketingPageShell';
 import './index.less';
 
 const { Title, Text, Paragraph } = Typography;
@@ -69,25 +70,32 @@ const applications: AppItem[] = [
   },
 ];
 
-const Applications = () => {
+export default function Applications() {
   const navigate = useNavigate();
 
   return (
-    <div className="applications-page">
-      <div className="applications-hero">
-        <div className="applications-hero-inner">
-          <Tag icon={<RocketOutlined />} color="volcano" className="applications-hero-tag">
-            站内应用
-          </Tag>
-          <Title level={1} className="applications-title">
-            应用程序
-          </Title>
-          <Paragraph className="applications-lead">
-            从学习到购物、活动与客服，以下入口与站点主要功能一一对应。选择应用即可跳转。
-          </Paragraph>
+    <MarketingPageShell
+      pageClass="applications-page"
+      customHeader={
+        <div className="applications-hero">
+          <div className="applications-hero-inner">
+            <Tag
+              icon={<RocketOutlined />}
+              color="volcano"
+              className="applications-hero-tag"
+            >
+              站内应用
+            </Tag>
+            <Title level={1} className="applications-title">
+              应用程序
+            </Title>
+            <Paragraph className="applications-lead">
+              从学习到购物、活动与客服，以下入口与站点主要功能一一对应。选择应用即可跳转。
+            </Paragraph>
+          </div>
         </div>
-      </div>
-
+      }
+    >
       <Row gutter={[20, 20]} className="applications-grid">
         {applications.map((app) => (
           <Col xs={24} sm={12} lg={8} key={app.key}>
@@ -119,11 +127,10 @@ const Applications = () => {
 
       <Card className="applications-footnote" bordered={false}>
         <Text type="secondary">
-          更多端侧应用（如移动端 App）上线后，将同步展示在此页面的「客户端下载」区域。
+          更多端侧应用（如移动端
+          App）上线后，将同步展示在此页面的「客户端下载」区域。
         </Text>
       </Card>
-    </div>
+    </MarketingPageShell>
   );
-};
-
-export default Applications;
+}

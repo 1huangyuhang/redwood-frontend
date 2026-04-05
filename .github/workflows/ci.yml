@@ -1,25 +1,84 @@
-name: CI/CD
+name: CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - future-dev
+      - 'feature/**'
   pull_request:
-    branches: [main]
+    branches:
+      - main
+      - future-dev
+      - 'feature/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
+  frontend:
+    name: Frontend (lint + build)
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js 18
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: 'npm'
+          node-version: '20'
+          cache: npm
       - run: npm ci
       - run: npm run lint
       - run: npm run build
+
+  management:
+    name: Management (Vite build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      # 根目录 tsc 与 management 的 @/ 别名冲突，CI 仅跑 Vite 生产构建（与 dev:management 一致）
+      - run: npx vite build --config vite.config.management.ts
+
+  backend:
+    name: Backend (Prisma + tsc + test)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ci_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ci_test
+      JWT_SECRET: ci-jwt-secret-minimum-32-chars-required
+      API_KEY: default-api-key
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npx prisma migrate deploy
+      - run: npx prisma generate
+      - run: npx tsc --noEmit
       - run: npm test
         env:
           CI: true

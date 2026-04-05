@@ -1,0 +1,258 @@
+/**
+ * 可复用过渡：明确属性 + --motion-* + prefers-reduced-motion
+ * 通过 foundation 的 @import (reference) 引入后调用混入
+ */
+
+.app-tx-surface-colors() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      background-color var(--motion-duration-md) var(--motion-ease-soft),
+      border-color var(--motion-duration-md) var(--motion-ease-soft),
+      color var(--motion-duration-md) var(--motion-ease-soft),
+      box-shadow var(--motion-duration-md) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-surface-colors-important() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      background-color var(--motion-duration-md) var(--motion-ease-soft),
+      border-color var(--motion-duration-md) var(--motion-ease-soft),
+      color var(--motion-duration-md) var(--motion-ease-soft),
+      box-shadow var(--motion-duration-md) var(--motion-ease-soft) !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none !important;
+  }
+}
+
+.app-tx-surface-colors-sm() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      background-color var(--motion-duration-sm) var(--motion-ease-soft),
+      border-color var(--motion-duration-sm) var(--motion-ease-soft),
+      color var(--motion-duration-sm) var(--motion-ease-soft),
+      box-shadow var(--motion-duration-sm) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-lift() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      transform var(--motion-duration-md) var(--motion-ease-soft),
+      box-shadow var(--motion-duration-md) var(--motion-ease-soft),
+      background-color var(--motion-duration-md) var(--motion-ease-soft),
+      border-color var(--motion-duration-md) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-lift-sm() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      transform var(--motion-duration-sm) var(--motion-ease-soft),
+      box-shadow var(--motion-duration-sm) var(--motion-ease-soft),
+      background-color var(--motion-duration-sm) var(--motion-ease-soft),
+      border-color var(--motion-duration-sm) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-transform() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition: transform var(--motion-duration-md) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-transform-sm() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition: transform var(--motion-duration-sm) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-transform-shadow() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      transform var(--motion-duration-md) var(--motion-ease-soft),
+      box-shadow var(--motion-duration-md) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-color() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition: color var(--motion-duration-md) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-color-transform() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      color var(--motion-duration-md) var(--motion-ease-soft),
+      transform var(--motion-duration-md) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-width() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition: width var(--motion-duration-md) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-color-bg-transform() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      color var(--motion-duration-md) var(--motion-ease-soft),
+      background-color var(--motion-duration-md) var(--motion-ease-soft),
+      transform var(--motion-duration-md) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-nav-item() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      color var(--motion-duration-md) var(--motion-ease-soft),
+      background-color var(--motion-duration-md) var(--motion-ease-soft),
+      transform var(--motion-duration-md) var(--motion-ease-soft),
+      box-shadow var(--motion-duration-md) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-submenu-chevron() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      transform var(--motion-duration-md) var(--motion-ease-soft),
+      border-top-color var(--motion-duration-md) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-contact-btn-important() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      transform var(--motion-duration-md) var(--motion-ease-soft),
+      box-shadow var(--motion-duration-md) var(--motion-ease-soft) !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none !important;
+  }
+}
+
+.app-tx-menu-shell() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      color var(--motion-duration-md) var(--motion-ease-soft),
+      background-color var(--motion-duration-md) var(--motion-ease-soft),
+      border-color var(--motion-duration-md) var(--motion-ease-soft),
+      transform var(--motion-duration-md) var(--motion-ease-soft),
+      opacity var(--motion-duration-md) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-section-ambient-lg() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      opacity var(--motion-duration-lg) var(--motion-ease-soft),
+      transform var(--motion-duration-lg) var(--motion-ease-soft),
+      box-shadow var(--motion-duration-lg) var(--motion-ease-soft),
+      background-color var(--motion-duration-lg) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-action-button() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      transform var(--motion-duration-md) var(--motion-ease-soft),
+      box-shadow var(--motion-duration-md) var(--motion-ease-soft),
+      background-color var(--motion-duration-md) var(--motion-ease-soft),
+      border-color var(--motion-duration-md) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-chip-accent() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      color var(--motion-duration-md) var(--motion-ease-soft),
+      background-color var(--motion-duration-md) var(--motion-ease-soft),
+      border-color var(--motion-duration-md) var(--motion-ease-soft),
+      transform var(--motion-duration-md) var(--motion-ease-soft),
+      box-shadow var(--motion-duration-md) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-textarea-height-important() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition: height var(--motion-duration-sm) var(--motion-ease-out) !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none !important;
+  }
+}
+
+.app-tx-offset-left-lg() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition: left var(--motion-duration-lg) var(--motion-ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.app-tx-textarea-wrap-important() {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      height var(--motion-duration-sm) var(--motion-ease-out),
+      padding var(--motion-duration-sm) var(--motion-ease-out),
+      max-height var(--motion-duration-sm) var(--motion-ease-out) !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none !important;
+  }
+}

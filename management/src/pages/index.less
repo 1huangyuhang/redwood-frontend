@@ -1,9 +1,13 @@
-/* 管理页公共样式（Dashboard / 产品 / 活动 / 新闻） */
+@import '../styles/tokens.less';
+
+/* 管理页公共样式（Dashboard / 产品 / 活动 / 新闻）— 与 admin-page 令牌对齐 */
 
 .management-page {
   padding: 24px;
-  background: #fff;
-  border-radius: 8px;
+  background: var(--admin-bg-elevated);
+  border: 1px solid var(--admin-color-border);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-card);
   min-height: calc(100vh - 120px);
 
   .page-header {
@@ -18,7 +22,7 @@
       margin: 0;
       font-size: 20px;
       font-weight: 600;
-      color: #1f1f1f;
+      color: var(--admin-color-text);
     }
   }
 
@@ -33,7 +37,7 @@
   }
 
   .edit-button {
-    color: #80322e;
+    color: var(--admin-color-primary);
   }
 
   .delete-button {
@@ -43,7 +47,7 @@
   .form-help-text {
     margin: 8px 0 0;
     font-size: 12px;
-    color: #8c8c8c;
+    color: var(--admin-color-text-secondary);
   }
 
   .form-actions {
@@ -64,7 +68,7 @@
       margin: 0;
       font-size: 22px;
       font-weight: 600;
-      color: #1f1f1f;
+      color: var(--admin-color-text);
     }
   }
 
@@ -75,16 +79,16 @@
   }
 
   .stat-card {
-    background: #fff;
-    border-radius: 8px;
+    background: var(--admin-bg-elevated);
+    border-radius: var(--admin-radius-lg);
     padding: 24px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-    border: 1px solid #f0f0f0;
+    box-shadow: var(--admin-shadow-card);
+    border: 1px solid var(--admin-color-border);
 
     h3 {
       margin: 0 0 12px;
       font-size: 14px;
-      color: #8c8c8c;
+      color: var(--admin-color-text-secondary);
       font-weight: 500;
     }
 
@@ -92,7 +96,7 @@
       margin: 0;
       font-size: 28px;
       font-weight: 600;
-      color: #80322e;
+      color: var(--admin-color-primary);
     }
   }
 }

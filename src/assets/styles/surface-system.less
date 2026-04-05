@@ -1,0 +1,155 @@
+/**
+ * 全站画布：中性锌灰基底（亮/暗）+ 极轻红木色晕作品牌点缀。
+ */
+
+@surface-canvas-top: #0c0c0f;
+@surface-canvas-mid: #09090b;
+@surface-canvas-low: #08080a;
+@surface-canvas-deep: #050506;
+
+.app-canvas-body-dark() {
+  background-color: var(--ly-bg-canvas, @surface-canvas-mid);
+  background-image:
+    radial-gradient(ellipse 55% 45% at 12% 18%, rgba(212, 101, 92, 0.07), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 88% 22%, rgba(212, 101, 92, 0.05), transparent 52%),
+    radial-gradient(ellipse 60% 48% at 50% 102%, rgba(212, 101, 92, 0.04), transparent 58%),
+    linear-gradient(
+      180deg,
+      @surface-canvas-top 0%,
+      @surface-canvas-mid 40%,
+      @surface-canvas-mid 60%,
+      @surface-canvas-low 88%,
+      @surface-canvas-deep 100%
+    ),
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: auto, auto, auto, auto, 48px 48px, 48px 48px;
+  background-attachment: scroll;
+}
+
+.app-canvas-body-light() {
+  background-color: var(--ly-bg-canvas, #f8fafc);
+  background-image:
+    radial-gradient(ellipse 80% 55% at 50% -8%, rgba(176, 61, 54, 0.06), transparent 55%),
+    radial-gradient(ellipse 42% 36% at 100% 40%, rgba(176, 61, 54, 0.035), transparent 52%),
+    radial-gradient(ellipse 40% 34% at 0% 70%, rgba(15, 23, 42, 0.03), transparent 52%),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 42%, #f1f5f9 100%),
+    linear-gradient(rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+  background-size: auto, auto, auto, auto, 48px 48px, 48px 48px;
+  background-attachment: scroll;
+}
+
+/* 兼容旧名 */
+.app-canvas-body() {
+  .app-canvas-body-dark();
+}
+
+/* 区块微弱抬升（变量在 global.less 的 html[data-theme] 上定义） */
+.app-canvas-section-veil() {
+  background: linear-gradient(
+    180deg,
+    var(--section-veil-top) 0%,
+    var(--section-veil-mid) 42%,
+    var(--section-veil-bottom) 100%
+  );
+}
+
+/**
+ * 首页多段内容「群聚」毛玻璃底板：同一套圆角、描边、景深模糊 + veil 叠底，减少模块割裂感。
+ * 具体外边距/出血由 home-premium.overrides 按区块微调。
+ */
+.home-unified-section-surface() {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--home-unified-radius, 22px);
+  overflow: hidden;
+  border: 1px solid var(--home-unified-border, rgba(255, 255, 255, 0.1));
+  box-shadow: var(--home-unified-shadow);
+  backdrop-filter: blur(var(--home-unified-blur, 16px)) saturate(1.06);
+  -webkit-backdrop-filter: blur(var(--home-unified-blur, 16px)) saturate(1.06);
+  background: var(--home-unified-bg);
+}
+
+/* 卡片默认底（与暗色容器协调，略暖） */
+@app-surface-card-tint: rgba(30, 26, 28, 0.9);
+
+/* ---------- 毛玻璃 + 液体高光 ---------- */
+.app-glass-card() {
+  background: linear-gradient(
+    155deg,
+    rgba(42, 32, 34, 0.78) 0%,
+    rgba(28, 24, 28, 0.64) 48%,
+    rgba(36, 28, 30, 0.74) 100%
+  );
+  backdrop-filter: blur(20px) saturate(1.12);
+  -webkit-backdrop-filter: blur(20px) saturate(1.12);
+  border: 1px solid rgba(255, 236, 228, 0.12);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 24px 56px -32px rgba(20, 12, 18, 0.55);
+}
+
+.app-glass-slab() {
+  background: linear-gradient(
+    168deg,
+    rgba(36, 28, 30, 0.72) 0%,
+    rgba(22, 18, 22, 0.56) 42%,
+    rgba(32, 26, 28, 0.66) 100%
+  );
+  backdrop-filter: blur(28px) saturate(1.12);
+  -webkit-backdrop-filter: blur(28px) saturate(1.12);
+  border-top: 1px solid rgba(255, 236, 228, 0.1);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.035) inset,
+    0 -32px 80px -48px rgba(128, 50, 46, 0.12);
+}
+
+.app-liquid-gloss-layer() {
+  content: '';
+  position: absolute;
+  inset: -40% -20%;
+  background:
+    radial-gradient(ellipse 45% 35% at 30% 40%, rgba(212, 180, 140, 0.18), transparent 62%),
+    radial-gradient(ellipse 38% 30% at 72% 58%, rgba(128, 50, 46, 0.22), transparent 58%),
+    radial-gradient(ellipse 30% 25% at 50% 50%, rgba(255, 255, 255, 0.06), transparent 55%);
+  opacity: 0.85;
+  pointer-events: none;
+  animation: appLiquidGloss 16s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+@keyframes appLiquidGloss {
+  0%,
+  100% {
+    transform: translate3d(-6%, 4%, 0) scale(1.05) rotate(-3deg);
+  }
+  50% {
+    transform: translate3d(5%, -5%, 0) scale(1.08) rotate(2deg);
+  }
+}
+
+@keyframes appIridescentBreath {
+  0%,
+  100% {
+    opacity: 0.22;
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  50% {
+    opacity: 0.34;
+    transform: scale(1.02) translate3d(0.3%, -0.2%, 0);
+  }
+}
+
+/* 日间全画布：红木暖光缓慢漂移（与夜间 iridescent 对位，饱和度克制） */
+@keyframes appMahoganyLightBreath {
+  0%,
+  100% {
+    opacity: 0.32;
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  50% {
+    opacity: 0.46;
+    transform: scale(1.018) translate3d(0.4%, -0.25%, 0);
+  }
+}

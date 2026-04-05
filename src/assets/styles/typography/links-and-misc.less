@@ -1,0 +1,96 @@
+/**
+ * 全局排版 — 链接、列表、引用、选区与可读性工具类
+ */
+
+blockquote {
+  margin: 1.35em 0;
+  padding: 1rem 1.25rem;
+  border-left: 3px solid rgba(212, 101, 92, 0.85);
+  background: linear-gradient(90deg, rgba(212, 101, 92, 0.08), transparent 55%);
+  color: var(--app-text-secondary);
+  font-style: italic;
+  border-radius: 0 10px 10px 0;
+}
+
+html[data-theme='light'] blockquote {
+  border-left-color: rgba(176, 61, 54, 0.75);
+  background: linear-gradient(90deg, rgba(176, 61, 54, 0.06), transparent 55%);
+}
+
+ul,
+ol {
+  margin: 1.1em 0 1.35em;
+  padding-left: 1.35em;
+  line-height: var(--leading-body);
+}
+
+li {
+  margin-bottom: 0.45em;
+  color: var(--app-text-primary);
+}
+
+li::marker {
+  color: rgba(212, 101, 92, 0.75);
+}
+
+html[data-theme='light'] li::marker {
+  color: rgba(176, 61, 54, 0.65);
+}
+
+a {
+  color: var(--app-link);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--app-link) 38%, transparent);
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+a:hover {
+  color: var(--app-link-hover);
+  text-decoration-color: color-mix(in srgb, var(--app-link-hover) 55%, transparent);
+}
+
+a:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--app-link) 55%, transparent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+a.ant-btn {
+  text-decoration: none;
+  text-underline-offset: unset;
+  text-decoration-thickness: unset;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid color-mix(in srgb, var(--app-text-secondary) 22%, transparent);
+  margin: 2rem 0;
+}
+
+::selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+.prose {
+  max-width: 65ch;
+}
+
+.prose-wide {
+  max-width: 72ch;
+}
+
+/* 朱红强调：标签、价格、印章式点缀（局部可叠用） */
+.text-accent-cinnabar {
+  color: var(--app-accent-cinnabar);
+  font-weight: 600;
+}
+
+/* 展示用毛笔风（短标题、栏目标签）；长段落请仍用正文字体 */
+.u-font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}

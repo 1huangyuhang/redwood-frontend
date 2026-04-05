@@ -1,0 +1,172 @@
+/**
+ * 红木主题文字动效与装饰（可选工具类）
+ * - 页面/组件按需添加 class，避免全局强制动画
+ * - 与 tokens/theme-css 中的 --motion-*、--app-text-gradient-display 配套
+ */
+
+@keyframes appTextGradientShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes appTextShimmer {
+  0% {
+    background-position: -120% 0;
+  }
+  100% {
+    background-position: 220% 0;
+  }
+}
+
+@keyframes appTextRiseIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.55em);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* 主标题渐变字（clip）；不支持时回退实色 */
+.u-text-gradient-redwood {
+  background-image: var(--app-text-gradient-display);
+  background-size: 180% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+@supports not (background-clip: text) {
+  .u-text-gradient-redwood {
+    color: var(--app-heading);
+    -webkit-text-fill-color: unset;
+  }
+}
+
+.u-text-gradient-redwood--animate {
+  animation: appTextGradientShift 14s var(--motion-ease-soft) infinite;
+}
+
+/* 微光泽扫过（适合单行标语） */
+.u-text-shimmer-line {
+  position: relative;
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    var(--app-heading) 0%,
+    var(--app-heading) 40%,
+    var(--app-accent-cinnabar) 50%,
+    var(--app-heading) 60%,
+    var(--app-heading) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .u-text-shimmer-line--play {
+    animation: appTextShimmer 4.5s var(--motion-ease-out) infinite;
+  }
+}
+
+/* 入场：模糊上升 */
+.u-animate-text-rise {
+  animation: appTextRiseIn var(--motion-duration-lg) var(--motion-ease-out) both;
+}
+
+.u-animate-text-rise--delay {
+  animation-delay: 0.12s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .u-text-gradient-redwood--animate,
+  .u-text-shimmer-line--play {
+    animation: none !important;
+  }
+
+  .u-animate-text-rise,
+  .u-animate-text-rise--delay {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* 轻光晕（深色底上增强可读与「漆器感」） */
+.u-text-glow-soft {
+  text-shadow:
+    0 0 42px rgba(var(--app-rgb-glow), 0.22),
+    0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme='light'] .u-text-glow-soft {
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9),
+    0 0 24px rgba(var(--app-rgb-glow), 0.12);
+}
+
+/* Ant Typography + HoverText 子节点继承渐变字（避免 span 把 color 盖回实色） */
+.ant-typography.u-text-gradient-redwood .hover-text {
+  background-image: var(--app-text-gradient-display);
+  background-size: 180% 100%;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: none;
+  transition: filter 0.35s var(--motion-ease-soft), opacity 0.35s ease;
+}
+
+.ant-typography.u-text-gradient-redwood .hover-text:hover {
+  filter: brightness(1.12) saturate(1.05);
+}
+
+.ant-typography.u-text-shimmer-line .hover-text {
+  background: linear-gradient(
+    90deg,
+    var(--app-heading) 0%,
+    var(--app-heading) 38%,
+    var(--app-accent-cinnabar) 50%,
+    var(--app-heading) 62%,
+    var(--app-heading) 100%
+  );
+  background-size: 200% 100%;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ant-typography.u-text-shimmer-line--play .hover-text {
+    animation: appTextShimmer 4.5s var(--motion-ease-out) infinite;
+  }
+}
+
+/* 页内旧 Less 曾写死标题色，提高优先级保证渐变字生效 */
+.ant-typography.u-text-gradient-redwood.gallery-title,
+.ant-typography.u-text-gradient-redwood.heritage-title,
+.ant-typography.u-text-gradient-redwood.section-title {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
+}
+
+.ant-typography.u-text-shimmer-line.action-title {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
+}

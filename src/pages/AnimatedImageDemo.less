@@ -1,7 +1,7 @@
 /* 动画图片示例页面样式 */
-@import '@/assets/styles/global.less';
+@import (reference) '@/assets/styles/foundation/index.less';
 .animated-image-demo {
-  background-color: #f8f5f4;
+  background-color: var(--ly-bg-raised);
   min-height: 100vh;
   padding: 40px 20px;
 }
@@ -51,7 +51,7 @@
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
+  .app-tx-lift();
 }
 
 .demo-item:hover {

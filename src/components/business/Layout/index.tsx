@@ -7,6 +7,7 @@ import {
   Popover,
   Empty,
   message,
+  Spin,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import {
@@ -18,24 +19,31 @@ import {
   AppstoreOutlined,
   IdcardOutlined,
 } from '@ant-design/icons';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { Suspense, useState, useEffect, useRef, useCallback } from 'react';
 import { logout } from '@/redux/slices/userSlice';
 import { logo } from '@/assets/images/common';
 import ProgressBar from '@/components/ui/ProgressBar';
+import ThemeToggle from '@/components/ui/ThemeToggle';
+import SiteFooter from '@/components/business/SiteFooter/SiteFooter';
 import './index.less';
 
 const { Header: AntHeader } = AntLayout;
 
+/** 纵向位移超过该值才切换顶栏/导航显隐，抑制触控板微抖动 */
+const SCROLL_DIR_THRESHOLD_PX = 10;
+
 const Layout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [topBarHeight, setTopBarHeight] = useState(56); // 顶部栏高度，移动端44px
   const [navHeight, setNavHeight] = useState(64); // 导航栏高度，移动端48px
   const lastScrollYRef = useRef(0); // 使用ref替代state，避免不必要的重新渲染
-
+  /** 合并到单帧，避免一次滚动排队多个 RAF 导致顺序错乱、导航条抖动 */
+  const navRafRef = useRef<number | null>(null);
   // 监听窗口大小变化，动态调整顶部栏和导航栏高度
   useEffect(() => {
     const updateHeights = () => {
@@ -56,87 +64,57 @@ const Layout = () => {
     };
   }, []);
 
-  // 节流函数
-  // 限制函数在一定时间内最多执行一次
-  const throttle = <T extends (...args: any[]) => any>(
-    func: T,
-    wait: number
-  ): ((...args: Parameters<T>) => void) => {
-    let lastCall = 0;
-    return (...args: Parameters<T>) => {
-      const now = Date.now();
-      if (now - lastCall >= wait) {
-        lastCall = now;
-        func(...args);
-      }
-    };
-  };
-
-  // 保存最新的滚动状态，用于requestAnimationFrame
-  const scrollStateRef = useRef({
-    currentScrollY: 0,
-    lastScrollY: lastScrollYRef.current,
-  });
-
-  // 更新导航栏可见性，使用requestAnimationFrame优化性能
   const updateNavVisibility = useCallback(() => {
-    const { currentScrollY, lastScrollY } = scrollStateRef.current;
+    const y = window.scrollY;
+    const prev = lastScrollYRef.current;
+    const d = y - prev;
 
-    // 计算滚动差异
-    const scrollDiff = currentScrollY - lastScrollY;
-
-    // 直接根据滚动方向判断，移除阈值限制
-    // 向下滑动 - 隐藏菜单栏
-    if (scrollDiff > 0) {
-      setIsNavVisible(false);
-    }
-    // 向上滑动 - 显示菜单栏
-    else if (scrollDiff < 0) {
-      setIsNavVisible(true);
+    if (y <= 1) {
+      setIsNavVisible((p) => (p ? p : true));
+      lastScrollYRef.current = y;
+      return;
     }
 
-    // 处理边界情况：页面顶部（scrollY <= 0）时始终显示导航栏
-    if (currentScrollY <= 0) {
-      setIsNavVisible(true);
+    if (d >= SCROLL_DIR_THRESHOLD_PX) {
+      setIsNavVisible((p) => (p === false ? p : false));
+      lastScrollYRef.current = y;
+      return;
     }
 
-    // 始终更新上一次滚动位置的ref，确保下一次滚动时能正确判断方向
-    lastScrollYRef.current = currentScrollY;
+    if (d <= -SCROLL_DIR_THRESHOLD_PX) {
+      setIsNavVisible((p) => (p === true ? p : true));
+      lastScrollYRef.current = y;
+      return;
+    }
+
+    // 微小抖动：不更新 lastScrollYRef，避免在临界区来回改「上一帧」导致误判
   }, []);
 
-  // 滚动事件处理
   const handleScroll = useCallback(() => {
-    // 获取当前滚动位置
-    const currentScrollY = window.scrollY;
-    const lastScrollY = lastScrollYRef.current;
-
-    // 更新滚动状态
-    scrollStateRef.current = {
-      currentScrollY,
-      lastScrollY,
-    };
-
-    // 使用requestAnimationFrame优化状态更新
-    requestAnimationFrame(updateNavVisibility);
+    if (navRafRef.current != null) return;
+    navRafRef.current = requestAnimationFrame(() => {
+      navRafRef.current = null;
+      updateNavVisibility();
+    });
   }, [updateNavVisibility]);
 
-  // 创建节流处理函数，限制每秒最多执行60次（约16ms一次）
-  const throttledHandleScroll = useCallback(throttle(handleScroll, 16), [
-    handleScroll,
-  ]);
-
   useEffect(() => {
-    // 添加滚动事件监听器，使用passive选项优化性能
-    window.addEventListener('scroll', throttledHandleScroll, { passive: true });
+    let lastCall = 0;
+    const waitMs = 16;
+    const throttledScroll = () => {
+      const now = Date.now();
+      if (now - lastCall < waitMs) return;
+      lastCall = now;
+      handleScroll();
+    };
 
-    // 初始化滚动位置
+    window.addEventListener('scroll', throttledScroll, { passive: true });
     lastScrollYRef.current = window.scrollY;
 
-    // 清理函数
     return () => {
-      window.removeEventListener('scroll', throttledHandleScroll);
+      window.removeEventListener('scroll', throttledScroll);
     };
-  }, [throttledHandleScroll]);
+  }, [handleScroll]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -287,6 +265,7 @@ const Layout = () => {
           <img src={logo} alt="Logo" className="logo" />
         </div>
         <div className="top-bar-right">
+          <ThemeToggle />
           <Popover
             content={cartPanel}
             title="购物车"
@@ -311,7 +290,7 @@ const Layout = () => {
             menu={{ items: userMenuItems }}
             trigger={['click']}
             placement="bottomRight"
-            overlayClassName="top-bar-user-dropdown"
+            classNames={{ root: 'top-bar-user-dropdown' }}
           >
             <button
               type="button"
@@ -355,7 +334,7 @@ const Layout = () => {
         <Menu
           mode="horizontal"
           items={navItems}
-          selectedKeys={[window.location.pathname]}
+          selectedKeys={[location.pathname]}
           className="nav-menu"
           overflowedIndicator={<MenuOutlined />}
           style={{
@@ -374,7 +353,26 @@ const Layout = () => {
       />
 
       <main className="site-main">
-        <Outlet />
+        <div className="site-main-outlet-wrap">
+          <Suspense
+            fallback={
+              <div
+                className="site-outlet-fallback"
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  padding: 'clamp(32px, 8vw, 64px) 16px',
+                }}
+              >
+                <Spin size="large" />
+              </div>
+            }
+          >
+            <Outlet />
+          </Suspense>
+        </div>
+        <SiteFooter />
       </main>
     </AntLayout>
   );

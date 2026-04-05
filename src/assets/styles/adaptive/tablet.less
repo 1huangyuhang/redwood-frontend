@@ -1,0 +1,53 @@
+/**
+ * rf-adaptive · 仅平板端 (768px ~ 1199.98px)
+ */
+@media (min-width: 768px) and (max-width: 1199.98px) {
+  .page-title {
+    padding-left: var(--rf-gutter);
+    padding-right: var(--rf-gutter);
+    box-sizing: border-box;
+  }
+
+  .top-layout .site-main {
+    padding-left: var(--rf-gutter);
+    padding-right: var(--rf-gutter);
+  }
+
+  .top-layout .top-bar {
+    padding-left: clamp(20px, 4vw, 40px);
+    padding-right: clamp(20px, 4vw, 40px);
+  }
+
+  .top-layout .nav-bar {
+    padding-left: clamp(20px, 4vw, 40px);
+    padding-right: clamp(20px, 4vw, 40px);
+  }
+
+  /* 联系页双栏略收紧 */
+  .contact-page .ant-row {
+    margin-inline: 0;
+  }
+
+  .contact-page .contact-form-card,
+  .contact-page .company-info-card {
+    height: auto;
+  }
+
+  /* 商城筛选区与栅格呼吸 */
+  .shop-page .page-title {
+    margin-bottom: 1rem;
+  }
+}
+
+/* 平板横屏：导航区易溢出，允许横向滚动已由 nav-bar 处理，此处仅减内边距 */
+@media (min-width: 768px) and (max-width: 1199.98px) and (orientation: landscape) {
+  .top-layout .top-bar {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .top-layout .nav-bar {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}

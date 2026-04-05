@@ -1,0 +1,167 @@
+/**
+ * 红木暖色品牌 · 内页标题区玻璃拟态（仅 .top-layout main）
+ * 锚点：.marketing-page-shell（见 MarketingPageShell）
+ * 仪表盘等工具页不使用 marketing-page-shell，下方单独复位
+ */
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+.top-layout main {
+  .marketing-page-shell > .page-title:first-child {
+    text-align: center;
+    margin: 0 auto clamp(24px, 4vw, 48px);
+    padding: clamp(28px, 4vw, 48px) clamp(24px, 3vw, 40px);
+    max-width: min(820px, 100%);
+    border-radius: var(--ly-radius-lg);
+    background: var(--ly-glass-raised-bg);
+    backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+    -webkit-backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+    border: 1px solid var(--ly-glass-border);
+    box-shadow: var(--ly-glass-inset), var(--ly-glass-hero-glow);
+
+    h1 {
+      font-family: var(--font-heading);
+      font-size: var(--type-h2);
+      font-weight: 600;
+      color: var(--app-heading);
+      letter-spacing: var(--track-heading);
+      line-height: var(--leading-tight);
+      margin: 0 0 0.4em;
+    }
+
+    p {
+      font-size: var(--type-lead);
+      color: var(--app-text-secondary);
+      line-height: var(--leading-snug);
+      margin: 0 auto;
+      max-width: 36em;
+    }
+
+    .ant-typography {
+      color: inherit;
+    }
+
+    .ant-typography h1 {
+      font-family: var(--font-heading) !important;
+      font-size: var(--type-h2) !important;
+      font-weight: 600 !important;
+      color: var(--app-heading) !important;
+      margin-bottom: 0.4em !important;
+    }
+
+    .ant-typography-text {
+      font-size: var(--type-lead);
+      color: var(--app-text-secondary);
+    }
+  }
+
+  .marketing-page-shell > .page-header:first-child {
+    text-align: center;
+    margin: 0 auto clamp(24px, 4vw, 48px);
+    padding: clamp(28px, 4vw, 48px) clamp(24px, 3vw, 40px);
+    max-width: min(820px, 100%);
+    border-radius: var(--ly-radius-lg);
+    background: var(--ly-glass-raised-bg);
+    backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+    -webkit-backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+    border: 1px solid var(--ly-glass-border);
+    box-shadow: var(--ly-glass-inset), var(--ly-glass-hero-glow);
+
+    h1.ant-typography,
+    h2.ant-typography {
+      font-family: var(--font-heading) !important;
+      font-size: var(--type-h2) !important;
+      font-weight: 600 !important;
+      color: var(--app-heading) !important;
+      margin-bottom: 0.4em !important;
+    }
+
+    .ant-typography-paragraph {
+      font-size: var(--type-lead) !important;
+      color: var(--app-text-secondary) !important;
+      margin-bottom: 0 !important;
+    }
+  }
+
+  .marketing-page-shell > .applications-hero:first-child {
+    margin-bottom: clamp(24px, 4vw, 44px);
+    padding: clamp(28px, 4vw, 44px) clamp(24px, 3vw, 36px);
+    border-radius: var(--ly-radius-lg);
+    background: var(--ly-glass-raised-bg);
+    backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+    -webkit-backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+    border: 1px solid var(--ly-glass-border);
+    box-shadow: var(--ly-glass-inset), var(--ly-glass-hero-glow);
+  }
+
+  .applications-hero-inner {
+    text-align: center;
+    max-width: min(640px, 100%);
+    margin: 0 auto;
+  }
+
+  .applications-title.ant-typography {
+    font-family: var(--font-heading) !important;
+    font-size: var(--type-h2) !important;
+    font-weight: 600 !important;
+    color: var(--app-heading) !important;
+    margin-bottom: 0.35em !important;
+  }
+
+  .applications-lead.ant-typography {
+    font-size: var(--type-lead) !important;
+    color: var(--app-text-secondary) !important;
+    margin-bottom: 0 !important;
+  }
+
+  .marketing-page-shell > .account-page-title:first-child {
+    text-align: center;
+    margin: 0 auto clamp(20px, 3.5vw, 40px);
+    padding: clamp(24px, 3.5vw, 40px) clamp(20px, 3vw, 32px);
+    max-width: min(820px, 100%);
+    border-radius: var(--ly-radius-lg);
+    background: var(--ly-glass-raised-bg);
+    backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+    -webkit-backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+    border: 1px solid var(--ly-glass-border);
+    box-shadow: var(--ly-glass-inset), var(--ly-glass-hero-glow);
+
+    h1.ant-typography {
+      font-family: var(--font-heading) !important;
+      font-size: var(--type-h2) !important;
+      color: var(--app-heading) !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marketing-page-shell > .page-title:first-child,
+    .marketing-page-shell > .page-header:first-child,
+    .marketing-page-shell > .applications-hero:first-child,
+    .marketing-page-shell > .account-page-title:first-child {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+  }
+
+  .dashboard-page .dashboard-header .page-title {
+    text-align: left;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    font-family: var(--font-body);
+    font-size: var(--type-h3);
+    font-weight: 600;
+    color: var(--app-heading);
+    line-height: var(--leading-tight);
+  }
+}

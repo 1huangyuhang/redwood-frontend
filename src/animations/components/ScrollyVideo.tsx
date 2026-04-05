@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import '../styles/ScrollyVideo.less';
 import { initMobileVideo } from '../utils/mobileVideoInit';
 
@@ -9,6 +9,8 @@ interface ScrollyVideoProps {
   height?: number | string;
   width?: number | string;
   id?: string;
+  /** 叠在视频上的 Hero 内容（标题、按钮等），置于渐变遮罩之上 */
+  children?: React.ReactNode;
 }
 
 /**
@@ -21,6 +23,7 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
   height = '100vh',
   width = '100%',
   id,
+  children,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -33,7 +36,7 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
   const animationFrameIdRef = useRef<number | undefined>(undefined);
   const lastScrollProgressRef = useRef<number>(-1);
 
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     // 使用requestAnimationFrame节流，避免频繁计算
     if (animationFrameIdRef.current) {
       cancelAnimationFrame(animationFrameIdRef.current);
@@ -55,19 +58,16 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
       // 简化计算公式，直接使用容器顶部位置
       const scrollProgress = Math.max(
         0,
-        Math.min(
-          1,
-          (-containerTop) / viewportHeight
-        )
+        Math.min(1, -containerTop / viewportHeight)
       );
-      
+
       // 避免微小的进度变化导致频繁更新
       if (Math.abs(scrollProgress - lastScrollProgressRef.current) > 0.001) {
         // 根据滚动进度更新视频播放位置
         if (video.duration) {
           video.currentTime = video.duration * scrollProgress;
         }
-        
+
         // 根据滚动进度设置视频结束状态
         // 只有当进度变化超过阈值时才更新状态，减少重渲染
         if (scrollProgress >= 1.0 && !isVideoEnded) {
@@ -75,27 +75,27 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
         } else if (scrollProgress < 1.0 && isVideoEnded) {
           setIsVideoEnded(false);
         }
-        
+
         lastScrollProgressRef.current = scrollProgress;
       }
     });
-  };
+  }, [isVideoEnded]);
 
   // 滚动同步逻辑
   useEffect(() => {
     // 监听滚动事件
     window.addEventListener('scroll', handleScroll, { passive: true });
-    
+
     // 初始执行一次
     handleScroll();
-    
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       if (animationFrameIdRef.current) {
         cancelAnimationFrame(animationFrameIdRef.current);
       }
     };
-  }, [isVideoEnded]);
+  }, [handleScroll]);
 
   // 视频事件处理
   useEffect(() => {
@@ -172,8 +172,8 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
     video.addEventListener('waiting', handleWaiting);
     video.addEventListener('playing', handlePlaying);
     video.addEventListener('progress', handleProgress);
-    
-      // 使用导入的移动端视频初始化工具
+
+    // 使用导入的移动端视频初始化工具
     const cleanupMobileVideo = initMobileVideo(video);
 
     return () => {
@@ -191,7 +191,7 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
       // 调用移动端视频初始化的清理函数
       cleanupMobileVideo();
     };
-  }, [src]);
+  }, [src, handleScroll]);
 
   return (
     <div
@@ -216,9 +216,16 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
         // 添加样式，避免刷新页面时视频闪帧
         style={{
           opacity: isVideoLoaded ? 1 : 0,
-          transition: 'opacity 0.3s ease'
+          transition: 'opacity 0.3s ease',
         }}
       />
+
+      {children ? (
+        <div className="scrolly-video-overlay">
+          <div className="scrolly-video-overlay__scrim" aria-hidden="true" />
+          <div className="scrolly-video-overlay__inner">{children}</div>
+        </div>
+      ) : null}
 
       {/* 缓冲指示器 */}
       {isBuffering && (

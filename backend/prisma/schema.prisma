@@ -7,15 +7,49 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  username     String   @unique
+  passwordHash String
+  role         UserRole @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  slug      String    @unique @db.VarChar(64)
+  name      String    @db.VarChar(100)
+  sortOrder Int       @default(0)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
 model Product {
-  id          Int      @id @default(autoincrement())
-  name        String   @db.VarChar(255)
-  price       Decimal  @db.Decimal(10, 2)
-  category    String   @db.VarChar(100)
-  image       Bytes?   @db.ByteA
-  isNew       Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(255)
+  price      Decimal  @db.Decimal(10, 2)
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  image      Bytes?   @db.ByteA
+  imageUrl   String?  @db.VarChar(2048)
+  isNew      Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Activity {
@@ -23,18 +57,98 @@ model Activity {
   title       String   @db.VarChar(255)
   description String   @db.Text
   image       Bytes?   @db.ByteA
+  imageUrl    String?  @db.VarChar(2048)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
 model News {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(255)
+  date      String   @db.VarChar(10)
+  time      String   @db.VarChar(5)
+  summary   String   @db.Text
+  content   String   @db.Text
+  image     Bytes?   @db.ByteA
+  imageUrl  String?  @db.VarChar(2048)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SiteAsset {
+  id        Int      @id @default(autoincrement())
+  page      String   @db.VarChar(64)
+  groupKey  String   @db.VarChar(64)
+  sortOrder Int      @default(0)
+  title     String?  @db.VarChar(255)
+  alt       String?  @db.VarChar(255)
+  content   String?  @db.Text
+  meta      String?  @db.Text
+  image     Bytes?   @db.ByteA
+  imageUrl  String?  @db.VarChar(2048)
+  videoUrl  String?  @db.VarChar(1024)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([page, groupKey])
+}
+
+model Course {
   id          Int      @id @default(autoincrement())
   title       String   @db.VarChar(255)
-  date        String   @db.VarChar(10)
-  time        String   @db.VarChar(5)
-  summary     String   @db.Text
-  content     String   @db.Text
+  instructor  String   @db.VarChar(100)
+  category    String   @db.VarChar(100)
+  duration    String   @db.VarChar(64)
+  students    Int      @default(0)
+  rating      Float    @default(0)
+  price       Decimal  @db.Decimal(10, 2)
+  description String   @db.Text
   image       Bytes?   @db.ByteA
+  imageUrl    String?  @db.VarChar(2048)
+  tags        String   @default("[]") @db.Text
+  sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model PricingPlan {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(255)
+  price       Decimal  @db.Decimal(10, 2)
+  description String   @db.Text
+  features    String   @db.Text
+  isPopular   Boolean  @default(false)
+  tag         String?  @db.VarChar(64)
+  image       Bytes?   @db.ByteA
+  imageUrl    String?  @db.VarChar(2048)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  phone     String   @db.VarChar(64)
+  email     String   @db.VarChar(255)
+  company   String?  @db.VarChar(255)
+  subject   String?  @db.VarChar(500)
+  message   String   @db.Text
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model SupportTicket {
+  id               Int          @id @default(autoincrement())
+  fullName         String       @db.VarChar(255)
+  phoneNumber      String?      @db.VarChar(64)
+  emailAddress     String       @db.VarChar(255)
+  companyName      String?      @db.VarChar(255)
+  messageSubject   String       @db.VarChar(500)
+  askYourQuestion  String       @db.Text
+  attachment       Bytes?       @db.ByteA
+  attachmentName   String?      @db.VarChar(255)
+  status           TicketStatus @default(OPEN)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 }

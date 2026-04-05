@@ -61,6 +61,7 @@ export const useIntersectionObserver = (
 ): [React.RefObject<HTMLElement>, boolean] => {
   const ref = useRef<HTMLElement>(null);
   const [isIntersecting, setIsIntersecting] = useState(false);
+  const { threshold, rootMargin, root } = options;
 
   useEffect(() => {
     const currentElement = ref.current;
@@ -68,8 +69,8 @@ export const useIntersectionObserver = (
 
     // 创建局部Observer管理器，使用自定义选项
     const localObserverManager =
-      options.threshold !== undefined || options.rootMargin !== undefined
-        ? new IntersectionObserverManager(options)
+      threshold !== undefined || rootMargin !== undefined
+        ? new IntersectionObserverManager({ threshold, rootMargin, root })
         : globalObserverManager;
 
     // 添加元素到监听列表
@@ -83,7 +84,7 @@ export const useIntersectionObserver = (
         localObserverManager.removeElement(currentElement);
       }
     };
-  }, [options.threshold, options.rootMargin]);
+  }, [threshold, rootMargin, root]);
 
   return [ref, isIntersecting];
 };

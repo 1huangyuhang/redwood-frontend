@@ -1,12 +1,12 @@
-@import '@/assets/styles/global.less';
+@import (reference) '@/assets/styles/foundation/index.less';
 
 // 基础样式 - 避免容器限制的字体效果
 .hover-text {
   position: relative;
   display: inline; // 使用 inline 允许文字正常换行，避免容器限制
-  color: var(--base-color, #2c1810); // 默认基础颜色 - 深棕色
+  color: var(--base-color, var(--app-heading));
   cursor: pointer;
-  transition: all 0.3s ease;
+  .app-tx-color-transform();
   font-weight: 500;
   overflow: visible; // 确保文字效果不被容器裁剪
   

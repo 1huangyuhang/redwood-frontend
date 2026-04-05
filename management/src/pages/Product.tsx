@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Table,
   Button,
@@ -8,498 +9,539 @@ import {
   message,
   Upload,
   Select,
+  Popover,
+  Checkbox,
+  Space,
 } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import axiosInstance, { apiCache } from '../services/axiosInstance';
-import wsService from '../services/websocket';
-import EnhancedPagination from '../components/EnhancedPagination';
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  SettingOutlined,
+} from '@ant-design/icons';
+import { useSearchParams } from 'react-router-dom';
+import type { ColumnsType } from 'antd/es/table';
+import axiosInstance from '@/services/axiosInstance';
+import wsService from '@/services/websocket';
+import EnhancedPagination from '@/components/EnhancedPagination';
+import AdminListPageShell from '@/components/AdminListPageShell';
+import ManagementWriteGate from '@/components/ManagementWriteGate';
+import {
+  loadColumnVisibility,
+  saveColumnVisibility,
+} from '@/utils/persistedTableColumns';
+import { canWriteInManagementUi } from '@/utils/managementWriteAccess';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { queryKeys } from '@/queryKeys';
+import { fetchProductsPage, type ProductRow } from '@/api/adminLists';
 import './index.less';
 
 const { Option } = Select;
 
-// 产品类型定义
-interface Product {
+interface CategoryOption {
   id: number;
+  slug: string;
   name: string;
-  price: string | number;
-  category: string;
-  image: string;
-  isNew: boolean;
-  createdAt: string;
-  updatedAt: string;
+}
+
+const COL_STORAGE_KEY = 'mgmt-product-table-columns-v1';
+const OPTIONAL_COL_KEYS = [
+  'name',
+  'price',
+  'category',
+  'image',
+  'isNew',
+  'createdAt',
+] as const;
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
+
+const COL_LABELS: Record<(typeof OPTIONAL_COL_KEYS)[number], string> = {
+  name: '产品名称',
+  price: '价格',
+  category: '分类',
+  image: '产品图片',
+  isNew: '是否新品',
+  createdAt: '创建时间',
+};
+
+function parseListParams(searchParams: URLSearchParams) {
+  const page = Math.max(1, Number(searchParams.get('page')) || 1);
+  const rawPs = Number(searchParams.get('pageSize'));
+  const pageSize = PAGE_SIZE_OPTIONS.includes(
+    rawPs as (typeof PAGE_SIZE_OPTIONS)[number]
+  )
+    ? rawPs
+    : 10;
+  const search = searchParams.get('search')?.trim() ?? '';
+  return { page, pageSize, search };
 }
 
 const ProductManagement: React.FC = () => {
-  // 状态管理
-  const [products, setProducts] = useState<Product[]>([]);
+  const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const listParams = useMemo(
+    () => parseListParams(searchParams),
+    [searchParams]
+  );
+
+  const { page: currentPage, pageSize, search: urlSearch } = listParams;
+
+  const [searchInput, setSearchInput] = useState(urlSearch);
+  useEffect(() => {
+    setSearchInput(urlSearch);
+  }, [urlSearch]);
+
+  const debouncedInput = useDebouncedValue(searchInput, 400);
+
+  useEffect(() => {
+    const t = debouncedInput.trim();
+    const u = urlSearch.trim();
+    if (t === u) return;
+    setSearchParams((prev) => {
+      const p = new URLSearchParams(prev);
+      if (t) p.set('search', t);
+      else p.delete('search');
+      p.set('page', '1');
+      return p;
+    });
+  }, [debouncedInput, urlSearch, setSearchParams]);
+
+  const queryListParams = {
+    page: currentPage,
+    pageSize,
+    search: urlSearch,
+  };
+
+  const { data, isPending, isFetching, isError, error, refetch } = useQuery({
+    queryKey: queryKeys.products.list(queryListParams),
+    queryFn: () => fetchProductsPage(queryListParams),
+  });
+
+  useEffect(() => {
+    if (isError && error) {
+      message.error({
+        key: 'mgmt-products-list',
+        content: `获取产品列表失败: ${error instanceof Error ? error.message : String(error)}`,
+      });
+    }
+  }, [isError, error]);
+
+  const products = data?.list ?? [];
+  const total = data?.total ?? 0;
+
+  useEffect(() => {
+    const invalidate = () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.products.lists(),
+      });
+    };
+    wsService.on('product:created', invalidate);
+    wsService.on('product:updated', invalidate);
+    wsService.on('product:deleted', invalidate);
+    return () => {
+      wsService.off('product:created', invalidate);
+      wsService.off('product:updated', invalidate);
+      wsService.off('product:deleted', invalidate);
+    };
+  }, [queryClient]);
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
+  const [currentProduct, setCurrentProduct] = useState<ProductRow | null>(null);
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
+  const [colVisible, setColVisible] = useState(() =>
+    loadColumnVisibility(COL_STORAGE_KEY, [...OPTIONAL_COL_KEYS], true)
+  );
 
-  // 分页状态管理
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [total, setTotal] = useState(0);
-
-  // 获取产品数据
-  const fetchProducts = async () => {
-    try {
-      const response = await axiosInstance.get('/products', {
-        params: {
-          page: currentPage,
-          pageSize: pageSize,
-        },
-      });
-      // 由于axios拦截器已经返回了response.data，直接使用response
-      // 检查response是否为数组，确保数据格式正确
-      let processedData: Product[] = [];
-
-      if (Array.isArray(response)) {
-        // 处理数据，确保每个字段只包含对应数据
-        processedData = response.map((item) => {
-          // 确保数据格式正确，避免字段包含多个数据项
-          const product: Product = {
-            id:
-              typeof item.id === 'number' ? item.id : parseInt(String(item.id)),
-            name: typeof item.name === 'string' ? item.name : String(item.name),
-            price: item.price || 0,
-            category:
-              typeof item.category === 'string'
-                ? item.category
-                : String(item.category),
-            image: typeof item.image === 'string' ? item.image : '',
-            isNew: Boolean(item.isNew),
-            createdAt:
-              typeof item.createdAt === 'string'
-                ? item.createdAt
-                : new Date().toISOString(),
-            updatedAt:
-              typeof item.updatedAt === 'string'
-                ? item.updatedAt
-                : new Date().toISOString(),
-          };
-          return product;
-        });
-      } else if (response?.data && Array.isArray(response.data)) {
-        // 如果返回的是分页格式 { data: [...], pagination: {...} }，则使用response.data
-        processedData = response.data.map((item) => {
-          // 确保数据格式正确，避免字段包含多个数据项
-          const product: Product = {
-            id:
-              typeof item.id === 'number' ? item.id : parseInt(String(item.id)),
-            name: typeof item.name === 'string' ? item.name : String(item.name),
-            price: item.price || 0,
-            category:
-              typeof item.category === 'string'
-                ? item.category
-                : String(item.category),
-            image: typeof item.image === 'string' ? item.image : '',
-            isNew: Boolean(item.isNew),
-            createdAt:
-              typeof item.createdAt === 'string'
-                ? item.createdAt
-                : new Date().toISOString(),
-            updatedAt:
-              typeof item.updatedAt === 'string'
-                ? item.updatedAt
-                : new Date().toISOString(),
-          };
-          return product;
-        });
-      }
-
-      setProducts(processedData);
-      setTotal(processedData.length);
-
-      // 清除所有相关缓存，确保下次获取最新数据
-      apiCache.clear();
-    } catch (error) {
-      console.error('获取产品列表失败:', error);
-      message.error(
-        `获取产品列表失败: ${error instanceof Error ? error.message : String(error)}`
-      );
-    }
-  };
-
-  // 初始加载数据和WebSocket事件监听
   useEffect(() => {
-    fetchProducts();
-
-    // 添加WebSocket事件监听器
-    const handleProductCreated = (product: Product) => {
-      setProducts((prev) => [...prev, product]);
-      message.success(`新产品 "${product.name}" 已添加`);
-      // 清除缓存，确保下次获取最新数据
-      apiCache.delete('get:/products{}');
-    };
-
-    const handleProductUpdated = (updatedProduct: Product) => {
-      setProducts((prev) =>
-        prev.map((product) =>
-          product.id === updatedProduct.id ? updatedProduct : product
-        )
-      );
-      message.success(`产品 "${updatedProduct.name}" 已更新`);
-      // 清除缓存，确保下次获取最新数据
-      apiCache.delete('get:/products{}');
-    };
-
-    const handleProductDeleted = (productId: number) => {
-      setProducts((prev) => prev.filter((product) => product.id !== productId));
-      message.success('产品已删除');
-      // 清除缓存，确保下次获取最新数据
-      apiCache.delete('get:/products{}');
-    };
-
-    // 注册事件监听器
-    wsService.on('product:created', handleProductCreated);
-    wsService.on('product:updated', handleProductUpdated);
-    wsService.on('product:deleted', handleProductDeleted);
-
-    // 组件卸载时移除事件监听器
-    return () => {
-      wsService.off('product:created', handleProductCreated);
-      wsService.off('product:updated', handleProductUpdated);
-      wsService.off('product:deleted', handleProductDeleted);
-    };
+    void (async () => {
+      try {
+        const res = await axiosInstance.get<{ data: CategoryOption[] }>(
+          '/categories'
+        );
+        setCategories(Array.isArray(res?.data) ? res.data : []);
+      } catch (e) {
+        console.error(e);
+        message.error('加载商品分类失败');
+      }
+    })();
   }, []);
 
-  // 页码变化时重新获取数据
-  useEffect(() => {
-    fetchProducts();
-  }, [currentPage]);
+  const setListParams = useCallback(
+    (next: { page?: number; pageSize?: number }) => {
+      setSearchParams((prev) => {
+        const p = new URLSearchParams(prev);
+        if (next.page != null) p.set('page', String(next.page));
+        if (next.pageSize != null) p.set('pageSize', String(next.pageSize));
+        return p;
+      });
+    },
+    [setSearchParams]
+  );
 
-  // 打开创建/编辑模态框
-  const showModal = (product?: Product) => {
-    if (product) {
-      setIsEditing(true);
-      setCurrentProduct(product);
-      form.setFieldsValue(product);
-    } else {
-      setIsEditing(false);
-      setCurrentProduct(null);
-      form.resetFields();
-    }
-    setIsModalVisible(true);
-  };
+  const showModal = useCallback(
+    (product?: ProductRow) => {
+      if (product) {
+        setIsEditing(true);
+        setCurrentProduct(product);
+        form.setFieldsValue({
+          name: product.name,
+          price: product.price,
+          categoryId: product.categoryId,
+          isNew: product.isNew,
+          imageUrl: product.imageUrl || '',
+          image: product.imageUrl?.trim()
+            ? undefined
+            : product.image || undefined,
+        });
+      } else {
+        setIsEditing(false);
+        setCurrentProduct(null);
+        form.resetFields();
+        form.setFieldsValue({ isNew: false, imageUrl: '' });
+      }
+      setIsModalVisible(true);
+    },
+    [form]
+  );
 
-  // 关闭模态框
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
+  const handleCancel = () => setIsModalVisible(false);
 
-  // 提交表单
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      setLoading(true);
-
-      // 创建FormData对象，用于文件上传
-      const formData = new FormData();
-
-      // 添加非文件字段到FormData
-      formData.append('name', values.name);
-      formData.append('price', values.price.toString());
-      formData.append('category', values.category);
-      formData.append('isNew', values.isNew ? 'true' : 'false');
-
-      // 如果image是base64字符串，转换为Blob并添加到FormData
-      if (
+      setSubmitLoading(true);
+      const imageUrlTrim = String(values.imageUrl ?? '').trim();
+      const hasDataImage =
         values.image &&
         typeof values.image === 'string' &&
-        values.image.startsWith('data:')
-      ) {
-        // 从base64字符串创建Blob对象
+        values.image.startsWith('data:');
+
+      if (!isEditing && !hasDataImage && !imageUrlTrim) {
+        message.error('请上传产品图片或填写图片 URL');
+        setSubmitLoading(false);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('name', values.name);
+      formData.append('price', values.price.toString());
+      formData.append('categoryId', String(values.categoryId));
+      formData.append('isNew', values.isNew ? 'true' : 'false');
+      if (imageUrlTrim) {
+        formData.append('imageUrl', imageUrlTrim);
+      }
+
+      if (hasDataImage) {
         const base64ToBlob = (base64: string) => {
           const parts = base64.split(';base64,');
           const contentType = parts[0].split(':')[1];
           const raw = window.atob(parts[1]);
           const rawLength = raw.length;
           const uInt8Array = new Uint8Array(rawLength);
-
           for (let i = 0; i < rawLength; ++i) {
             uInt8Array[i] = raw.charCodeAt(i);
           }
-
           return new Blob([uInt8Array], { type: contentType });
         };
-
-        const blob = base64ToBlob(values.image);
-        formData.append('image', blob, 'product-image.jpg');
+        formData.append(
+          'image',
+          base64ToBlob(values.image),
+          'product-image.jpg'
+        );
       }
 
-      // 打印FormData内容，用于调试
-      console.log('FormData内容:', {
-        name: values.name,
-        price: values.price,
-        category: values.category,
-        isNew: values.isNew,
-        hasImage: !!values.image,
-      });
-
-      let response;
       if (isEditing && currentProduct) {
-        // 乐观更新：立即更新本地UI
-        const updatedProduct = {
-          ...currentProduct,
-          ...values,
-        };
-
-        // 更新本地状态
-        setProducts((prev) =>
-          prev.map((product) =>
-            product.id === currentProduct.id ? updatedProduct : product
-          )
-        );
-
-        // 更新产品，使用FormData
-        response = await axiosInstance.put(
-          `/products/${currentProduct.id}`,
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          }
-        );
+        await axiosInstance.put(`/products/${currentProduct.id}`, formData);
         message.success('产品更新成功');
-        // 清除产品列表缓存
-        apiCache.delete('get:/products{}');
       } else {
-        // 乐观更新：立即更新本地UI
-        // 生成临时ID，后续会被实际ID替换
-        const tempProduct = {
-          id: Date.now(), // 临时ID
-          ...values,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          isNew: values.isNew || false,
-        };
-
-        // 更新本地状态
-        setProducts((prev) => [...prev, tempProduct]);
-
-        // 创建产品，使用FormData
-        response = await axiosInstance.post('/products', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        await axiosInstance.post('/products', formData);
         message.success('产品创建成功');
-        // 清除产品列表缓存
-        apiCache.delete('get:/products{}');
       }
 
-      console.log('API响应:', response);
-
-      // WebSocket会自动更新数据，不需要重新获取列表
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.products.lists(),
+      });
       setIsModalVisible(false);
-      setLoading(false);
-    } catch (error: any) {
-      console.error('操作失败:', error);
-      console.error('错误详情:', error.response?.data);
-      // 显示更详细的错误信息
-      const errorMessage =
-        error.response?.data?.error || error.message || '操作失败';
-      message.error(errorMessage);
-      setLoading(false);
+    } catch (err: unknown) {
+      console.error('操作失败:', err);
+      message.error(err instanceof Error ? err.message : '操作失败');
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
-  // 删除产品
-  const handleDelete = (id: number) => {
-    Modal.confirm({
-      title: '确认删除',
-      content: '你确定要删除这个产品吗？',
-      onOk: async () => {
-        try {
-          // 乐观更新：立即从本地状态中删除
-          setProducts((prev) => prev.filter((product) => product.id !== id));
+  const handleDelete = useCallback(
+    (id: number) => {
+      Modal.confirm({
+        title: '确认删除',
+        content: '你确定要删除这个产品吗？',
+        onOk: async () => {
+          try {
+            await axiosInstance.delete(`/products/${id}`);
+            message.success('产品删除成功');
+            await queryClient.invalidateQueries({
+              queryKey: queryKeys.products.lists(),
+            });
+          } catch (err: unknown) {
+            console.error('删除产品失败:', err);
+            message.error(err instanceof Error ? err.message : '删除产品失败');
+            void refetch();
+          }
+        },
+      });
+    },
+    [queryClient, refetch]
+  );
 
-          // 删除产品
-          await axiosInstance.delete(`/products/${id}`);
-          message.success('产品删除成功');
-          // 清除产品列表缓存
-          apiCache.delete('get:/products{}');
-          // WebSocket会自动更新数据，不需要重新获取列表
-        } catch (error: any) {
-          console.error('删除产品失败:', error);
-          message.error(error.response?.data?.error || '删除产品失败');
-          // 错误回滚：恢复删除的产品
-          fetchProducts(); // 重新获取产品列表，确保数据一致性
-        }
-      },
+  const writeEnabled = canWriteInManagementUi();
+
+  const onColToggle = (
+    key: (typeof OPTIONAL_COL_KEYS)[number],
+    checked: boolean
+  ) => {
+    setColVisible((prev) => {
+      const next = { ...prev, [key]: checked };
+      saveColumnVisibility(COL_STORAGE_KEY, next);
+      return next;
     });
   };
 
-  // 表格列配置
-  const columns = [
-    {
-      title: '产品名称',
-      dataIndex: 'name',
-      key: 'name',
-      width: 180,
-      ellipsis: false,
-      // 确保只显示名称，不显示其他数据
-      render: (text: string) => {
-        return typeof text === 'string' ? text : String(text);
+  const columnSettings = (
+    <Popover
+      title="列设置"
+      trigger="click"
+      placement="bottomRight"
+      content={
+        <Space direction="vertical" size="small" style={{ minWidth: 160 }}>
+          {OPTIONAL_COL_KEYS.map((k) => (
+            <Checkbox
+              key={k}
+              checked={colVisible[k]}
+              onChange={(e) => onColToggle(k, e.target.checked)}
+            >
+              {COL_LABELS[k]}
+            </Checkbox>
+          ))}
+        </Space>
+      }
+    >
+      <Button icon={<SettingOutlined />}>列设置</Button>
+    </Popover>
+  );
+
+  const allColumns: ColumnsType<ProductRow> = useMemo(
+    () => [
+      {
+        title: '产品名称',
+        dataIndex: 'name',
+        key: 'name',
+        width: 180,
+        render: (text: string) =>
+          typeof text === 'string' ? text : String(text),
       },
-    },
-    {
-      title: '价格',
-      dataIndex: 'price',
-      key: 'price',
-      width: 120,
-      align: 'center' as const,
-      render: (text: string | number) => {
-        if (text === undefined || text === null) return '-';
-        const price = typeof text === 'string' ? parseFloat(text) : text;
-        return `¥${price.toFixed(2)}`;
+      {
+        title: '价格',
+        dataIndex: 'price',
+        key: 'price',
+        width: 120,
+        align: 'center',
+        render: (text: string | number) => {
+          if (text === undefined || text === null) return '-';
+          const price = typeof text === 'string' ? parseFloat(text) : text;
+          return `¥${Number(price).toFixed(2)}`;
+        },
       },
-    },
-    {
-      title: '分类',
-      dataIndex: 'category',
-      key: 'category',
-      width: 120,
-      align: 'center' as const,
-      render: (text: string) => {
-        return text || '-';
+      {
+        title: '分类',
+        dataIndex: 'category',
+        key: 'category',
+        width: 120,
+        align: 'center',
+        render: (text: string) => text || '-',
       },
-    },
-    {
-      title: '产品图片',
-      dataIndex: 'image',
-      key: 'image',
-      width: 100,
-      align: 'center' as const,
-      render: (text: string) => {
-        if (!text) return null;
-        // 如果是base64字符串，直接显示；否则，使用URL
-        const imageUrl = text.startsWith('data:')
-          ? text
-          : `data:image/jpeg;base64,${text}`;
-        return (
-          <img
-            src={imageUrl}
-            alt="产品图片"
-            style={{
-              width: 80,
-              height: 60,
-              objectFit: 'cover',
-              borderRadius: 4,
-            }}
-          />
-        );
+      {
+        title: '产品图片',
+        dataIndex: 'image',
+        key: 'image',
+        width: 100,
+        align: 'center',
+        render: (_: string, record: ProductRow) => {
+          const ext = record.imageUrl?.trim();
+          if (ext && /^https?:\/\//i.test(ext)) {
+            return (
+              <img
+                src={ext}
+                alt=""
+                style={{
+                  width: 80,
+                  height: 60,
+                  objectFit: 'cover',
+                  borderRadius: 4,
+                }}
+              />
+            );
+          }
+          const text = record.image;
+          if (!text) return null;
+          const src = text.startsWith('data:')
+            ? text
+            : `data:image/jpeg;base64,${text}`;
+          return (
+            <img
+              src={src}
+              alt=""
+              style={{
+                width: 80,
+                height: 60,
+                objectFit: 'cover',
+                borderRadius: 4,
+              }}
+            />
+          );
+        },
       },
-    },
-    {
-      title: '是否新品',
-      dataIndex: 'isNew',
-      key: 'isNew',
-      width: 100,
-      align: 'center' as const,
-      render: (text: boolean) => (text ? '是' : '否'),
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      width: 180,
-      align: 'center' as const,
-      render: (text: string) => {
-        if (!text) return '-';
-        // 格式化日期，确保显示正确
-        try {
-          const date = new Date(text);
-          return date.toLocaleString();
-        } catch (e) {
-          return text;
-        }
+      {
+        title: '是否新品',
+        dataIndex: 'isNew',
+        key: 'isNew',
+        width: 100,
+        align: 'center',
+        render: (text: boolean) => (text ? '是' : '否'),
       },
-    },
-    {
-      title: '操作',
-      dataIndex: 'action',
-      key: 'action',
-      width: 160,
-      align: 'center' as const,
-      fixed: 'right' as const,
-      render: (_: any, record: Product) => (
-        <div
-          className="action-buttons"
-          style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}
-        >
-          <Button
-            type="primary"
-            icon={<EditOutlined />}
-            size="small"
-            className="edit-button"
-            onClick={() => showModal(record)}
-            style={{ flex: 1, minWidth: '60px' }}
-          >
-            编辑
-          </Button>
-          <Button
-            danger
-            icon={<DeleteOutlined />}
-            size="small"
-            className="delete-button"
-            onClick={() => handleDelete(record.id)}
-            style={{ flex: 1, minWidth: '60px' }}
-          >
-            删除
-          </Button>
-        </div>
+      {
+        title: '创建时间',
+        dataIndex: 'createdAt',
+        key: 'createdAt',
+        width: 180,
+        align: 'center',
+        render: (text: string) => {
+          if (!text) return '-';
+          try {
+            return new Date(text).toLocaleString();
+          } catch {
+            return text;
+          }
+        },
+      },
+      {
+        title: '操作',
+        dataIndex: 'action',
+        key: 'action',
+        width: 160,
+        align: 'center',
+        fixed: 'right',
+        render: (_: unknown, record: ProductRow) =>
+          writeEnabled ? (
+            <div
+              className="action-buttons"
+              style={{ display: 'flex', gap: 8, justifyContent: 'center' }}
+            >
+              <Button
+                type="primary"
+                icon={<EditOutlined />}
+                size="small"
+                className="edit-button"
+                onClick={() => showModal(record)}
+                style={{ flex: 1, minWidth: 60 }}
+              >
+                编辑
+              </Button>
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                size="small"
+                className="delete-button"
+                onClick={() => handleDelete(record.id)}
+                style={{ flex: 1, minWidth: 60 }}
+              >
+                删除
+              </Button>
+            </div>
+          ) : (
+            '—'
+          ),
+      },
+    ],
+    [writeEnabled, showModal, handleDelete]
+  );
+
+  const visibleColumns = useMemo(
+    () =>
+      allColumns.filter(
+        (c) => c.key === 'action' || (c.key && colVisible[String(c.key)])
       ),
-    },
-  ];
+    [allColumns, colVisible]
+  );
+
+  const searchFilter = (
+    <Space wrap className="admin-page__filter-row">
+      <Input.Search
+        allowClear
+        placeholder="按产品名称或分类名称搜索"
+        value={searchInput}
+        onChange={(e) => setSearchInput(e.target.value)}
+        onSearch={(v) => setSearchInput(v)}
+        style={{ maxWidth: 360 }}
+      />
+    </Space>
+  );
 
   return (
-    <div className="management-page">
-      <div className="page-header">
-        <h1>产品管理</h1>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => showModal()}
-        >
-          新增产品
-        </Button>
-      </div>
-
+    <AdminListPageShell
+      title="产品管理"
+      description="检索条件会写入地址栏 ?search=，便于分享与刷新后保留。"
+      extra={
+        <Space wrap>
+          {columnSettings}
+          <ManagementWriteGate>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => showModal()}
+            >
+              新增产品
+            </Button>
+          </ManagementWriteGate>
+        </Space>
+      }
+      filter={searchFilter}
+    >
       <div className="table-container">
         <Table
-          columns={columns}
+          columns={visibleColumns}
           dataSource={products}
           rowKey="id"
           bordered
           pagination={false}
-          loading={loading}
+          loading={isPending || isFetching}
         />
       </div>
 
-      {/* 固定分页控件 */}
       <EnhancedPagination
         currentPage={currentPage}
         pageSize={pageSize}
         total={total}
         onChange={(page, size) => {
-          setCurrentPage(page);
-          setPageSize(size);
+          const nextSize = size ?? pageSize;
+          const nextPage = nextSize !== pageSize ? 1 : page;
+          setListParams({ page: nextPage, pageSize: nextSize });
         }}
       />
 
-      {/* 产品表单模态框 */}
       <Modal
         title={isEditing ? '编辑产品' : '新增产品'}
         open={isModalVisible}
         onCancel={handleCancel}
         footer={null}
       >
-        <Form form={form} layout="vertical" initialValues={{ isNew: false }}>
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={{ isNew: false, imageUrl: '' }}
+        >
           <Form.Item
             name="name"
             label="产品名称"
@@ -507,7 +549,6 @@ const ProductManagement: React.FC = () => {
           >
             <Input placeholder="请输入产品名称" />
           </Form.Item>
-
           <Form.Item
             name="price"
             label="价格"
@@ -515,94 +556,97 @@ const ProductManagement: React.FC = () => {
           >
             <Input type="number" placeholder="请输入价格" />
           </Form.Item>
-
           <Form.Item
-            name="category"
+            name="categoryId"
             label="分类"
-            rules={[{ required: true, message: '请输入分类' }]}
+            rules={[{ required: true, message: '请选择分类' }]}
+            extra="选项来自数据库已有类目；新增类目需通过种子或数据库维护。"
           >
-            <Select placeholder="请选择分类">
-              <Option value="家具">家具</Option>
-              <Option value="工艺品">工艺品</Option>
-              <Option value="原材料">原材料</Option>
+            <Select
+              placeholder="请选择分类"
+              showSearch
+              optionFilterProp="label"
+            >
+              {categories.map((c) => (
+                <Option key={c.id} value={c.id} label={c.name}>
+                  {c.name}
+                </Option>
+              ))}
             </Select>
           </Form.Item>
-
           <Form.Item name="isNew" label="是否新品">
             <Select placeholder="请选择">
               <Option value={true}>是</Option>
               <Option value={false}>否</Option>
             </Select>
           </Form.Item>
-
           <Form.Item
-            name="image"
-            label="产品图片"
-            rules={[{ required: true, message: '请上传产品图片' }]}
+            name="imageUrl"
+            label="图片 URL（可选，优先于上传文件）"
+            rules={[
+              {
+                validator: async (_, v) => {
+                  const s = String(v ?? '').trim();
+                  if (!s) return;
+                  try {
+                    new URL(s);
+                  } catch {
+                    throw new Error('请输入有效 URL');
+                  }
+                },
+              },
+            ]}
           >
+            <Input placeholder="https://…" allowClear />
+          </Form.Item>
+          <Form.Item name="image" label="产品图片（与 URL 二选一即可）">
             <Upload
               listType="picture"
               action="#"
               beforeUpload={(file) => {
-                // 检查文件类型
-                const isJpgOrPng =
+                const ok =
                   file.type === 'image/jpeg' || file.type === 'image/png';
-                if (!isJpgOrPng) {
+                if (!ok) {
                   message.error('只能上传JPG/PNG格式的图片');
                   return Upload.LIST_IGNORE;
                 }
-                // 阻止默认的上传行为，使用自定义的图片处理逻辑
                 return false;
               }}
               onChange={({ fileList }) => {
                 if (fileList.length > 0) {
                   const file = fileList[0];
-                  // 如果是本地文件，将其转换为base64并压缩
                   if (file.originFileObj) {
                     const reader = new FileReader();
                     reader.onload = (e) => {
                       const img = new Image();
                       img.onload = () => {
-                        // 创建canvas进行图片压缩和裁剪
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
                         if (!ctx) return;
-
-                        // 设置目标尺寸
                         const targetWidth = 300;
                         const targetHeight = 200;
-
-                        // 设置canvas尺寸
                         canvas.width = targetWidth;
                         canvas.height = targetHeight;
-
-                        // 绘制图片，自动裁剪和缩放
                         ctx.drawImage(
                           img,
                           0,
                           0,
                           img.width,
-                          img.height, // 原图位置和尺寸
+                          img.height,
                           0,
                           0,
                           targetWidth,
-                          targetHeight // 目标位置和尺寸
+                          targetHeight
                         );
-
-                        // 转换为base64，质量为0.8
-                        const compressedDataUrl = canvas.toDataURL(
-                          'image/jpeg',
-                          0.8
+                        form.setFieldValue(
+                          'image',
+                          canvas.toDataURL('image/jpeg', 0.8)
                         );
-
-                        // 设置到表单字段
-                        form.setFieldValue('image', compressedDataUrl);
                       };
                       img.src = e.target?.result as string;
                     };
                     reader.readAsDataURL(file.originFileObj);
                   } else {
-                    // 如果是已上传的文件，直接使用URL
                     form.setFieldValue('image', file.url);
                   }
                 }
@@ -611,19 +655,24 @@ const ProductManagement: React.FC = () => {
               <Button icon={<PlusOutlined />}>上传图片</Button>
             </Upload>
             <p className="form-help-text">
-              支持JPG、PNG格式，建议尺寸300x200像素，上传后会自动调整大小
+              支持 JPG、PNG；建议 300×200；新建时须上传文件或填写上方图片 URL。
             </p>
           </Form.Item>
-
           <div className="form-actions">
             <Button onClick={handleCancel}>取消</Button>
-            <Button type="primary" onClick={handleSubmit} loading={loading}>
-              {isEditing ? '更新' : '创建'}
-            </Button>
+            <ManagementWriteGate>
+              <Button
+                type="primary"
+                onClick={() => void handleSubmit()}
+                loading={submitLoading}
+              >
+                {isEditing ? '更新' : '创建'}
+              </Button>
+            </ManagementWriteGate>
           </div>
         </Form>
       </Modal>
-    </div>
+    </AdminListPageShell>
   );
 };
 

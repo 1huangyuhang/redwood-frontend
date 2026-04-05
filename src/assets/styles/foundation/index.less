@@ -1,0 +1,6 @@
+/**
+ * Less 变量与编译期 token 的唯一入口（供各模块 @import (reference)）。
+ * 勿在此引入会输出 CSS 的规则（如 ly-surfaces、theme-css）；全站运行时主题由 global.less 统一加载。
+ */
+@import (reference) '../tokens/semantic-palette.less';
+@import (reference) '../mixins/motion-transitions.less';

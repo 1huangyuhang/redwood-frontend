@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { generateTraceRef, wrapAxiosError } from '@shared/errorTracing';
 
 const axiosInstance = axios.create({
   baseURL: '/api', // 使用相对路径，通过vite proxy代理到后端
@@ -8,66 +9,50 @@ const axiosInstance = axios.create({
   },
 });
 
-// 请求拦截器
 axiosInstance.interceptors.request.use(
   (config) => {
-    // 添加API密钥认证，默认值与后端一致
+    const clientTraceId = generateTraceRef('cli');
+    (config as { clientTraceId?: string }).clientTraceId = clientTraceId;
+    config.headers['X-Client-Trace-Id'] = clientTraceId;
+
     const apiKey = import.meta.env.VITE_API_KEY || 'default-api-key';
     config.headers['x-api-key'] = apiKey;
 
-    // 添加JWT认证
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     return config;
   },
   (error) => {
-    return Promise.reject(error);
+    const te = wrapAxiosError(error);
+    console.error(te.toLogString());
+    return Promise.reject(te);
   }
 );
 
-// 响应拦截器
 axiosInstance.interceptors.response.use(
   (response) => {
     return response.data;
   },
   (error) => {
-    if (error.response) {
-      // 处理HTTP错误
-      const { status, data } = error.response;
-      switch (status) {
-        case 401:
-          // 未授权，清除token并跳转到登录页
-          localStorage.removeItem('token');
-          window.location.href = '/login';
-          break;
-        case 403:
-          // 禁止访问
-          console.error('Forbidden:', data.message || '您没有权限访问该资源');
-          break;
-        case 404:
-          // 资源不存在
-          console.error('Not Found:', data.message || '请求的资源不存在');
-          break;
-        case 500:
-          // 服务器错误
-          console.error('Server Error:', data.message || '服务器内部错误');
-          break;
-        default:
-          console.error(
-            'Error:',
-            data.message || `请求失败，状态码：${status}`
-          );
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      const url = String(error.config?.url ?? '');
+      // 登录页提交错误账号也会 401，不应整页重定向打断表单提示
+      if (!url.includes('/auth/login')) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
       }
-    } else if (error.request) {
-      // 请求已发送但没有收到响应
-      console.error('Network Error:', '无法连接到服务器，请检查网络');
-    } else {
-      // 请求配置错误
-      console.error('Request Error:', error.message);
     }
-    return Promise.reject(error);
+
+    const te = wrapAxiosError(error);
+    console.error(te.toLogString());
+    return Promise.reject(te);
   }
 );
 

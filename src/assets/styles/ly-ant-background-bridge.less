@@ -1,0 +1,149 @@
+/**
+ * 主站 .top-layout 内 Ant 容器与三级表面 token 对齐（可整文件删除回滚）
+ * 不修改 TSX；仅补 Table / Modal / Drawer / List / Collapse / Descriptions 等易断层组件
+ */
+
+.top-layout {
+  .ant-card {
+    border-radius: var(--app-saas-card-radius) !important;
+    background: var(--ly-glass-card-bg) !important;
+    backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+    -webkit-backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+    border: 1px solid var(--app-saas-card-border) !important;
+    box-shadow: var(--ly-glass-inset), var(--app-saas-card-shadow) !important;
+    overflow: hidden;
+    @media (prefers-reduced-motion: no-preference) {
+      transition:
+        transform var(--motion-duration-md) var(--motion-ease-soft),
+        box-shadow var(--motion-duration-md) var(--motion-ease-soft),
+        border-color var(--motion-duration-md) var(--motion-ease-soft);
+    }
+  }
+
+  .ant-card-hoverable:hover {
+    border-color: var(--app-card-border-hover) !important;
+    box-shadow: var(--ly-glass-inset), var(--app-saas-card-shadow-hover) !important;
+    transform: translateY(-4px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ant-card-hoverable:hover {
+      transform: none;
+    }
+  }
+
+  .ant-card .ant-card-head {
+    border-bottom-color: var(--ly-glass-border) !important;
+    background: transparent !important;
+  }
+
+  .ant-card .ant-card-actions {
+    border-top-color: var(--ly-glass-border) !important;
+    background: color-mix(in srgb, var(--ly-bg-canvas) 22%, transparent) !important;
+  }
+
+  .ant-modal .ant-modal-content {
+    background: var(--ly-glass-card-bg) !important;
+    backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+    -webkit-backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+    border: 1px solid var(--ly-glass-border);
+    box-shadow: var(--ly-glass-inset), var(--ly-shadow-card);
+  }
+
+  .ant-modal .ant-modal-header {
+    background: transparent !important;
+    border-bottom-color: var(--ly-border-subtle) !important;
+  }
+
+  .ant-drawer .ant-drawer-content {
+    background: var(--ly-glass-card-bg) !important;
+    backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+    -webkit-backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+  }
+
+  .ant-drawer .ant-drawer-header {
+    border-bottom-color: var(--ly-border-subtle) !important;
+  }
+
+  .ant-table-wrapper .ant-table {
+    background: var(--ly-bg-card) !important;
+  }
+
+  .ant-table-wrapper .ant-table-thead > tr > th {
+    background: color-mix(in srgb, var(--ly-bg-raised) 70%, var(--ly-bg-card) 30%) !important;
+    border-bottom-color: var(--ly-border-subtle) !important;
+    color: var(--app-text-primary);
+  }
+
+  .ant-table-wrapper .ant-table-tbody > tr > td {
+    border-bottom-color: var(--ly-border-subtle) !important;
+    background: var(--ly-bg-card) !important;
+  }
+
+  .ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td,
+  .ant-table-wrapper .ant-table-tbody > tr > td.ant-table-cell-row-hover {
+    background: var(--ly-bg-raised-hover) !important;
+  }
+
+  .ant-list .ant-list-item {
+    border-block-color: var(--ly-border-subtle) !important;
+  }
+
+  .ant-collapse {
+    background: var(--ly-bg-card) !important;
+    border-color: var(--ly-border-subtle) !important;
+  }
+
+  .ant-collapse .ant-collapse-item {
+    border-color: var(--ly-border-subtle) !important;
+  }
+
+  .ant-collapse > .ant-collapse-item > .ant-collapse-header {
+    color: var(--app-heading);
+  }
+
+  .ant-collapse .ant-collapse-content {
+    background: color-mix(in srgb, var(--ly-bg-card) 92%, var(--ly-bg-canvas) 8%) !important;
+    border-top-color: var(--ly-border-subtle) !important;
+  }
+
+  .ant-descriptions .ant-descriptions-view {
+    border-color: var(--ly-border-subtle) !important;
+  }
+
+  .ant-descriptions-bordered .ant-descriptions-item-label,
+  .ant-descriptions-bordered .ant-descriptions-item-content {
+    background: var(--ly-bg-card) !important;
+    border-color: var(--ly-border-subtle) !important;
+  }
+
+  .ant-popover .ant-popover-inner {
+    background: var(--ly-bg-card) !important;
+    border: 1px solid var(--ly-border-subtle);
+    box-shadow: var(--ly-shadow-card);
+  }
+
+  .ant-dropdown .ant-dropdown-menu {
+    background: var(--ly-bg-card) !important;
+    border: 1px solid var(--ly-border-subtle);
+    box-shadow: var(--ly-shadow-card);
+  }
+
+  .ant-picker-dropdown .ant-picker-panel-container {
+    background: var(--ly-glass-card-bg) !important;
+    backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+    -webkit-backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+    border: 1px solid var(--ly-glass-border);
+    box-shadow: var(--ly-glass-inset), var(--ly-shadow-card);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .top-layout .ant-card,
+  .top-layout .ant-modal .ant-modal-content,
+  .top-layout .ant-drawer .ant-drawer-content,
+  .top-layout .ant-picker-dropdown .ant-picker-panel-container {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}

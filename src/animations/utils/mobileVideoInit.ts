@@ -6,7 +6,8 @@
 /**
  * 移动端检测正则表达式
  */
-const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+const mobileRegex =
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
 
 /**
  * 检测是否为移动端设备
@@ -31,24 +32,24 @@ export const initMobileVideo = (video: HTMLVideoElement): (() => void) => {
   const triggerVideoLoad = () => {
     // 重置视频状态
     video.load();
-    
+
     // 尝试播放视频，解决移动端首次加载问题
     video.play().catch(() => {
       // 自动播放失败时，至少确保视频已加载
       video.load();
     });
-    
+
     // 移除所有事件监听器，避免重复触发
     document.removeEventListener('touchstart', triggerVideoLoad);
     document.removeEventListener('click', triggerVideoLoad);
     document.removeEventListener('scroll', triggerVideoLoad);
   };
-  
+
   // 监听多种用户交互事件，确保视频能被触发
   document.addEventListener('touchstart', triggerVideoLoad, { once: true });
   document.addEventListener('click', triggerVideoLoad, { once: true });
   document.addEventListener('scroll', triggerVideoLoad, { once: true });
-  
+
   // 返回清理函数
   return () => {
     document.removeEventListener('touchstart', triggerVideoLoad);
@@ -59,5 +60,5 @@ export const initMobileVideo = (video: HTMLVideoElement): (() => void) => {
 
 export default {
   isMobile,
-  initMobileVideo
+  initMobileVideo,
 };

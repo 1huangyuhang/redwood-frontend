@@ -1,11 +1,20 @@
 import { Request, Response } from 'express';
 import prisma from '../utils/prisma';
-import { io } from '../app';
+import { getIo } from '../socketInstance';
 import {
   createNewsSchema,
   updateNewsSchema,
   newsQuerySchema,
 } from '../schemas/newsSchema';
+import { serializeMediaFields } from '../utils/serializeMedia';
+
+function formatNews<
+  T extends { image: Uint8Array | null; imageUrl: string | null },
+>(row: T) {
+  const { image: _image, ...rest } = row;
+  void _image;
+  return { ...rest, ...serializeMediaFields(row) };
+}
 
 // 获取所有新闻
 const getAllNews = async (req: Request, res: Response) => {
@@ -45,13 +54,7 @@ const getAllNews = async (req: Request, res: Response) => {
   // 计算总页数
   const totalPages = Math.ceil(total / pageSize);
 
-  // 将新闻列表中的image转换为base64
-  const formattedNews = news.map((newsItem) => ({
-    ...newsItem,
-    image: newsItem.image
-      ? Buffer.from(newsItem.image).toString('base64')
-      : null,
-  }));
+  const formattedNews = news.map((newsItem) => formatNews(newsItem));
 
   // 返回带分页信息的响应
   res.json({
@@ -87,14 +90,7 @@ const getNewsById = async (req: Request, res: Response) => {
     if (!newsItem) {
       res.status(404).json({ error: 'News not found' });
     } else {
-      // 将image转换为base64
-      const formattedNews = {
-        ...newsItem,
-        image: newsItem.image
-          ? Buffer.from(newsItem.image).toString('base64')
-          : null,
-      };
-      res.json(formattedNews);
+      res.json(formatNews(newsItem));
     }
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch news' });
@@ -107,23 +103,21 @@ const createNews = async (req: Request, res: Response) => {
   const validatedData = createNewsSchema.parse(req.body);
 
   // 处理image字段，确保兼容Prisma类型要求
+  const { imageUrl, ...rest } = validatedData;
   const newsData = {
-    ...validatedData,
+    ...rest,
     image: req.file?.buffer ? new Uint8Array(req.file.buffer) : null,
+    imageUrl: imageUrl ?? null,
   };
 
   const news = await prisma.news.create({
     data: newsData,
   });
 
-  // 将image转换为base64
-  const formattedNews = {
-    ...news,
-    image: news.image ? Buffer.from(news.image).toString('base64') : null,
-  };
+  const formattedNews = formatNews(news);
 
   // 发送WebSocket事件，通知客户端有新闻创建
-  io.emit('news:created', formattedNews);
+  getIo().emit('news:created', formattedNews);
 
   res.status(201).json(formattedNews);
 };
@@ -166,16 +160,10 @@ const updateNews = async (req: Request, res: Response) => {
     data: updateData,
   });
 
-  // 将image转换为base64
-  const formattedNews = {
-    ...updatedNews,
-    image: updatedNews.image
-      ? Buffer.from(updatedNews.image).toString('base64')
-      : null,
-  };
+  const formattedNews = formatNews(updatedNews);
 
   // 发送WebSocket事件，通知客户端新闻已更新
-  io.emit('news:updated', formattedNews);
+  getIo().emit('news:updated', formattedNews);
 
   res.json(formattedNews);
 };
@@ -206,7 +194,7 @@ const deleteNews = async (req: Request, res: Response) => {
   });
 
   // 发送WebSocket事件，通知客户端新闻已删除
-  io.emit('news:deleted', deletedNews.id);
+  getIo().emit('news:deleted', deletedNews.id);
 
   res.json({ message: 'News deleted successfully' });
 };

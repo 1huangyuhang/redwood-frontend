@@ -1,4 +1,5 @@
 import { io, Socket } from 'socket.io-client';
+import { getManagementSocketUrl } from '../config/managementApiBase';
 
 // WebSocket事件类型定义
 export type WebSocketEvent = {
@@ -11,6 +12,17 @@ export type WebSocketEvent = {
   'news:created': any;
   'news:updated': any;
   'news:deleted': number;
+  'course:created': any;
+  'course:updated': any;
+  'course:deleted': number;
+  'pricingPlan:created': any;
+  'pricingPlan:updated': any;
+  'pricingPlan:deleted': number;
+  'contactMessage:created': { id: number };
+  'contactMessage:deleted': number;
+  'supportTicket:created': any;
+  'supportTicket:updated': any;
+  'supportTicket:deleted': number;
 };
 
 class WebSocketService {
@@ -24,13 +36,7 @@ class WebSocketService {
 
   // 初始化WebSocket连接
   private init() {
-    // 根据当前环境获取WebSocket服务器地址
-    let wsUrl =
-      import.meta.env.VITE_API_BASE_URL?.replace('http', 'ws') ||
-      'ws://localhost:3000';
-
-    // 移除URL中的/api路径，Socket.IO服务器运行在根路径
-    wsUrl = wsUrl.replace('/api', '');
+    const wsUrl = getManagementSocketUrl();
 
     this.socket = io(wsUrl, {
       transports: ['websocket'],
@@ -97,6 +103,43 @@ class WebSocketService {
 
     this.socket.on('news:deleted', (id) => {
       this.notifyHandlers('news:deleted', id);
+    });
+
+    this.socket.on('course:created', (data) => {
+      this.notifyHandlers('course:created', data);
+    });
+    this.socket.on('course:updated', (data) => {
+      this.notifyHandlers('course:updated', data);
+    });
+    this.socket.on('course:deleted', (id) => {
+      this.notifyHandlers('course:deleted', id);
+    });
+
+    this.socket.on('pricingPlan:created', (data) => {
+      this.notifyHandlers('pricingPlan:created', data);
+    });
+    this.socket.on('pricingPlan:updated', (data) => {
+      this.notifyHandlers('pricingPlan:updated', data);
+    });
+    this.socket.on('pricingPlan:deleted', (id) => {
+      this.notifyHandlers('pricingPlan:deleted', id);
+    });
+
+    this.socket.on('contactMessage:created', (data) => {
+      this.notifyHandlers('contactMessage:created', data);
+    });
+    this.socket.on('contactMessage:deleted', (id) => {
+      this.notifyHandlers('contactMessage:deleted', id);
+    });
+
+    this.socket.on('supportTicket:created', (data) => {
+      this.notifyHandlers('supportTicket:created', data);
+    });
+    this.socket.on('supportTicket:updated', (data) => {
+      this.notifyHandlers('supportTicket:updated', data);
+    });
+    this.socket.on('supportTicket:deleted', (id) => {
+      this.notifyHandlers('supportTicket:deleted', id);
     });
   }
 

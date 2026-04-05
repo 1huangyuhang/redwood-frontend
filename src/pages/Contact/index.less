@@ -1,9 +1,7 @@
-@import '../../assets/styles/global.less';
+@import (reference) '../../assets/styles/foundation/index.less';
 
 .contact-page {
   padding: 0;
-  max-width: 1200px;
-  margin: 0 auto;
 
   // 页面标题
   .page-title {
@@ -19,13 +17,13 @@
     h1 {
       font-size: 32px;
       font-weight: 600;
-      color: #2c1810;
+      color: var(--app-heading);
       margin-bottom: 12px;
     }
 
     .ant-typography-text {
       font-size: 16px;
-      color: #665248;
+      color: var(--app-text-secondary);
       line-height: 1.5;
     }
   }
@@ -63,20 +61,10 @@
     }
 
     .submit-btn {
-      background-color: #2c1810;
-      border-color: #2c1810;
-      color: #fff;
       border-radius: 4px;
       padding: 8px 32px;
       font-size: 14px;
       font-weight: 500;
-      transition: all 0.3s ease;
-
-      &:hover {
-        background-color: #1a0f0a;
-        border-color: #1a0f0a;
-        color: #fff;
-      }
     }
   }
 
@@ -91,7 +79,7 @@
     h2 {
       font-size: 20px;
       font-weight: 600;
-      color: #2c1810;
+      color: var(--app-heading);
       margin-bottom: 16px;
     }
 
@@ -126,7 +114,7 @@
 
   // 响应式设计
   @media (max-width: 768px) {
-    padding: 16px;
+    padding: 0;
 
     .page-title {
       margin-bottom: 24px;

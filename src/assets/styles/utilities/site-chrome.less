@@ -1,0 +1,75 @@
+@import (reference) '../foundation/index.less';
+
+.footer-title {
+  font-size: @font-size-h5;
+  font-weight: @font-weight-semibold;
+  color: @dark-color;
+  margin-bottom: 20px;
+  text-align: left;
+  font-family: @font-family-heading;
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.footer-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background-color: @primary-color;
+  .app-tx-width();
+}
+
+.footer-title:hover::after {
+  width: 60px;
+}
+
+.footer-description {
+  font-size: @font-size-sm;
+  line-height: @line-height-base;
+  color: @text-color-secondary;
+  margin-bottom: 16px;
+  text-align: left;
+  font-weight: @font-weight-normal;
+  font-family: @font-family-base;
+}
+
+.company-name {
+  font-size: @font-size-lg;
+  font-weight: @font-weight-bold;
+  color: @dark-color;
+  margin-bottom: 16px;
+  font-family: @font-family-base;
+}
+
+.company-address {
+  font-size: @font-size-sm;
+  color: @text-color-secondary;
+  margin-bottom: 10px;
+  font-weight: @font-weight-normal;
+  font-family: @font-family-base;
+  line-height: @line-height-base;
+}
+
+.contact-text {
+  font-size: @font-size-sm;
+  color: @text-color-secondary;
+  font-weight: @font-weight-normal;
+  font-family: @font-family-base;
+  .app-tx-color();
+}
+
+.contact-item:hover .contact-text {
+  color: @primary-color;
+}
+
+.contact-icon {
+  color: @primary-color;
+  .app-tx-color-bg-transform();
+}
+
+.contact-item:hover .contact-icon {
+  transform: scale(1.2);
+}

@@ -1,0 +1,246 @@
+/**
+ * 运行时主题：html[data-theme='light'|'dark']（与 Redux 同步）
+ * 中性 SaaS 基底（锌灰/白）+ 红木色（--app-accent-cinnabar 等）作点缀与主按钮。
+ * L0/L1/L2 真源见 ly-surfaces.less；--app-card-* 为指向 --ly-* 的兼容别名。
+ */
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --app-rgb-glow: 212, 101, 92;
+  --app-surface-glass: rgba(24, 24, 27, 0.88);
+  --app-text-primary: rgba(244, 244, 245, 0.96);
+  --app-text-secondary: rgba(161, 161, 170, 0.9);
+  --app-text-tertiary: rgba(113, 113, 122, 0.62);
+  --app-text-disabled: rgba(113, 113, 122, 0.38);
+  --app-heading: #fafafa;
+  --app-accent-hover: #f0877c;
+  --app-accent-cinnabar: #d4655c;
+  --app-accent-deep: #b03d36;
+  --app-text-gradient-display: linear-gradient(
+    108deg,
+    #fafafa 0%,
+    #fecaca 32%,
+    #d4655c 52%,
+    #fca5a5 100%
+  );
+  --app-link: #f0a8a0;
+  --app-link-hover: #fecaca;
+  --section-veil-top: rgba(255, 255, 255, 0.035);
+  --section-veil-mid: rgba(255, 255, 255, 0.018);
+  --section-veil-bottom: rgba(0, 0, 0, 0.05);
+  --app-text-on-strong: rgba(255, 252, 248, 0.96);
+  --app-text-on-strong-muted: rgba(228, 228, 231, 0.85);
+  --app-text-on-media: rgba(255, 252, 248, 0.95);
+  --app-text-on-media-muted: rgba(228, 220, 210, 0.84);
+  --app-code-bg: rgba(255, 255, 255, 0.06);
+  --app-code-border: rgba(255, 255, 255, 0.1);
+  --app-fill-alter-subtle: rgba(255, 255, 255, 0.04);
+  --app-heading-weight: 650;
+  --font-body: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-heading: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-display: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'SF Mono', ui-monospace, 'Cascadia Code', 'Roboto Mono', Menlo, Monaco, monospace;
+  --track-body: -0.011em;
+  --track-heading: -0.03em;
+  --track-label: 0.05em;
+  --leading-body: 1.72;
+  --leading-tight: 1.2;
+  --leading-snug: 1.46;
+  --type-body: clamp(0.9375rem, 0.28vw + 0.86rem, 1.125rem);
+  --type-lead: clamp(1.03125rem, 0.38vw + 0.92rem, 1.25rem);
+  --type-small: clamp(0.8125rem, 0.16vw + 0.77rem, 0.9375rem);
+  --type-caption: clamp(0.75rem, 0.12vw + 0.71rem, 0.8125rem);
+  --type-overline: clamp(0.6875rem, 0.1vw + 0.66rem, 0.75rem);
+  --type-h1: clamp(2.125rem, 2.5vw + 1.2rem, 3.5rem);
+  --type-h2: clamp(1.6875rem, 1.75vw + 1.05rem, 2.75rem);
+  --type-h3: clamp(1.4375rem, 1.15vw + 0.95rem, 2.125rem);
+  --type-h4: clamp(1.25rem, 0.72vw + 0.9rem, 1.75rem);
+  --type-h5: clamp(1.125rem, 0.42vw + 0.88rem, 1.375rem);
+  --type-h6: clamp(1.0625rem, 0.26vw + 0.86rem, 1.1875rem);
+  --selection-bg: rgba(212, 101, 92, 0.4);
+  --selection-fg: #fafafa;
+  --motion-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-duration-sm: 0.22s;
+  --motion-duration-md: 0.55s;
+  --motion-duration-lg: 0.85s;
+  --app-card-bg: var(--ly-bg-card);
+  --app-card-bg-solid: var(--ly-bg-card);
+  --app-card-border: var(--ly-border-subtle);
+  --app-card-border-hover: rgba(212, 101, 92, 0.28);
+  --app-card-shadow: var(--ly-shadow-card);
+  --app-card-shadow-hover: var(--ly-shadow-card-hover);
+  --app-card-radius: 14px;
+  --app-card-radius-lg: 16px;
+  --app-card-muted: var(--app-text-tertiary);
+  --app-card-image-bg: color-mix(in srgb, var(--ly-bg-card) 78%, var(--ly-bg-canvas) 22%);
+
+  /* SaaS 产品站卡片（参考 dify.ai 类站点：大圆角 + 分层柔阴影 + 轻悬停，配色仍贴合红木点缀） */
+  --app-saas-card-radius: 18px;
+  --app-saas-card-border: rgba(255, 255, 255, 0.09);
+  --app-saas-card-shadow: 0 1px 0 rgba(255, 255, 255, 0.07) inset, 0 0 0 1px rgba(255, 255, 255, 0.07),
+    0 2px 4px rgba(0, 0, 0, 0.18), 0 14px 36px rgba(0, 0, 0, 0.32);
+  --app-saas-card-shadow-hover: 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 0 0 1px rgba(212, 101, 92, 0.24),
+    0 6px 12px rgba(0, 0, 0, 0.22), 0 22px 48px rgba(0, 0, 0, 0.42);
+  --app-saas-card-shine: linear-gradient(
+    135deg,
+    rgba(212, 101, 92, 0.1) 0%,
+    rgba(255, 255, 255, 0.03) 42%,
+    transparent 68%
+  );
+
+  --ly-glass-blur: 12px;
+  --ly-glass-sat: 1.02;
+  --ly-glass-raised-bg: rgba(24, 24, 27, 0.82);
+  --ly-glass-card-bg: rgba(24, 24, 27, 0.92);
+  --ly-glass-border: rgba(255, 255, 255, 0.1);
+  --ly-glass-inset: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  --ly-glass-hero-glow: 0 0 48px -16px rgba(212, 101, 92, 0.24);
+  --ly-glass-top-bar-bg: rgba(9, 9, 11, 0.82);
+  --ly-glass-nav-bg: rgba(9, 9, 11, 0.86);
+  --ly-glass-border-soft: rgba(255, 255, 255, 0.06);
+
+  --chrome-header-border: rgba(255, 255, 255, 0.08);
+  --chrome-header-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
+  --chrome-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 12px 40px rgba(0, 0, 0, 0.35);
+  --chrome-card-shadow-lg: 0 1px 2px rgba(0, 0, 0, 0.15), 0 20px 50px rgba(0, 0, 0, 0.4);
+
+  --home-unified-radius: 22px;
+  --home-unified-border: rgba(255, 255, 255, 0.1);
+  --home-unified-blur: 16px;
+  --home-unified-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset, 0 28px 64px -36px rgba(0, 0, 0, 0.55),
+    0 0 56px -24px rgba(212, 101, 92, 0.14);
+  --home-unified-bg: linear-gradient(
+      168deg,
+      rgba(39, 39, 42, 0.58) 0%,
+      rgba(24, 24, 27, 0.45) 48%,
+      rgba(32, 28, 34, 0.55) 100%
+    ),
+    linear-gradient(
+      180deg,
+      var(--section-veil-top) 0%,
+      var(--section-veil-mid) 48%,
+      var(--section-veil-bottom) 100%
+    );
+}
+
+html[data-theme='light'] {
+  color-scheme: light;
+  --app-rgb-glow: 176, 61, 54;
+  --app-surface-glass: rgba(255, 255, 255, 0.92);
+  --app-text-primary: rgba(15, 23, 42, 0.92);
+  --app-text-secondary: rgba(51, 65, 85, 0.82);
+  --app-text-tertiary: rgba(100, 116, 139, 0.62);
+  --app-text-disabled: rgba(148, 163, 184, 0.45);
+  --app-heading: #0f172a;
+  --app-accent-hover: #c94a42;
+  --app-accent-cinnabar: #b03d36;
+  --app-accent-deep: #8a2e28;
+  --app-text-gradient-display: linear-gradient(
+    108deg,
+    #0f172a 0%,
+    #334155 28%,
+    #b03d36 52%,
+    #64748b 100%
+  );
+  --app-link: #b03d36;
+  --app-link-hover: #d4655c;
+  --section-veil-top: rgba(248, 250, 252, 0.92);
+  --section-veil-mid: rgba(241, 245, 249, 0.55);
+  --section-veil-bottom: rgba(176, 61, 54, 0.04);
+  --app-text-on-strong: rgba(15, 23, 42, 0.94);
+  --app-text-on-strong-muted: rgba(51, 65, 85, 0.82);
+  --app-text-on-media: rgba(255, 252, 248, 0.96);
+  --app-text-on-media-muted: rgba(240, 234, 228, 0.86);
+  --app-code-bg: rgba(15, 23, 42, 0.05);
+  --app-code-border: rgba(15, 23, 42, 0.1);
+  --app-fill-alter-subtle: rgba(15, 23, 42, 0.04);
+  --app-heading-weight: 650;
+  --font-body: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-heading: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-display: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'SF Mono', ui-monospace, 'Cascadia Code', 'Roboto Mono', Menlo, Monaco, monospace;
+  --track-body: -0.008em;
+  --track-heading: -0.028em;
+  --track-label: 0.05em;
+  --leading-body: 1.72;
+  --leading-tight: 1.2;
+  --leading-snug: 1.48;
+  --type-body: clamp(0.9375rem, 0.22vw + 0.88rem, 1.0625rem);
+  --type-lead: clamp(1.03125rem, 0.32vw + 0.94rem, 1.1875rem);
+  --type-small: clamp(0.8125rem, 0.14vw + 0.78rem, 0.875rem);
+  --type-caption: clamp(0.75rem, 0.1vw + 0.72rem, 0.8rem);
+  --type-overline: clamp(0.6875rem, 0.08vw + 0.67rem, 0.74rem);
+  --type-h1: clamp(2.125rem, 2.4vw + 1.1rem, 3.5rem);
+  --type-h2: clamp(1.6875rem, 1.7vw + 1rem, 2.65rem);
+  --type-h3: clamp(1.375rem, 1.05vw + 0.92rem, 1.9rem);
+  --type-h4: clamp(1.1875rem, 0.62vw + 0.88rem, 1.5rem);
+  --type-h5: clamp(1.0625rem, 0.38vw + 0.86rem, 1.25rem);
+  --type-h6: clamp(1rem, 0.24vw + 0.84rem, 1.125rem);
+  --selection-bg: rgba(176, 61, 54, 0.22);
+  --selection-fg: #0f172a;
+  --motion-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-duration-sm: 0.22s;
+  --motion-duration-md: 0.55s;
+  --motion-duration-lg: 0.85s;
+  --app-card-bg: var(--ly-bg-card);
+  --app-card-bg-solid: var(--ly-bg-card);
+  --app-card-border: var(--ly-border-subtle);
+  --app-card-border-hover: rgba(176, 61, 54, 0.22);
+  --app-card-shadow: var(--ly-shadow-card);
+  --app-card-shadow-hover: var(--ly-shadow-card-hover);
+  --app-card-radius: 14px;
+  --app-card-radius-lg: 16px;
+  --app-card-muted: var(--app-text-tertiary);
+  --app-card-image-bg: color-mix(in srgb, var(--ly-bg-card) 88%, var(--ly-bg-canvas) 12%);
+
+  /* SaaS 产品站卡片（dify.ai 风格：干净浮起、浅描边、冷灰阴影叠层 + 品牌色微晕） */
+  --app-saas-card-radius: 20px;
+  --app-saas-card-border: rgba(15, 23, 42, 0.08);
+  --app-saas-card-shadow: 0 1px 0 rgba(255, 255, 255, 0.95) inset, 0 0 0 1px rgba(15, 23, 42, 0.06),
+    0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 32px -8px rgba(15, 23, 42, 0.08);
+  --app-saas-card-shadow-hover: 0 1px 0 #fff inset, 0 0 0 1px rgba(176, 61, 54, 0.15),
+    0 4px 8px rgba(15, 23, 42, 0.05), 0 20px 44px -10px rgba(15, 23, 42, 0.12);
+  --app-saas-card-shine: linear-gradient(
+    135deg,
+    rgba(176, 61, 54, 0.06) 0%,
+    rgba(255, 255, 255, 0.55) 38%,
+    transparent 64%
+  );
+
+  --ly-glass-blur: 8px;
+  --ly-glass-sat: 1.02;
+  --ly-glass-raised-bg: rgba(255, 255, 255, 0.94);
+  --ly-glass-card-bg: #ffffff;
+  --ly-glass-border: rgba(15, 23, 42, 0.1);
+  --ly-glass-inset: 0 1px 0 rgba(255, 255, 255, 1) inset;
+  --ly-glass-hero-glow: 0 0 40px -12px rgba(176, 61, 54, 0.14);
+  --ly-glass-top-bar-bg: rgba(255, 255, 255, 0.86);
+  --ly-glass-nav-bg: rgba(255, 255, 255, 0.92);
+  --ly-glass-border-soft: rgba(15, 23, 42, 0.06);
+
+  --chrome-header-border: rgba(15, 23, 42, 0.08);
+  --chrome-header-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+  --chrome-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 12px 40px rgba(15, 23, 42, 0.07);
+  --chrome-card-shadow-lg: 0 1px 2px rgba(15, 23, 42, 0.04), 0 20px 50px rgba(15, 23, 42, 0.09);
+
+  --home-unified-radius: 20px;
+  --home-unified-border: rgba(15, 23, 42, 0.08);
+  --home-unified-blur: 10px;
+  --home-unified-shadow: 0 0 0 1px rgba(15, 23, 42, 0.04) inset, 0 20px 48px -28px rgba(15, 23, 42, 0.1),
+    0 0 40px -18px rgba(176, 61, 54, 0.1);
+  --home-unified-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(248, 250, 252, 0.94) 100%),
+    linear-gradient(
+      180deg,
+      var(--section-veil-top) 0%,
+      var(--section-veil-mid) 48%,
+      var(--section-veil-bottom) 100%
+    );
+}

@@ -19,6 +19,80 @@ const swaggerOptions: swaggerJSDoc.Options = {
         description: '本地开发环境',
       },
     ],
+    tags: [
+      { name: 'Auth', description: '登录与账号（公开 POST；GET /me 需 JWT）' },
+      { name: 'Stats', description: '管理端聚合统计' },
+      {
+        name: 'Content',
+        description: '产品 / 活动 / 新闻 / 素材 / 课程 / 套餐',
+      },
+      {
+        name: 'CRM',
+        description: '留言与工单（部分 POST 为官网公开，其余需管理认证）',
+      },
+    ],
+    paths: {
+      '/api/auth/login': {
+        post: {
+          tags: ['Auth'],
+          summary: '管理端登录',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['identifier', 'password'],
+                  properties: {
+                    identifier: { type: 'string' },
+                    password: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            '200': {
+              description: '成功，返回 data 内含 accessToken 等',
+            },
+            '429': { description: 'RATE_LIMIT_LOGIN' },
+          },
+        },
+      },
+      '/api/stats/summary': {
+        get: {
+          tags: ['Stats'],
+          summary: '工作台统计',
+          responses: {
+            '200': {
+              description: '{ data: { productCount, ... } }',
+            },
+          },
+        },
+      },
+      '/api/categories': {
+        get: {
+          tags: ['Content'],
+          summary: '商品类目列表（管理端下拉）',
+          responses: {
+            '200': {
+              description: '{ data: Category[] }',
+            },
+          },
+        },
+      },
+      '/api/products': {
+        get: {
+          tags: ['Content'],
+          summary: '产品分页列表',
+          responses: {
+            '200': {
+              description: '{ data: Product[], pagination }',
+            },
+          },
+        },
+      },
+    },
     components: {
       securitySchemes: {
         apiKeyAuth: {
@@ -29,7 +103,16 @@ const swaggerOptions: swaggerJSDoc.Options = {
         },
       },
       schemas: {
-        // 产品模式
+        Category: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer', example: 1 },
+            slug: { type: 'string', example: 'hongmu-jiaju' },
+            name: { type: 'string', example: '红木家具' },
+            sortOrder: { type: 'integer', example: 0 },
+          },
+        },
+        // 产品 JSON 响应（列表/详情）：类目外键 + 媒体双轨
         Product: {
           type: 'object',
           properties: {
@@ -48,15 +131,27 @@ const swaggerOptions: swaggerJSDoc.Options = {
               description: '产品价格',
               example: 100.0,
             },
+            categoryId: {
+              type: 'integer',
+              description: '类目 ID（外键 Category）',
+              example: 1,
+            },
             category: {
               type: 'string',
-              description: '产品分类',
-              example: '家具',
+              description: '类目展示名称（关联查询）',
+              example: '红木家具',
             },
             image: {
               type: 'string',
-              description: '产品图片URL',
-              example: 'https://example.com/image.jpg',
+              nullable: true,
+              description:
+                '无 imageUrl 时为 JPEG Base64；有 imageUrl 时为 null',
+            },
+            imageUrl: {
+              type: 'string',
+              nullable: true,
+              description: '外链优先；存在时 image 为 null',
+              example: 'https://cdn.example.com/p/1.jpg',
             },
             isNew: {
               type: 'boolean',
@@ -76,7 +171,18 @@ const swaggerOptions: swaggerJSDoc.Options = {
               example: '2024-01-01T00:00:00Z',
             },
           },
-          required: ['name', 'price', 'category'],
+          required: [
+            'id',
+            'name',
+            'price',
+            'categoryId',
+            'category',
+            'image',
+            'imageUrl',
+            'isNew',
+            'createdAt',
+            'updatedAt',
+          ],
         },
         // 活动模式
         Activity: {
@@ -99,8 +205,13 @@ const swaggerOptions: swaggerJSDoc.Options = {
             },
             image: {
               type: 'string',
-              description: '活动图片URL',
-              example: 'https://example.com/image.jpg',
+              nullable: true,
+              description: '无 imageUrl 时为 Base64；有 imageUrl 时为 null',
+            },
+            imageUrl: {
+              type: 'string',
+              nullable: true,
+              description: '外链优先',
             },
             createdAt: {
               type: 'string',
@@ -154,8 +265,13 @@ const swaggerOptions: swaggerJSDoc.Options = {
             },
             image: {
               type: 'string',
-              description: '新闻图片URL',
-              example: 'https://example.com/image.jpg',
+              nullable: true,
+              description: '无 imageUrl 时为 Base64；有 imageUrl 时为 null',
+            },
+            imageUrl: {
+              type: 'string',
+              nullable: true,
+              description: '外链优先',
             },
             createdAt: {
               type: 'string',

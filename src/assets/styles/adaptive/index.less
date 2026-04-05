@@ -1,0 +1,12 @@
+/**
+ * rf-adaptive 聚合入口
+ * 加载顺序：断点变量 → CSS 变量 → 全端基础 → 移动 → 平板 → PC → Apple
+ * 回滚：删除 global.less 中的 @import 与本目录即可。
+ */
+@import './_breakpoints.less';
+@import './_tokens-responsive.less';
+@import './base.less';
+@import './mobile.less';
+@import './tablet.less';
+@import './pc.less';
+@import './apple.less';

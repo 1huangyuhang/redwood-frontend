@@ -1,0 +1,110 @@
+@import (reference) '@/assets/styles/foundation/index.less';
+
+/* 与 Layout site-main 水平内边距对消，主视觉横向满宽 */
+.home-hero-scrolly {
+  --home-hero-pad-x: var(--site-main-pad-x, clamp(16px, 4vw, 48px));
+  margin-left: calc(-1 * var(--home-hero-pad-x));
+  margin-right: calc(-1 * var(--home-hero-pad-x));
+  width: calc(100% + 2 * var(--home-hero-pad-x));
+  max-width: none;
+  margin-top: -24px;
+  padding-bottom: 8px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .home-hero-scrolly {
+    margin-top: -16px;
+  }
+}
+
+.home-hero-scrolly__video.scrolly-video-container {
+  border-radius: 0 0 var(--ly-radius-lg) var(--ly-radius-lg);
+  overflow: hidden;
+  min-height: clamp(420px, 88dvh, 920px);
+}
+
+.home-hero-scrolly__content {
+  text-align: center;
+  color: var(--app-text-on-media);
+}
+
+.home-hero-scrolly__eyebrow {
+  display: block;
+  margin: 0 0 12px;
+  font-size: var(--type-overline);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--app-text-on-media) 78%, var(--app-accent-cinnabar) 22%);
+}
+
+.home-hero-scrolly__title.ant-typography {
+  margin: 0 0 16px !important;
+  font-family: var(--font-heading) !important;
+  font-size: clamp(1.75rem, 4.2vw + 0.85rem, 3rem) !important;
+  font-weight: var(--app-heading-weight) !important;
+  line-height: var(--leading-tight) !important;
+  letter-spacing: var(--track-heading) !important;
+  color: var(--app-text-on-media) !important;
+  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.35);
+}
+
+.home-hero-scrolly__lead.ant-typography {
+  margin: 0 auto 28px !important;
+  max-width: 36em;
+  font-size: var(--type-lead) !important;
+  line-height: var(--leading-snug) !important;
+  color: var(--app-text-on-media-muted) !important;
+  text-shadow: 0 1px 16px rgba(0, 0, 0, 0.28);
+}
+
+.home-hero-scrolly__actions {
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: clamp(8px, 2vw, 20px);
+}
+
+.home-hero-scrolly__actions .ant-btn-primary {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+.home-hero-scrolly__btn-ghost.ant-btn-default {
+  color: var(--app-text-on-media) !important;
+  border-color: color-mix(in srgb, var(--app-text-on-media) 50%, transparent) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  &:hover {
+    color: #fff !important;
+    border-color: color-mix(in srgb, var(--app-text-on-media) 72%, transparent) !important;
+    background: rgba(255, 255, 255, 0.16) !important;
+  }
+}
+
+.home-hero-scrolly__scroll-hint {
+  margin-top: clamp(12px, 3vw, 24px);
+  font-size: var(--type-caption);
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--app-text-on-media) 72%, transparent);
+  animation: homeHeroScrollHint 2.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-scrolly__scroll-hint {
+    animation: none;
+  }
+}
+
+@keyframes homeHeroScrollHint {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(4px);
+  }
+}

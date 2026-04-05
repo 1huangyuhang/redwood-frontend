@@ -1,13 +1,14 @@
 import React, { useCallback, useState } from 'react';
-import { Activity } from '@/types/activity';
 import { Calendar } from 'antd';
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
 import './index.less';
 
+type ActivityDTO = import('@/types/dto/activity.dto').ActivityDTO;
+
 interface EventCalendarProps {
-  activities: Activity[];
-  onActivityClick: (activity: Activity) => void;
+  activities: ActivityDTO[];
+  onActivityClick: (activity: ActivityDTO) => void;
 }
 
 const EventCalendar: React.FC<EventCalendarProps> = ({

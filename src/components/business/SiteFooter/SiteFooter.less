@@ -1,0 +1,185 @@
+@import (reference) '@/assets/styles/foundation/index.less';
+
+.ly-footer {
+  width: 100%;
+  margin-top: auto;
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--ly-footer-border);
+  background: var(--ly-footer-bg);
+  backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+  -webkit-backdrop-filter: blur(var(--ly-glass-blur)) saturate(var(--ly-glass-sat));
+  box-shadow: 0 -1px 0 var(--ly-glass-border-soft, rgba(255, 255, 255, 0.06));
+  transition:
+    background var(--motion-duration-md) var(--motion-ease-soft),
+    border-color var(--motion-duration-md) var(--motion-ease-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ly-footer {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+.ly-footer__main {
+  position: relative;
+  z-index: 1;
+}
+
+.ly-footer__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: clamp(28px, 5vw, 56px);
+  padding-top: clamp(40px, 6vw, 72px);
+  padding-bottom: clamp(40px, 6vw, 72px);
+}
+
+.ly-footer__about {
+  flex: 1;
+  max-width: 600px;
+  min-width: 0;
+}
+
+.ly-footer__title {
+  margin: 0 0 20px !important;
+  font-family: var(--font-heading);
+  color: var(--ly-footer-text) !important;
+  font-size: var(--type-h5) !important;
+  font-weight: @font-weight-bold !important;
+  letter-spacing: var(--track-heading);
+  position: relative;
+  padding-bottom: 12px;
+  display: inline-block;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 56px;
+    height: 3px;
+    background: var(--ly-footer-accent);
+    border-radius: 2px;
+    transition: width var(--motion-duration-md) var(--motion-ease-soft);
+  }
+
+  &:hover::after {
+    width: 100%;
+  }
+}
+
+.ly-footer__desc {
+  margin: 0 0 1.1em !important;
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+  color: var(--ly-footer-muted) !important;
+}
+
+.ly-footer__cta {
+  margin-top: 8px;
+  border-radius: var(--ly-radius-md) !important;
+  font-weight: @font-weight-semibold !important;
+}
+
+.ly-footer__aside {
+  min-width: min(100%, 300px);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.ly-footer__brand {
+  font-family: var(--font-heading);
+  font-size: var(--type-lead);
+  font-weight: @font-weight-bold;
+  color: var(--ly-footer-text);
+  margin-bottom: 12px;
+  letter-spacing: 0.04em;
+}
+
+.ly-footer__address {
+  font-size: var(--type-small);
+  color: var(--ly-footer-muted);
+  line-height: var(--leading-body);
+  margin-bottom: 8px;
+}
+
+.ly-footer__contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ly-footer__contact-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ly-footer__icon {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.ly-footer__contact-text {
+  font-size: var(--type-small);
+  color: var(--ly-footer-muted);
+}
+
+.ly-footer__social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ly-footer__social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--ly-footer-divider);
+  color: var(--ly-footer-muted);
+  text-decoration: none;
+  transition:
+    color var(--motion-duration-md) ease,
+    border-color var(--motion-duration-md) ease,
+    background var(--motion-duration-md) ease;
+
+  &:hover {
+    color: var(--ly-footer-accent);
+    border-color: color-mix(in srgb, var(--ly-footer-accent) 45%, transparent);
+    background: color-mix(in srgb, var(--ly-footer-accent) 8%, transparent);
+  }
+}
+
+.ly-footer__social-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.ly-footer__bar {
+  border-top: 1px solid var(--ly-footer-divider);
+  padding: 16px 0 20px;
+  background: color-mix(in srgb, var(--ly-bg-canvas) 35%, transparent);
+}
+
+.ly-footer__copyright {
+  font-size: var(--type-caption);
+  color: var(--ly-footer-muted);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .ly-footer__content {
+    flex-direction: column;
+  }
+
+  .ly-footer__aside {
+    min-width: 0;
+    width: 100%;
+  }
+}

@@ -13,8 +13,7 @@ const config: Config = {
   },
   // 忽略node_modules目录
   transformIgnorePatterns: ['<rootDir>/node_modules/'],
-  // 收集覆盖率信息
-  collectCoverage: true,
+  collectCoverage: false,
   // 覆盖率报告的目录
   coverageDirectory: 'coverage',
   // 覆盖率报告的格式

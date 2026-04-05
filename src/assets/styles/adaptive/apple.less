@@ -1,0 +1,34 @@
+/**
+ * rf-adaptive · Apple / WebKit 专项（安全区、视口、dvh）
+ * 避免写通用 Android 布局；与 mobile/tablet 互补。
+ */
+
+@supports (-webkit-touch-callout: none) {
+  .top-layout {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .top-layout .top-bar,
+  .top-layout .nav-bar {
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+
+  .home-page .gallery-title,
+  .page-title h1.ant-typography,
+  .page-title h1 {
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@supports (height: 100dvh) {
+  .home-page-wrapper {
+    min-height: 100dvh;
+  }
+}
+
+@supports not (height: 100dvh) {
+  .home-page-wrapper {
+    min-height: -webkit-fill-available;
+  }
+}

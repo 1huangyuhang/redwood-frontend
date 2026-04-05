@@ -18,16 +18,27 @@ export const formatNumber = (num: number): string => {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
+/** 同一节点只跑一次，避免 IntersectionObserver 多阈值重复触发导致文字闪动 */
+const numberAnimationStarted = new WeakSet<Element>();
+
 /**
  * 数字动画函数
  * @param element - 要执行动画的DOM元素
  */
 export const animateNumber = (element: Element) => {
+  if (numberAnimationStarted.has(element)) {
+    return;
+  }
+  numberAnimationStarted.add(element);
   const htmlElement = element as HTMLElement;
   const targetValue = parseInt(htmlElement.getAttribute('data-target') || '0');
   const duration = 2000;
   const startTime = performance.now();
   let currentValue = 0;
+
+  // 按最终格式化宽度预留空间，避免从「0」递增时数字变长引发整页布局抖动
+  const finalStr = formatNumber(targetValue);
+  htmlElement.style.minWidth = `${finalStr.length}ch`;
 
   const updateNumber = (timestamp: number) => {
     const elapsed = timestamp - startTime;

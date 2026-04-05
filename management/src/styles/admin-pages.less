@@ -1,0 +1,253 @@
+@import './tokens.less';
+
+/* ========== 工作台 ========== */
+.admin-dashboard {
+  .admin-dashboard__hero {
+    margin-bottom: 20px;
+  }
+
+  .admin-dashboard__title {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--admin-color-text);
+    letter-spacing: -0.02em;
+  }
+
+  .admin-dashboard__subtitle {
+    margin: 0;
+    font-size: 14px;
+    color: var(--admin-color-text-secondary);
+    line-height: 1.6;
+  }
+
+  .admin-dashboard__stat-card {
+    border-radius: var(--admin-radius-lg);
+    box-shadow: var(--admin-shadow-card);
+    border: 1px solid var(--admin-color-border);
+    height: 100%;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+      box-shadow: 0 4px 24px rgba(44, 24, 16, 0.1);
+      border-color: rgba(128, 50, 46, 0.2);
+    }
+
+    &--clickable {
+      cursor: pointer;
+
+      &:focus-visible {
+        outline: 2px solid var(--admin-color-primary);
+        outline-offset: 2px;
+      }
+    }
+
+    .ant-card-body {
+      padding: 20px 22px;
+    }
+
+    .ant-statistic-title {
+      color: var(--admin-color-text-secondary);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .ant-statistic-content-value {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--admin-color-primary);
+    }
+  }
+}
+
+/* 表格外框：可在任意页面使用（不限于 .admin-page） */
+.admin-table-card {
+  border: 1px solid var(--admin-color-border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--admin-bg-muted);
+
+  .ant-table-wrapper {
+    background: var(--admin-bg-elevated);
+  }
+}
+
+/* ========== 列表/表单页（产品、活动、新闻、素材） ========== */
+.admin-page {
+  background: var(--admin-bg-elevated);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-card);
+  border: 1px solid var(--admin-color-border);
+  padding: 22px 24px 28px;
+  min-height: 360px;
+
+  .admin-page__filter {
+    margin: -8px 0 16px;
+    padding: 12px 16px;
+    background: rgba(128, 50, 46, 0.04);
+    border: 1px solid var(--admin-color-border);
+    border-radius: 10px;
+  }
+
+  .admin-page__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--admin-color-border);
+  }
+
+  .admin-page__title-wrap {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .admin-page__title {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--admin-color-text);
+  }
+
+  .admin-page__desc {
+    margin: 0;
+    font-size: 13px;
+    color: var(--admin-color-text-secondary);
+    line-height: 1.55;
+    max-width: 720px;
+  }
+
+  .admin-page__toolbar {
+    flex-shrink: 0;
+  }
+
+  .admin-pagination-wrap {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--admin-color-border);
+  }
+
+  .admin-pagination-bar {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .ant-btn-primary {
+    box-shadow: 0 2px 6px rgba(128, 50, 46, 0.2);
+  }
+}
+
+/* 主内容区内表格表头/行样式（含独立数据页） */
+.admin-shell__content-inner .ant-table {
+  .ant-table-thead > tr > th {
+    background: var(--admin-bg-muted) !important;
+    font-weight: 600;
+    color: var(--admin-color-text) !important;
+    border-bottom: 1px solid var(--admin-color-border);
+  }
+
+  .ant-table-tbody > tr > td {
+    border-bottom: 1px solid rgba(224, 216, 210, 0.6);
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: rgba(128, 50, 46, 0.03) !important;
+  }
+}
+
+/* ========== 主内容区内所有表格：横向滚动条 + 左右边缘提示（与 adminTableScroll.ts 配套） ========== */
+.admin-shell__content-inner {
+  .ant-table-content {
+    overflow-x: auto !important;
+    overscroll-behavior-x: contain;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(128, 50, 46, 0.45) rgba(44, 24, 16, 0.06);
+
+    &::-webkit-scrollbar {
+      height: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(44, 24, 16, 0.05);
+      border-radius: 999px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(128, 50, 46, 0.38);
+      border-radius: 999px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgba(128, 50, 46, 0.52);
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+  }
+
+  .ant-table-wrapper.admin-h-scroll--active {
+    position: relative;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 40px;
+      z-index: 6;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.22s ease;
+    }
+
+    &::before {
+      left: 0;
+      background: linear-gradient(
+        90deg,
+        rgba(255, 252, 250, 0.98) 0%,
+        rgba(255, 252, 250, 0) 100%
+      );
+    }
+
+    &::after {
+      right: 0;
+      background: linear-gradient(
+        270deg,
+        rgba(255, 252, 250, 0.98) 0%,
+        rgba(255, 252, 250, 0) 100%
+      );
+    }
+
+    &:not(.admin-h-scroll--at-start)::before {
+      opacity: 1;
+    }
+
+    &:not(.admin-h-scroll--at-end)::after {
+      opacity: 1;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-page {
+    padding: 16px;
+
+    .admin-page__header {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .admin-page__toolbar .ant-btn {
+      width: 100%;
+    }
+  }
+}

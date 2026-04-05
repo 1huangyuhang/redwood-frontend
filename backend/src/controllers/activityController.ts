@@ -1,11 +1,22 @@
 import { Request, Response } from 'express';
 import prisma from '../utils/prisma';
-import { io } from '../app';
+import { getIo } from '../socketInstance';
 import {
   createActivitySchema,
   updateActivitySchema,
   activityQuerySchema,
 } from '../schemas/activitySchema';
+import { serializeMediaFields } from '../utils/serializeMedia';
+
+function formatActivity<
+  T extends { image: Uint8Array | null; imageUrl: string | null },
+>(activity: T) {
+  const media = serializeMediaFields(activity);
+  // 不把 BYTEA 展开进 JSON；展示字段由 media 提供
+  const { image: _image, ...rest } = activity;
+  void _image;
+  return { ...rest, ...media };
+}
 
 // 获取所有活动
 const getAllActivities = async (req: Request, res: Response) => {
@@ -41,13 +52,9 @@ const getAllActivities = async (req: Request, res: Response) => {
   // 计算总页数
   const totalPages = Math.ceil(total / pageSize);
 
-  // 将活动列表中的image转换为base64
-  const formattedActivities = activities.map((activity) => ({
-    ...activity,
-    image: activity.image
-      ? Buffer.from(activity.image).toString('base64')
-      : null,
-  }));
+  const formattedActivities = activities.map((activity) =>
+    formatActivity(activity)
+  );
 
   // 返回带分页信息的响应
   res.json({
@@ -83,14 +90,7 @@ const getActivityById = async (req: Request, res: Response) => {
     if (!activity) {
       res.status(404).json({ error: 'Activity not found' });
     } else {
-      // 将image转换为base64
-      const formattedActivity = {
-        ...activity,
-        image: activity.image
-          ? Buffer.from(activity.image).toString('base64')
-          : null,
-      };
-      res.json(formattedActivity);
+      res.json(formatActivity(activity));
     }
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch activity' });
@@ -105,25 +105,21 @@ const createActivity = async (req: Request, res: Response) => {
     const validatedData = createActivitySchema.parse(req.body);
 
     // 处理image字段，确保兼容Prisma类型要求
+    const { imageUrl, ...rest } = validatedData;
     const activityData = {
-      ...validatedData,
+      ...rest,
       image: req.file?.buffer ? new Uint8Array(req.file.buffer) : null,
+      imageUrl: imageUrl ?? null,
     };
 
     const activity = await prisma.activity.create({
       data: activityData,
     });
 
-    // 将image转换为base64
-    const formattedActivity = {
-      ...activity,
-      image: activity.image
-        ? Buffer.from(activity.image).toString('base64')
-        : null,
-    };
+    const formattedActivity = formatActivity(activity);
 
     // 发送WebSocket事件，通知客户端有新活动创建
-    io.emit('activity:created', formattedActivity);
+    getIo().emit('activity:created', formattedActivity);
 
     res.status(201).json(formattedActivity);
   } catch (error: any) {
@@ -173,16 +169,10 @@ const updateActivity = async (req: Request, res: Response) => {
       data: updateData,
     });
 
-    // 将image转换为base64
-    const formattedActivity = {
-      ...updatedActivity,
-      image: updatedActivity.image
-        ? Buffer.from(updatedActivity.image).toString('base64')
-        : null,
-    };
+    const formattedActivity = formatActivity(updatedActivity);
 
     // 发送WebSocket事件，通知客户端活动已更新
-    io.emit('activity:updated', formattedActivity);
+    getIo().emit('activity:updated', formattedActivity);
 
     res.json(formattedActivity);
   } catch (error: any) {
@@ -220,7 +210,7 @@ const deleteActivity = async (req: Request, res: Response) => {
     });
 
     // 发送WebSocket事件，通知客户端活动已删除
-    io.emit('activity:deleted', deletedActivity.id);
+    getIo().emit('activity:deleted', deletedActivity.id);
 
     res.json({ message: 'Activity deleted successfully' });
   } catch (error: any) {

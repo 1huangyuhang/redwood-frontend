@@ -15,6 +15,7 @@ export const globalRateLimitMiddleware = rateLimit({
     error: 'Too Many Requests',
     message: '请求过于频繁，请稍后再试',
     statusCode: 429,
+    code: 'RATE_LIMIT_GLOBAL',
     timestamp: new Date().toISOString(),
   },
   // 跳过健康检查路由
@@ -35,6 +36,7 @@ export const apiRateLimitMiddleware = rateLimit({
     error: 'Too Many Requests',
     message: 'API请求过于频繁，请稍后再试',
     statusCode: 429,
+    code: 'RATE_LIMIT_API',
     timestamp: new Date().toISOString(),
   },
   // 只对API路由生效
@@ -55,10 +57,43 @@ export const loginRateLimitMiddleware = rateLimit({
     error: 'Too Many Requests',
     message: '登录尝试过于频繁，请稍后再试',
     statusCode: 429,
+    code: 'RATE_LIMIT_LOGIN',
     timestamp: new Date().toISOString(),
   },
-  // 只对登录路由生效
-  // skip: (req: Request) => !req.path.includes('/login'),
+});
+
+/**
+ * 注册接口：较登录更严，防批量注册滥用
+ */
+export const registerRateLimitMiddleware = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: 'Too Many Requests',
+    message: '注册尝试过于频繁，请稍后再试',
+    statusCode: 429,
+    code: 'RATE_LIMIT_REGISTER',
+    timestamp: new Date().toISOString(),
+  },
+});
+
+/**
+ * 带 multipart 上传的创建/更新（产品、课程、素材、工单附件等）
+ */
+export const uploadWriteRateLimitMiddleware = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: 'Too Many Requests',
+    message: '上传或文件更新过于频繁，请稍后再试',
+    statusCode: 429,
+    code: 'RATE_LIMIT_UPLOAD',
+    timestamp: new Date().toISOString(),
+  },
 });
 
 /**
