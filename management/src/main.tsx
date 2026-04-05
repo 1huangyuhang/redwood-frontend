@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -9,7 +9,16 @@ import { antdManagementTheme } from '../../src/config/antdThemeManagement';
 import '@/styles/admin-shell.less';
 import AdminLayout from '@/layouts/AdminLayout';
 import RequireManagementAuth from '@/components/RequireManagementAuth';
-import ManagementRouteFallback from './components/ManagementRouteFallback';
+import Dashboard from './pages/Dashboard';
+import ProductManagement from './pages/Product';
+import ActivityManagement from './pages/Activity';
+import NewsManagement from './pages/News';
+import SiteAssetManagement from './pages/SiteAsset';
+import CourseManagement from './pages/Course';
+import PricingPlanManagement from './pages/PricingPlan';
+import ContactMessages from './pages/ContactMessages';
+import SupportTickets from './pages/SupportTickets';
+import ManagementLogin from './pages/ManagementLogin';
 import dayjs from 'dayjs';
 import weekday from 'dayjs/plugin/weekday';
 import localeData from 'dayjs/plugin/localeData';
@@ -17,17 +26,6 @@ import localeData from 'dayjs/plugin/localeData';
 // 配置 dayjs 插件
 dayjs.extend(weekday);
 dayjs.extend(localeData);
-
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const ProductManagement = lazy(() => import('./pages/Product'));
-const ActivityManagement = lazy(() => import('./pages/Activity'));
-const NewsManagement = lazy(() => import('./pages/News'));
-const SiteAssetManagement = lazy(() => import('./pages/SiteAsset'));
-const CourseManagement = lazy(() => import('./pages/Course'));
-const PricingPlanManagement = lazy(() => import('./pages/PricingPlan'));
-const ContactMessages = lazy(() => import('./pages/ContactMessages'));
-const SupportTickets = lazy(() => import('./pages/SupportTickets'));
-const ManagementLogin = lazy(() => import('./pages/ManagementLogin'));
 
 const queryClient = getQueryClient();
 
@@ -372,31 +370,30 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <ConfigProvider locale={zhCN} theme={antdManagementTheme}>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <Suspense fallback={<ManagementRouteFallback />}>
-            <Routes>
-              <Route path="/login" element={<ManagementLogin />} />
-              <Route element={<RequireManagementAuth />}>
-                <Route path="/" element={<AdminLayout />}>
-                  <Route index element={<Dashboard />} />
-                  <Route path="products" element={<ProductManagement />} />
-                  <Route path="activities" element={<ActivityManagement />} />
-                  <Route path="news" element={<NewsManagement />} />
-                  <Route path="site-assets" element={<SiteAssetManagement />} />
-                  <Route path="courses" element={<CourseManagement />} />
-                  <Route
-                    path="pricing-plans"
-                    element={<PricingPlanManagement />}
-                  />
-                  <Route
-                    path="contact-messages"
-                    element={<ContactMessages />}
-                  />
-                  <Route path="support-tickets" element={<SupportTickets />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Route>
+          {/*
+            业务页使用静态 import，避免 lazy + 外层 Suspense 在切换菜单时出现整页骨架闪动。
+            代价为首包体积增大（管理端内网工具可接受）。
+          */}
+          <Routes>
+            <Route path="/login" element={<ManagementLogin />} />
+            <Route element={<RequireManagementAuth />}>
+              <Route path="/" element={<AdminLayout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="products" element={<ProductManagement />} />
+                <Route path="activities" element={<ActivityManagement />} />
+                <Route path="news" element={<NewsManagement />} />
+                <Route path="site-assets" element={<SiteAssetManagement />} />
+                <Route path="courses" element={<CourseManagement />} />
+                <Route
+                  path="pricing-plans"
+                  element={<PricingPlanManagement />}
+                />
+                <Route path="contact-messages" element={<ContactMessages />} />
+                <Route path="support-tickets" element={<SupportTickets />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
-            </Routes>
-          </Suspense>
+            </Route>
+          </Routes>
         </BrowserRouter>
       </QueryClientProvider>
     </ConfigProvider>
