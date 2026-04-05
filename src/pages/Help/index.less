@@ -1,14 +1,14 @@
 @import '../../assets/styles/global.less';
 
 .help-page {
-  padding: 20px 0;
+  padding: 0;
   max-width: 1200px;
   margin: 0 auto;
 
   // 页面标题
   .page-title {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 32px;
     padding: 20px 0;
     border-bottom: 1px solid @border-color;
 
@@ -22,6 +22,14 @@
       color: #2c1810;
       margin-bottom: 12px;
     }
+
+    .ant-typography.ant-typography-secondary {
+      display: block;
+      max-width: 560px;
+      margin: 0 auto;
+      font-size: 16px;
+      line-height: 1.6;
+    }
   }
 
   // 工单表单卡片
@@ -30,7 +38,7 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     border: 1px solid @border-color;
     padding: 24px;
-    max-width: 600px;
+    max-width: 720px;
     margin: 0 auto;
 
     .ant-form-item {

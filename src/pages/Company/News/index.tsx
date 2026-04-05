@@ -7,9 +7,10 @@ import {
   Pagination,
   Spin,
   Alert,
+  Button,
 } from 'antd';
 import { ClockCircleOutlined, CalendarOutlined } from '@ant-design/icons';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import './index.less';
 import axiosInstance from '../../../services/api/axiosInstance';
 import {
@@ -17,10 +18,10 @@ import {
   handleImageError,
   handleImageLoad,
 } from '../../../utils/imageUtils';
+import { fetchAllPaginatedList } from '../../../utils/apiListResponse';
 
 const { Title, Text, Paragraph } = Typography;
 
-// 新闻数据类型
 interface NewsItem {
   id: number;
   title: string;
@@ -31,87 +32,94 @@ interface NewsItem {
 }
 
 const News = () => {
-  // 新闻数据状态
   const [newsData, setNewsData] = useState<NewsItem[]>([]);
-  // 加载状态
   const [loading, setLoading] = useState(true);
-  // 错误状态
   const [error, setError] = useState<string | null>(null);
 
-  // 分页状态
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
-  // 处理页码变化
   const handlePageChange = (page: number, size: number) => {
     setCurrentPage(page);
     setPageSize(size);
   };
 
-  // 处理每页条数变化
   const handlePageSizeChange = (_current: number, size: number) => {
     setPageSize(size);
-    setCurrentPage(1); // 切换每页条数时，重置到第一页
+    setCurrentPage(1);
   };
 
-  // 从API获取新闻数据
-  useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        setLoading(true);
-        // 使用any类型临时解决类型问题，因为响应拦截器已经处理了响应数据
-        const data: any = await axiosInstance.get('/news');
-        // 将后端返回的数据转换为NewsItem类型
-        // 由于响应拦截器已经处理，直接使用data.data
-        const formattedNews: NewsItem[] = data.data.map((news: any) => ({
-          id: news.id,
-          title: news.title,
-          date: news.date,
-          time: news.time,
-          summary: news.summary,
-          image: news.image,
-        }));
-        setNewsData(formattedNews);
-        setError(null);
-      } catch (err) {
-        setError('获取新闻数据失败，请稍后重试');
-        console.error('Failed to fetch news:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNews();
+  const loadNews = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const rows = await fetchAllPaginatedList<Record<string, unknown>>(
+        axiosInstance,
+        '/news'
+      );
+      const formattedNews: NewsItem[] = rows.map((news) => ({
+        id: news.id as number,
+        title: String(news.title),
+        date: String(news.date ?? ''),
+        time: String(news.time ?? ''),
+        summary: String(news.summary ?? news.content ?? ''),
+        image: news.image != null ? String(news.image) : '',
+      }));
+      setNewsData(formattedNews);
+    } catch (err) {
+      setError('获取新闻数据失败，请稍后重试');
+      console.error('Failed to fetch news:', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void loadNews();
+  }, [loadNews]);
+
+  const start = (currentPage - 1) * pageSize;
+  const pageItems = newsData.slice(start, start + pageSize);
 
   return (
     <div className="news-page">
-      {/* 页面标题 */}
       <div className="page-header">
         <Title level={1}>新闻动态</Title>
         <Text>了解公司最新动态和行业资讯</Text>
       </div>
 
-      {/* 加载状态 */}
       {loading ? (
         <div className="loading-container">
           <Spin size="large" tip="加载中..." />
         </div>
       ) : error ? (
         <div className="error-container">
-          <Alert message="错误" description={error} type="error" showIcon />
+          <Alert
+            message="暂时无法加载"
+            description={error}
+            type="error"
+            showIcon
+            action={
+              <Button
+                size="small"
+                type="primary"
+                onClick={() => void loadNews()}
+              >
+                重试
+              </Button>
+            }
+          />
         </div>
       ) : (
         <>
-          {/* 新闻列表 */}
           <div className="news-content">
             <List
               grid={{ gutter: 24, column: 1 }}
-              dataSource={newsData}
+              dataSource={pageItems}
               renderItem={(item) => (
                 <List.Item key={item.id}>
                   <Card hoverable className="news-card">
-                    <Row gutter={[24, 0]}>
+                    <Row gutter={[24, 0]} align="stretch">
                       <Col xs={24} md={8}>
                         <div className="news-image-wrapper">
                           <img
@@ -150,7 +158,6 @@ const News = () => {
             />
           </div>
 
-          {/* 分页 */}
           <div className="pagination-container">
             <Pagination
               current={currentPage}

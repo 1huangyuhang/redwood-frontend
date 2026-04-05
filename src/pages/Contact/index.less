@@ -1,7 +1,7 @@
 @import '../../assets/styles/global.less';
 
 .contact-page {
-  padding: 20px 0;
+  padding: 0;
   max-width: 1200px;
   margin: 0 auto;
 
@@ -110,6 +110,7 @@
         font-size: 20px;
         color: @primary-color;
         margin-top: 2px;
+        flex-shrink: 0;
       }
 
       .ant-typography-text {
@@ -117,6 +118,8 @@
         color: #333;
         line-height: 1.5;
         margin: 0;
+        white-space: normal;
+        word-break: break-word;
       }
     }
   }

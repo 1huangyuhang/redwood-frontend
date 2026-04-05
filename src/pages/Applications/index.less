@@ -1,0 +1,124 @@
+@import '../../assets/styles/global.less';
+
+.applications-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+}
+
+.applications-hero {
+  margin-bottom: 32px;
+  padding: 28px 0 8px;
+  border-bottom: 1px solid @border-color;
+}
+
+.applications-hero-inner {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.applications-hero-tag {
+  margin-bottom: 12px;
+  border-radius: 20px;
+}
+
+.applications-title {
+  font-family: @font-family-heading;
+  color: @text-color !important;
+  margin-bottom: 12px !important;
+}
+
+.applications-lead {
+  margin-bottom: 0 !important;
+  font-size: @font-size-sm;
+  color: @text-color-secondary;
+  line-height: @line-height-base;
+}
+
+.applications-grid {
+  margin-bottom: 24px;
+}
+
+.applications-card {
+  height: 100%;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(44, 24, 16, 0.08);
+  border: 1px solid @border-color;
+  background: @background-color;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+
+  &:hover {
+    box-shadow: 0 8px 28px rgba(44, 24, 16, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .ant-card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 22px;
+  }
+}
+
+.applications-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: @highlight-color;
+  color: @primary-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+
+.applications-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.applications-card-title {
+  margin: 0 !important;
+  font-size: @font-size-lg !important;
+  font-weight: @font-weight-semibold;
+  color: @text-color;
+  flex: 1;
+}
+
+.applications-card-tag {
+  margin: 0;
+  flex-shrink: 0;
+  border-radius: 6px;
+}
+
+.applications-card-desc {
+  flex: 1;
+  display: block;
+  margin-bottom: 20px;
+  font-size: @font-size-xs;
+  line-height: @line-height-sm;
+}
+
+.applications-card-cta {
+  margin-top: auto;
+  border-radius: 8px;
+  font-weight: @font-weight-semibold;
+}
+
+.applications-footnote {
+  border-radius: 12px;
+  background: @highlight-color;
+  border: 1px dashed @border-color;
+
+  .ant-card-body {
+    padding: 16px 20px;
+    text-align: center;
+  }
+}

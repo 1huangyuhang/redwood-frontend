@@ -306,7 +306,7 @@ const Home = () => {
             <div className="contact-info">
               <div className="contact-item">
                 <span className="contact-icon">📞</span>
-                <span className="contact-text">+86 139104171782</span>
+                <span className="contact-text">+86 13910417182</span>
               </div>
               <div className="contact-item">
                 <span className="contact-icon">✉️</span>

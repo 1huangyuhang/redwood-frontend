@@ -1,9 +1,27 @@
 @import '../../assets/styles/global.less';
 
 .activities-page {
-  padding: 20px 0;
-  max-width: 1600px;
+  padding: 0;
+  max-width: 1200px;
   margin: 0 auto;
+
+  .loading-container,
+  .error-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 280px;
+    padding: 48px 16px;
+  }
+
+  .error-container .ant-alert {
+    max-width: 520px;
+    width: 100%;
+  }
+
+  .empty-state {
+    margin-bottom: 32px;
+  }
 
   // 页面标题
   .page-header {
@@ -105,6 +123,23 @@
       background-color: #1a0f0a;
       border-color: #1a0f0a;
       color: #fff;
+    }
+  }
+
+  .calendar-section {
+    margin: 56px 0 0;
+
+    h3.ant-typography {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 600;
+      color: #2c1810;
+      margin: 0 0 28px 0;
+    }
+
+    .calendar-container {
+      max-width: 960px;
+      margin: 0 auto;
     }
   }
 

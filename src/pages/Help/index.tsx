@@ -3,7 +3,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
 import './index.less';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 const { TextArea } = Input;
 
 const Help = () => {
@@ -41,6 +41,9 @@ const Help = () => {
       {/* 页面标题 */}
       <div className="page-title">
         <Title level={1}>提交工单</Title>
+        <Text type="secondary">
+          描述您遇到的问题，我们将在工作日内尽快与您联系。
+        </Text>
       </div>
 
       <Card className="ticket-form-card">
@@ -93,7 +96,7 @@ const Help = () => {
             <TextArea placeholder="请详细描述您的问题" rows={6} />
           </Form.Item>
 
-          <Form.Item name="attachment" label="附件 (optional)">
+          <Form.Item name="attachment" label="附件（可选）">
             <Upload
               name="file"
               action="/api/upload"

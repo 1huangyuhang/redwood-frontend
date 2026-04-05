@@ -6,6 +6,13 @@
   flex-direction: column;
   background-color: @light-color;
 
+  .site-main {
+    flex: 1;
+    width: 100%;
+    padding: 24px clamp(16px, 4vw, 48px) 56px;
+    box-sizing: border-box;
+  }
+
   // 顶部栏 - 玻璃拟态效果
   .top-bar {
     background-color: rgba(248, 245, 244, 0.95); // 调整内部填充色，使用主题浅色
@@ -53,8 +60,49 @@
       }
     }
 
-    .user-icon {
+    // 购物车 / 用户：可聚焦、满足约 44×44 点击区域（WCAG 2.5.5）
+    .top-bar-icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      min-width: 44px;
+      min-height: 44px;
+      margin: 0;
+      padding: 0;
+      border: none;
+      background: transparent;
+      font: inherit;
+      line-height: 1;
+      cursor: pointer;
+      border-radius: 8px;
+      color: @text-color-secondary;
+      transition: color 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+
+      .anticon {
+        font-size: 20px;
+        transition: color 0.3s ease;
+      }
+
+      &:hover {
+        color: @primary-color;
+        background-color: @light-color;
+        transform: translateY(-2px);
+      }
+
+      &:focus-visible {
+        outline: 2px solid @primary-color;
+        outline-offset: 2px;
+      }
+    }
+
+    .user-menu-trigger .anticon {
       font-size: 22px;
+    }
+
+    .top-bar-badge-anchor {
+      display: inline-block;
+      line-height: 1;
     }
 
     .phone-number {
@@ -304,7 +352,16 @@
         font-size: 16px;
       }
 
-      .user-icon {
+      .top-bar-icon-btn {
+        min-width: 40px;
+        min-height: 40px;
+
+        .anticon {
+          font-size: 16px;
+        }
+      }
+
+      .user-menu-trigger .anticon {
         font-size: 18px;
       }
 
@@ -320,5 +377,70 @@
         font-size: 12px;
       }
     }
+  }
+}
+
+// Popover / Dropdown 挂载在 body，需顶层选择器（非 .top-layout 后代）
+.top-bar-cart-popover {
+  .ant-popover-inner {
+    padding: 0;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(44, 24, 16, 0.12);
+  }
+
+  .ant-popover-title {
+    margin: 0;
+    padding: 14px 16px 8px;
+    font-weight: 600;
+    font-size: @font-size-xs;
+    color: @text-color;
+    border-bottom: none;
+  }
+
+  .ant-popover-inner-content {
+    padding: 0 16px 16px;
+  }
+}
+
+.top-bar-cart-panel {
+  min-width: 260px;
+  max-width: 320px;
+}
+
+.top-bar-cart-empty {
+  margin: 8px 0 12px;
+
+  .ant-empty-description {
+    color: @text-color-secondary;
+    font-size: @font-size-xs;
+  }
+}
+
+.top-bar-cart-cta {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+}
+
+.top-bar-cart-summary {
+  margin: 0 0 12px;
+  font-size: @font-size-xs;
+  color: @text-color-secondary;
+}
+
+.top-bar-user-dropdown {
+  .ant-dropdown-menu {
+    min-width: 200px;
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(44, 24, 16, 0.12);
+  }
+
+  .ant-dropdown-menu-item {
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+
+  .ant-dropdown-menu-item-danger {
+    margin-top: 4px;
   }
 }

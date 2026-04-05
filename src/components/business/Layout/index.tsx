@@ -1,13 +1,27 @@
-import { Layout as AntLayout, Menu, Button, Dropdown } from 'antd';
+import {
+  Layout as AntLayout,
+  Menu,
+  Button,
+  Dropdown,
+  Badge,
+  Popover,
+  Empty,
+  message,
+} from 'antd';
+import type { MenuProps } from 'antd';
 import {
   SearchOutlined,
   ShoppingCartOutlined,
   UserOutlined,
   LogoutOutlined,
   MenuOutlined,
+  AppstoreOutlined,
+  IdcardOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { logout } from '@/redux/slices/userSlice';
 import { logo } from '@/assets/images/common';
 import ProgressBar from '@/components/ui/ProgressBar';
 import './index.less';
@@ -16,6 +30,7 @@ const { Header: AntHeader } = AntLayout;
 
 const Layout = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [topBarHeight, setTopBarHeight] = useState(56); // 顶部栏高度，移动端44px
   const [navHeight, setNavHeight] = useState(64); // 导航栏高度，移动端48px
@@ -123,8 +138,9 @@ const Layout = () => {
     };
   }, [throttledHandleScroll]);
 
-  // 处理退出登录
   const handleLogout = () => {
+    dispatch(logout());
+    message.success('已退出登录');
     navigate('/login');
   };
 
@@ -188,23 +204,60 @@ const Layout = () => {
     },
   ];
 
-  // 用户菜单
-  const userMenu = [
+  // 购物车数量：后续可接入全局状态 / 接口；默认 0 表示空车
+  const [cartCount] = useState(0);
+
+  const userMenuItems: MenuProps['items'] = [
     {
       key: 'application',
+      icon: <AppstoreOutlined />,
       label: '应用程序',
+      onClick: () => navigate('/applications'),
     },
     {
       key: 'account',
+      icon: <IdcardOutlined />,
       label: '我的账户',
+      onClick: () => navigate('/account'),
     },
+    { type: 'divider' },
     {
       key: 'logout',
-      label: '退出登录',
       icon: <LogoutOutlined />,
+      label: '退出登录',
+      danger: true,
       onClick: handleLogout,
     },
   ];
+
+  const cartPanel = (
+    <div className="top-bar-cart-panel">
+      {cartCount === 0 ? (
+        <>
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description="购物车还是空的"
+            className="top-bar-cart-empty"
+          />
+          <Button
+            type="primary"
+            block
+            className="top-bar-cart-cta"
+            onClick={() => navigate('/shop')}
+          >
+            去商店选购
+          </Button>
+        </>
+      ) : (
+        <>
+          <p className="top-bar-cart-summary">共 {cartCount} 件商品</p>
+          <Button type="primary" block onClick={() => navigate('/shop')}>
+            去结算
+          </Button>
+        </>
+      )}
+    </div>
+  );
 
   return (
     <AntLayout className="top-layout">
@@ -228,15 +281,46 @@ const Layout = () => {
       >
         <div className="top-bar-left">
           <SearchOutlined className="top-bar-icon" />
-          <span className="phone-number">+86 1391041782</span>
+          <span className="phone-number">+86 13910417182</span>
         </div>
         <div className="top-bar-center">
           <img src={logo} alt="Logo" className="logo" />
         </div>
         <div className="top-bar-right">
-          <ShoppingCartOutlined className="top-bar-icon" />
-          <Dropdown menu={{ items: userMenu }} trigger={['click']}>
-            <UserOutlined className="top-bar-icon user-icon" />
+          <Popover
+            content={cartPanel}
+            title="购物车"
+            trigger={['click']}
+            placement="bottomRight"
+            overlayClassName="top-bar-cart-popover"
+          >
+            <button
+              type="button"
+              className="top-bar-icon-btn cart-trigger"
+              aria-label="打开购物车预览"
+              aria-haspopup="dialog"
+            >
+              <Badge count={cartCount} size="small" offset={[4, 0]}>
+                <span className="top-bar-badge-anchor">
+                  <ShoppingCartOutlined aria-hidden />
+                </span>
+              </Badge>
+            </button>
+          </Popover>
+          <Dropdown
+            menu={{ items: userMenuItems }}
+            trigger={['click']}
+            placement="bottomRight"
+            overlayClassName="top-bar-user-dropdown"
+          >
+            <button
+              type="button"
+              className="top-bar-icon-btn user-menu-trigger"
+              aria-label="用户菜单"
+              aria-haspopup="menu"
+            >
+              <UserOutlined aria-hidden />
+            </button>
           </Dropdown>
           <Button
             type="primary"
@@ -289,8 +373,9 @@ const Layout = () => {
         }}
       />
 
-      {/* 内容区域 - 直接使用Outlet，移除app-content div */}
-      <Outlet />
+      <main className="site-main">
+        <Outlet />
+      </main>
     </AntLayout>
   );
 };

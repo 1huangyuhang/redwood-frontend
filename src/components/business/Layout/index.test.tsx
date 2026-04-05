@@ -1,6 +1,17 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
+import store from '@/redux/store';
 import Layout from './index';
+
+const renderLayout = () =>
+  render(
+    <Provider store={store}>
+      <BrowserRouter>
+        <Layout />
+      </BrowserRouter>
+    </Provider>
+  );
 
 // Mock React Router hooks
 jest.mock('react-router-dom', () => ({
@@ -22,11 +33,7 @@ describe('Layout Component - Scroll Interaction', () => {
   });
 
   test('should render Layout component correctly', () => {
-    render(
-      <BrowserRouter>
-        <Layout />
-      </BrowserRouter>
-    );
+    renderLayout();
 
     // 检查导航栏是否可见
     expect(screen.getByText('首页')).toBeInTheDocument();
@@ -34,11 +41,7 @@ describe('Layout Component - Scroll Interaction', () => {
   });
 
   test('should show navigation bar when scrollY is 0', () => {
-    render(
-      <BrowserRouter>
-        <Layout />
-      </BrowserRouter>
-    );
+    renderLayout();
 
     // 模拟滚动事件
     window.scrollY = 0;
@@ -51,11 +54,7 @@ describe('Layout Component - Scroll Interaction', () => {
   });
 
   test('should hide navigation bar when scrolling down', () => {
-    render(
-      <BrowserRouter>
-        <Layout />
-      </BrowserRouter>
-    );
+    renderLayout();
 
     // 模拟向下滚动
     window.scrollY = 100;
@@ -67,11 +66,7 @@ describe('Layout Component - Scroll Interaction', () => {
   });
 
   test('should show navigation bar when scrolling up', () => {
-    render(
-      <BrowserRouter>
-        <Layout />
-      </BrowserRouter>
-    );
+    renderLayout();
 
     // 首先模拟向下滚动，隐藏导航栏
     window.scrollY = 100;
@@ -88,11 +83,7 @@ describe('Layout Component - Scroll Interaction', () => {
   });
 
   test('should show navigation bar on initial load', () => {
-    render(
-      <BrowserRouter>
-        <Layout />
-      </BrowserRouter>
-    );
+    renderLayout();
 
     // 初始加载时，导航栏应该可见
     const navBar = document.querySelector('.nav-bar');
@@ -101,11 +92,7 @@ describe('Layout Component - Scroll Interaction', () => {
   });
 
   test('should not toggle navigation bar for small scroll movements', () => {
-    render(
-      <BrowserRouter>
-        <Layout />
-      </BrowserRouter>
-    );
+    renderLayout();
 
     // 模拟小距离向下滚动
     window.scrollY = 5; // 小于滚动阈值（10px）
@@ -125,11 +112,7 @@ describe('Layout Component - Responsive Design', () => {
     global.innerWidth = 375;
     global.innerHeight = 667;
 
-    render(
-      <BrowserRouter>
-        <Layout />
-      </BrowserRouter>
-    );
+    renderLayout();
 
     // 触发resize事件
     fireEvent.resize(window);
@@ -144,11 +127,7 @@ describe('Layout Component - Responsive Design', () => {
     global.innerWidth = 1200;
     global.innerHeight = 800;
 
-    render(
-      <BrowserRouter>
-        <Layout />
-      </BrowserRouter>
-    );
+    renderLayout();
 
     // 触发resize事件
     fireEvent.resize(window);

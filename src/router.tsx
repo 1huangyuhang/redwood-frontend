@@ -3,6 +3,8 @@ import Layout from './components/business/Layout';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Applications from './pages/Applications';
+import Account from './pages/Account';
 import Shop from './pages/Shop';
 import Contact from './pages/Contact';
 import Activities from './pages/Activities';
@@ -26,6 +28,14 @@ const router = createBrowserRouter([
       {
         path: 'dashboard',
         element: <Dashboard />,
+      },
+      {
+        path: 'applications',
+        element: <Applications />,
+      },
+      {
+        path: 'account',
+        element: <Account />,
       },
       {
         path: 'shop',

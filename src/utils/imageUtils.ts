@@ -24,13 +24,17 @@ export const processImageUrl = (
     return defaultImage;
   }
 
-  // 如果是base64字符串，直接返回
-  if (imageData.startsWith('data:')) {
-    return imageData;
+  const trimmed = imageData.trim();
+
+  if (trimmed.startsWith('data:') || trimmed.startsWith('blob:')) {
+    return trimmed;
   }
 
-  // 如果是普通字符串，假设是base64编码的图片数据
-  return `data:image/jpeg;base64,${imageData}`;
+  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('/')) {
+    return trimmed;
+  }
+
+  return `data:image/jpeg;base64,${trimmed}`;
 };
 
 /**

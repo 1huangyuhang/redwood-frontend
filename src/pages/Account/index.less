@@ -1,0 +1,94 @@
+@import '../../assets/styles/global.less';
+
+.account-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+}
+
+.account-page-title {
+  text-align: center;
+  margin-bottom: 28px;
+  padding: 20px 0 8px;
+  border-bottom: 1px solid @border-color;
+
+  h1 {
+    font-family: @font-family-heading;
+    color: @text-color;
+    margin-bottom: 8px !important;
+  }
+}
+
+.account-alert {
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.account-summary-card {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(44, 24, 16, 0.08);
+  border: 1px solid @border-color;
+  background: @background-color;
+
+  .ant-card-body {
+    padding: 24px;
+  }
+}
+
+.account-avatar {
+  background: @gradient-primary;
+  font-size: 28px;
+}
+
+.account-summary-name {
+  margin: 0 0 4px !important;
+  color: @text-color;
+}
+
+.account-tabs {
+  .ant-tabs-nav {
+    margin-bottom: 16px;
+  }
+
+  .ant-tabs-tab {
+    font-weight: @font-weight-medium;
+  }
+}
+
+.account-panel-card {
+  border-radius: 12px;
+  border: 1px solid @border-color;
+  box-shadow: 0 1px 6px rgba(44, 24, 16, 0.06);
+
+  .ant-card-body {
+    padding: 24px;
+  }
+}
+
+.account-panel-hint {
+  font-size: @font-size-xs;
+  line-height: @line-height-sm;
+}
+
+.account-divider {
+  margin: 16px 0 20px;
+}
+
+.account-notify-list {
+  width: 100%;
+}
+
+.account-notify-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid @border-color;
+
+  &:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}

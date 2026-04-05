@@ -1,0 +1,98 @@
+/* 管理页公共样式（Dashboard / 产品 / 活动 / 新闻） */
+
+.management-page {
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  min-height: calc(100vh - 120px);
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #1f1f1f;
+    }
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .edit-button {
+    color: #80322e;
+  }
+
+  .delete-button {
+    color: #cf1322;
+  }
+
+  .form-help-text {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: #8c8c8c;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+  }
+}
+
+.dashboard {
+  padding: 24px;
+
+  .dashboard-header {
+    margin-bottom: 24px;
+
+    h2 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 600;
+      color: #1f1f1f;
+    }
+  }
+
+  .dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+  }
+
+  .stat-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    border: 1px solid #f0f0f0;
+
+    h3 {
+      margin: 0 0 12px;
+      font-size: 14px;
+      color: #8c8c8c;
+      font-weight: 500;
+    }
+
+    p {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+      color: #80322e;
+    }
+  }
+}
