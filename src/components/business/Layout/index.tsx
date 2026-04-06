@@ -31,8 +31,19 @@ const CHROME_BLEND_SCROLL_START = 72;
 const CHROME_BLEND_SCROLL_END = 280;
 /** rAF 每帧向目标靠拢比例，越小越柔 */
 const CHROME_BLEND_LERP = 0.09;
-/** 平滑 blend ≥ 此值时视为仍在 Hero 顶区：顶栏壳透明，避免与视频色温拼接 */
-const CHROME_ATOP_HERO_THRESHOLD = 0.65;
+/** 壳层「通透」略慢于 blend，滑回顶部时避免与 !important 二元切换同阶跃 */
+const CHROME_SHELL_CLEAR_LERP = 0.06;
+/** smoothstep 区间：与 --chrome-media-blend 同步抬头，无单独阈值跳变 */
+const CHROME_SHELL_CLEAR_EDGE0 = 0.42;
+const CHROME_SHELL_CLEAR_EDGE1 = 0.88;
+/** 字影 / prefers-reduced-transparency 等：壳已足够透时再挂属性 */
+const CHROME_ATOP_HERO_ATTR_CLEAR = 0.9;
+
+function smoothstepChromeClear(s: number): number {
+  const d = CHROME_SHELL_CLEAR_EDGE1 - CHROME_SHELL_CLEAR_EDGE0;
+  if (d <= 0) return s >= CHROME_SHELL_CLEAR_EDGE1 ? 1 : 0;
+  return Math.max(0, Math.min(1, (s - CHROME_SHELL_CLEAR_EDGE0) / d));
+}
 
 function computeChromeTargetBlend(scrollY: number): number {
   if (scrollY <= CHROME_BLEND_SCROLL_START) return 1;
@@ -58,6 +69,7 @@ const Layout = () => {
   pathnameRef.current = location.pathname;
   const chromeTargetRef = useRef(0);
   const chromeSmoothedRef = useRef(0);
+  const chromeShellClearSmoothedRef = useRef(0);
   const chromeBlendLoopRef = useRef<number | null>(null);
   const reduceMotionRef = useRef(false);
   const chromeShellRef = useRef<HTMLDivElement | null>(null);
@@ -96,24 +108,32 @@ const Layout = () => {
     return () => mq.removeEventListener('change', apply);
   }, []);
 
-  const applyChromeBlendToDom = useCallback((value: number) => {
-    const el = topLayoutRef.current;
-    if (!el) return;
-    el.style.setProperty('--chrome-media-blend', value.toFixed(4));
-    const onHome = pathnameRef.current === '/';
-    if (onHome && value >= CHROME_ATOP_HERO_THRESHOLD) {
-      el.setAttribute('data-home-atop-hero', '');
-    } else {
-      el.removeAttribute('data-home-atop-hero');
-    }
-  }, []);
+  const applyChromeBlendToDom = useCallback(
+    (blendValue: number, shellClearSmoothed: number) => {
+      const el = topLayoutRef.current;
+      if (!el) return;
+      el.style.setProperty('--chrome-media-blend', blendValue.toFixed(4));
+      el.style.setProperty(
+        '--chrome-shell-clear',
+        shellClearSmoothed.toFixed(4)
+      );
+      const onHome = pathnameRef.current === '/';
+      if (onHome && shellClearSmoothed >= CHROME_ATOP_HERO_ATTR_CLEAR) {
+        el.setAttribute('data-home-atop-hero', '');
+      } else {
+        el.removeAttribute('data-home-atop-hero');
+      }
+    },
+    []
+  );
 
   const tickChromeBlend = useCallback(() => {
     chromeBlendLoopRef.current = null;
     if (pathnameRef.current !== '/') {
       chromeSmoothedRef.current = 0;
       chromeTargetRef.current = 0;
-      applyChromeBlendToDom(0);
+      chromeShellClearSmoothedRef.current = 0;
+      applyChromeBlendToDom(0, 0);
       return;
     }
 
@@ -125,10 +145,22 @@ const Layout = () => {
       s += (target - s) * CHROME_BLEND_LERP;
     }
     chromeSmoothedRef.current = s;
-    applyChromeBlendToDom(s);
 
-    const converged = reduceMotionRef.current || Math.abs(target - s) < 0.004;
-    if (!converged) {
+    const shellClearTarget = smoothstepChromeClear(s);
+    let c = chromeShellClearSmoothedRef.current;
+    if (reduceMotionRef.current) {
+      c = shellClearTarget;
+    } else {
+      c += (shellClearTarget - c) * CHROME_SHELL_CLEAR_LERP;
+    }
+    chromeShellClearSmoothedRef.current = c;
+    applyChromeBlendToDom(s, c);
+
+    const blendConverged =
+      reduceMotionRef.current || Math.abs(target - s) < 0.004;
+    const clearConverged =
+      reduceMotionRef.current || Math.abs(shellClearTarget - c) < 0.004;
+    if (!blendConverged || !clearConverged) {
       chromeBlendLoopRef.current = requestAnimationFrame(tickChromeBlend);
     }
   }, [applyChromeBlendToDom]);
@@ -146,14 +178,17 @@ const Layout = () => {
       }
       chromeSmoothedRef.current = 0;
       chromeTargetRef.current = 0;
-      applyChromeBlendToDom(0);
+      chromeShellClearSmoothedRef.current = 0;
+      applyChromeBlendToDom(0, 0);
       return;
     }
 
     const t = computeChromeTargetBlend(window.scrollY);
     chromeTargetRef.current = t;
     chromeSmoothedRef.current = t;
-    const sync = () => applyChromeBlendToDom(t);
+    const clearSnap = smoothstepChromeClear(t);
+    chromeShellClearSmoothedRef.current = clearSnap;
+    const sync = () => applyChromeBlendToDom(t, clearSnap);
     sync();
     if (!topLayoutRef.current) {
       requestAnimationFrame(sync);

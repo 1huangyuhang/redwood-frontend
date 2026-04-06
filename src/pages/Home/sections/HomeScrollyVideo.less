@@ -11,10 +11,10 @@
   margin-left: calc(-1 * var(--hero-breakout-x));
   margin-right: calc(-1 * var(--hero-breakout-x));
   /*
-   * 主视觉顶缘抬到与顶栏占位同高；额外 -1px 盖住固定顶栏与首屏视频之间的亚像素缝（易露出画布/发「白线」），
-   * 不改变顶栏样式，只让视频多探入 1px。
+   * 主视觉顶缘抬到与顶栏占位同高；额外 -2px 盖住固定顶栏与首屏视频之间的亚像素缝（易露出画布/紫灰细线），
+   * 不改变顶栏样式，只让视频多探入 2px。
    */
-  margin-top: calc(-1 * var(--ly-chrome-stack-h, 116px) - 1px);
+  margin-top: calc(-1 * var(--ly-chrome-stack-h, 116px) - 2px);
   padding-bottom: 0;
   box-sizing: border-box;
   position: relative;
@@ -24,7 +24,7 @@
   border-radius: 0 0 clamp(18px, 2.8vw, 28px) clamp(18px, 2.8vw, 28px);
   overflow: hidden;
   min-height: calc(
-    clamp(460px, 100dvh, 960px) + var(--ly-chrome-stack-h, 116px) + 1px
+    clamp(460px, 100dvh, 960px) + var(--ly-chrome-stack-h, 116px) + 2px
   );
   /* 与全局 ScrollyVideo 占位渐变协调，略加深底部以贴合红木 Hero */
   background: linear-gradient(

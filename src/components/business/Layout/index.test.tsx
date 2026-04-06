@@ -126,6 +126,8 @@ describe('Layout Component - Scroll Interaction', () => {
     expect(top).toHaveAttribute('data-home-atop-hero');
     const blend = top?.style.getPropertyValue('--chrome-media-blend') ?? '';
     expect(parseFloat(blend)).toBeGreaterThanOrEqual(0.99);
+    const clear = top?.style.getPropertyValue('--chrome-shell-clear') ?? '';
+    expect(parseFloat(clear)).toBeGreaterThanOrEqual(0.99);
   });
 
   test('does not set data-home-atop-hero off home route', async () => {
@@ -133,8 +135,11 @@ describe('Layout Component - Scroll Interaction', () => {
     await act(async () => {
       await Promise.resolve();
     });
-    const top = document.querySelector('.top-layout');
+    const top = document.querySelector('.top-layout') as HTMLElement | null;
     expect(top).not.toHaveAttribute('data-home-atop-hero');
+    expect(
+      parseFloat(top?.style.getPropertyValue('--chrome-shell-clear') ?? '0')
+    ).toBe(0);
   });
 });
 

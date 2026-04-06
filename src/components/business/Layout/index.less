@@ -3,6 +3,8 @@
 .top-layout {
   /* 首页由 JS 写入 0–1，驱动顶栏/导航与视频 Hero 的柔美叠化（非首页保持 0） */
   --chrome-media-blend: 0;
+  /* 壳层通透：慢于 blend，连续压暗着色与磨砂，避免二元 !important 阶跃 */
+  --chrome-shell-clear: 0;
   /*
    * 滚动显隐：由 class + transition 驱动（勿用内联 transform 盖掉整段过渡）。
    * 出现略长、末段舒展；收起略短——落在约 300–500ms 的常见交互区间。
@@ -28,27 +30,31 @@
     align-items: stretch;
     gap: 0;
     overflow: hidden;
+    isolation: isolate;
     box-shadow: none;
+    /* 内层：随 blend；外层：随 shell-clear 连续溶入透明 */
     background: color-mix(
       in srgb,
-      var(--ly-chrome-liquid-bg-atop-media) calc(100% * var(--chrome-media-blend, 0)),
-      var(--ly-chrome-liquid-bg)
+      color-mix(
+          in srgb,
+          var(--ly-chrome-liquid-bg-atop-media) calc(100% * var(--chrome-media-blend, 0)),
+          var(--ly-chrome-liquid-bg)
+        )
+        calc(100% * (1 - var(--chrome-shell-clear, 0))),
+      transparent
     );
-    /* blur 在「常态栏」与「叠视频」token 之间随 --chrome-media-blend 插值 */
-    backdrop-filter: blur(
-        calc(
+    --ly-chrome-shell-blur-px: calc(
+      (
           var(--ly-chrome-liquid-blur) * (1 - var(--chrome-media-blend, 0)) +
-            var(--ly-chrome-liquid-blur-atop-media) * var(--chrome-media-blend, 0)
-        )
-      )
-      saturate(var(--ly-chrome-liquid-sat));
-    -webkit-backdrop-filter: blur(
-        calc(
-          var(--ly-chrome-liquid-blur) * (1 - var(--chrome-media-blend, 0)) +
-            var(--ly-chrome-liquid-blur-atop-media) * var(--chrome-media-blend, 0)
-        )
-      )
-      saturate(var(--ly-chrome-liquid-sat));
+          var(--ly-chrome-liquid-blur-atop-media) * var(--chrome-media-blend, 0)
+        ) * (1 - var(--chrome-shell-clear, 0))
+    );
+    --ly-chrome-shell-sat: calc(
+      1 + (var(--ly-chrome-liquid-sat) - 1) * (1 - var(--chrome-shell-clear, 0))
+    );
+    backdrop-filter: blur(var(--ly-chrome-shell-blur-px)) saturate(var(--ly-chrome-shell-sat));
+    -webkit-backdrop-filter: blur(var(--ly-chrome-shell-blur-px))
+      saturate(var(--ly-chrome-shell-sat));
     /* 刻意不做底边描边：1px border 叠在 Hero/画布上会形成「硬分界线」，破坏全屏画面 */
     border-bottom: none;
     transform: translate3d(0, 0, 0);
@@ -88,14 +94,36 @@
       box-shadow: none !important;
       filter: none !important;
     }
+
+    /* 壳底内缘轻渐变：随通透度显隐，压住与 Hero 接缝的紫/灰细线（overflow 内，不伸出壳外） */
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 6px;
+      pointer-events: none;
+      z-index: 0;
+      opacity: var(--chrome-shell-clear, 0);
+      background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(24, 18, 16, 0.48) 100%
+      );
+    }
   }
 
-  /* 首页 Hero 顶区：去掉顶栏壳着色与磨砂，与下方视频同色温（data-home-atop-hero 由 Layout TS 写入） */
+  html[data-theme='light'] .top-layout .site-chrome-shell::after {
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(42, 38, 36, 0.22) 100%
+    );
+  }
+
+  /* 通透足够时再关营销壳底描边，避免与连续背景打架 */
   &[data-home-atop-hero] .site-chrome-shell {
-    background: transparent !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    /* 盖过 .top-layout--marketing-defi 等对壳的 box-shadow，避免顶缘硬线 */
     box-shadow: none !important;
   }
 
@@ -157,6 +185,7 @@
 
   // 顶部栏：液态玻璃（--ly-chrome-liquid-*，随 html[data-theme] 切换）
   .top-bar {
+    z-index: 2;
     --top-bar-track-h: 52px;
     /* 字标视觉高度（液态胶囊由上下 padding 与字高共同撑满顶栏内区） */
     --logo-svg-h: 32px;
@@ -447,6 +476,7 @@
 
   .nav-bar {
     position: relative;
+    z-index: 2;
     overflow-x: auto;
     overflow-y: hidden;
     flex-shrink: 0;
