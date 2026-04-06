@@ -17,44 +17,64 @@ export const isMobile = (): boolean => {
   return mobileRegex.test(navigator.userAgent);
 };
 
+export type InitMobileVideoOptions = {
+  /**
+   * 滚动 scrub 场景下切勿用 scroll 触发 play：首次滚动会与 handleScroll 抢控制权，
+   * 导致视频按时间轴正常播放而非仅随滚动改 currentTime。
+   */
+  scrolly?: boolean;
+  /** 解锁解码或 load 后回调，用于把 currentTime 重新对齐到滚动进度 */
+  onAfterUnlock?: () => void;
+};
+
 /**
  * 移动端视频初始化函数
  * @param video HTMLVideoElement - 视频元素
  * @returns () => void - 清理函数
  */
-export const initMobileVideo = (video: HTMLVideoElement): (() => void) => {
+export const initMobileVideo = (
+  video: HTMLVideoElement,
+  options?: InitMobileVideoOptions
+): (() => void) => {
   if (!isMobile()) {
     // 非移动端，直接返回空清理函数
     return () => {};
   }
 
-  // 定义触发视频加载的函数
-  const triggerVideoLoad = () => {
-    // 重置视频状态
-    video.load();
+  const { scrolly = true, onAfterUnlock } = options ?? {};
 
-    // 尝试播放视频，解决移动端首次加载问题
-    video.play().catch(() => {
-      // 自动播放失败时，至少确保视频已加载
-      video.load();
-    });
-
-    // 移除所有事件监听器，避免重复触发
+  const detach = () => {
     document.removeEventListener('touchstart', triggerVideoLoad);
     document.removeEventListener('click', triggerVideoLoad);
-    document.removeEventListener('scroll', triggerVideoLoad);
+    if (!scrolly) {
+      document.removeEventListener('scroll', triggerVideoLoad);
+    }
   };
 
-  // 监听多种用户交互事件，确保视频能被触发
+  // 定义触发视频加载的函数（仅手势解锁，不保持 play —— 避免与滚动 scrub 冲突）
+  const triggerVideoLoad = () => {
+    detach();
+
+    void video
+      .play()
+      .then(() => {
+        video.pause();
+        onAfterUnlock?.();
+      })
+      .catch(() => {
+        video.load();
+        onAfterUnlock?.();
+      });
+  };
+
   document.addEventListener('touchstart', triggerVideoLoad, { once: true });
   document.addEventListener('click', triggerVideoLoad, { once: true });
-  document.addEventListener('scroll', triggerVideoLoad, { once: true });
+  if (!scrolly) {
+    document.addEventListener('scroll', triggerVideoLoad, { once: true });
+  }
 
-  // 返回清理函数
   return () => {
-    document.removeEventListener('touchstart', triggerVideoLoad);
-    document.removeEventListener('click', triggerVideoLoad);
-    document.removeEventListener('scroll', triggerVideoLoad);
+    detach();
   };
 };
 

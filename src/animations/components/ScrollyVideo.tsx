@@ -227,7 +227,10 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
     video.addEventListener('progress', handleProgress);
 
     // 使用导入的移动端视频初始化工具
-    const cleanupMobileVideo = initMobileVideo(video);
+    const cleanupMobileVideo = initMobileVideo(video, {
+      scrolly: true,
+      onAfterUnlock: () => handleScroll(),
+    });
 
     return () => {
       // 移除事件监听器

@@ -19,8 +19,13 @@ import {
   Tag,
   Tabs,
   Spin,
+  DatePicker,
+  Collapse,
+  Select,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
+import type { FormInstance } from 'antd/es/form';
 import type { UploadFile } from 'antd/es/upload/interface';
 import axiosInstance from '../services/axiosInstance';
 import { formatManagementListLoadError } from '../utils/managementLoadErrorHint';
@@ -69,12 +74,145 @@ async function fetchSiteAssetsList(pageTab: string): Promise<SiteAssetRow[]> {
   return data;
 }
 
+/** 将详情中的 meta 解析进表单；返回 true 表示解析失败，仅能用高级 JSON 编辑 */
+function applySiteAssetMetaToForm(
+  groupKey: string,
+  metaStr: string | null,
+  form: FormInstance
+): boolean {
+  const raw = metaStr?.trim() ?? '';
+  const clearStructured = {
+    metaAdvanced: '',
+    caseClient: '',
+    caseCategory: '',
+    caseDate: undefined as dayjs.Dayjs | undefined,
+    caseTags: [] as string[],
+    statValue: 0,
+    statColor: 'var(--app-accent-cinnabar)',
+  };
+
+  if (groupKey === 'case_item') {
+    if (!raw) {
+      form.setFieldsValue(clearStructured);
+      return false;
+    }
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        const o = parsed as Record<string, unknown>;
+        form.setFieldsValue({
+          metaAdvanced: '',
+          caseClient: String(o.client ?? ''),
+          caseCategory: String(o.category ?? ''),
+          caseDate: o.date ? dayjs(String(o.date)) : undefined,
+          caseTags: Array.isArray(o.tags)
+            ? o.tags.filter((t): t is string => typeof t === 'string')
+            : [],
+          statValue: 0,
+          statColor: 'var(--app-accent-cinnabar)',
+        });
+        return false;
+      }
+    } catch {
+      /* fall through */
+    }
+    message.warning(
+      '扩展信息（meta）无法解析为成功案例结构，已在下方保留原文，请修正后保存'
+    );
+    form.setFieldsValue({
+      ...clearStructured,
+      metaAdvanced: raw,
+    });
+    return true;
+  }
+
+  if (groupKey === 'stats_metric') {
+    if (!raw) {
+      form.setFieldsValue({
+        ...clearStructured,
+        statValue: 0,
+        statColor: 'var(--app-accent-cinnabar)',
+      });
+      return false;
+    }
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        const o = parsed as Record<string, unknown>;
+        const num = typeof o.value === 'number' ? o.value : Number(o.value);
+        form.setFieldsValue({
+          metaAdvanced: '',
+          caseClient: '',
+          caseCategory: '',
+          caseDate: undefined,
+          caseTags: [],
+          statValue: Number.isFinite(num) ? num : 0,
+          statColor: String(o.color ?? 'var(--app-accent-cinnabar)'),
+        });
+        return false;
+      }
+    } catch {
+      /* fall through */
+    }
+    message.warning(
+      '扩展信息（meta）无法解析为数据指标结构，已在下方保留原文，请修正后保存'
+    );
+    form.setFieldsValue({
+      ...clearStructured,
+      metaAdvanced: raw,
+      statValue: 0,
+      statColor: 'var(--app-accent-cinnabar)',
+    });
+    return true;
+  }
+
+  form.setFieldsValue({
+    ...clearStructured,
+    metaAdvanced: raw,
+  });
+  return false;
+}
+
+function buildSiteAssetMetaPayload(
+  values: Record<string, unknown>,
+  metaParseFailed: boolean
+): string | undefined {
+  const gk = String(values.groupKey ?? '').trim();
+  const advanced = String(values.metaAdvanced ?? '').trim();
+
+  if (metaParseFailed) {
+    return advanced || undefined;
+  }
+  if (gk === 'case_item') {
+    const client = String(values.caseClient ?? '').trim();
+    const category = String(values.caseCategory ?? '').trim();
+    const dv = values.caseDate;
+    const date = dv && dayjs.isDayjs(dv) ? dv.format('YYYY-MM-DD') : '';
+    const tags = ((values.caseTags ?? []) as string[])
+      .map((t) => String(t).trim())
+      .filter(Boolean);
+    return JSON.stringify({ client, category, date, tags });
+  }
+  if (gk === 'stats_metric') {
+    const v = values.statValue;
+    const num = typeof v === 'number' && !Number.isNaN(v) ? v : Number(v);
+    const color = String(values.statColor ?? '').trim();
+    return JSON.stringify({
+      value: Number.isFinite(num) ? num : 0,
+      color: color || 'var(--app-accent-cinnabar)',
+    });
+  }
+  return advanced || undefined;
+}
+
 const SiteAssetManagement: React.FC = () => {
   const queryClient = useQueryClient();
   const [pageTab, setPageTab] = useState<string>('all');
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<SiteAssetRow | null>(null);
   const [form] = Form.useForm();
+  const watchedGroupKey = Form.useWatch('groupKey', form);
+  const [metaParseFailed, setMetaParseFailed] = useState(false);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -136,6 +274,10 @@ const SiteAssetManagement: React.FC = () => {
     }
   }, [queryClient, pageTab]);
 
+  useEffect(() => {
+    if (!modalOpen) setMetaParseFailed(false);
+  }, [modalOpen]);
+
   const displayRows = useMemo(() => {
     const q = debouncedKeyword.trim().toLowerCase();
     if (!q) return rows;
@@ -174,9 +316,20 @@ const SiteAssetManagement: React.FC = () => {
   const openCreate = () => {
     setEditing(null);
     setDetailLoading(false);
+    setMetaParseFailed(false);
     form.resetFields();
     setFileList([]);
-    form.setFieldsValue({ sortOrder: 0, imageUrl: '' });
+    form.setFieldsValue({
+      sortOrder: 0,
+      imageUrl: '',
+      metaAdvanced: '',
+      caseClient: '',
+      caseCategory: '',
+      caseDate: undefined,
+      caseTags: [],
+      statValue: 0,
+      statColor: 'var(--app-accent-cinnabar)',
+    });
     setModalOpen(true);
   };
 
@@ -198,9 +351,10 @@ const SiteAssetManagement: React.FC = () => {
         title: full.title ?? '',
         alt: full.alt ?? '',
         content: full.content ?? '',
-        meta: full.meta ?? '',
         videoUrl: full.videoUrl ?? '',
       });
+      const failed = applySiteAssetMetaToForm(full.groupKey, full.meta, form);
+      setMetaParseFailed(failed);
       if (full.image) {
         setFileList([
           {
@@ -225,9 +379,14 @@ const SiteAssetManagement: React.FC = () => {
         title: record.title ?? '',
         alt: record.alt ?? '',
         content: record.content ?? '',
-        meta: record.meta ?? '',
         videoUrl: record.videoUrl ?? '',
       });
+      const failed = applySiteAssetMetaToForm(
+        record.groupKey,
+        record.meta,
+        form
+      );
+      setMetaParseFailed(failed);
     } finally {
       setDetailLoading(false);
     }
@@ -273,6 +432,10 @@ const SiteAssetManagement: React.FC = () => {
       }
 
       if (!editing && imageUrl && !(rawFile instanceof File)) {
+        const metaStr = buildSiteAssetMetaPayload(
+          values as Record<string, unknown>,
+          metaParseFailed
+        );
         await axiosInstance.post('/site-assets/import-url', {
           page: values.page,
           groupKey: values.groupKey,
@@ -280,7 +443,7 @@ const SiteAssetManagement: React.FC = () => {
           title: values.title || undefined,
           alt: values.alt || undefined,
           content: values.content || undefined,
-          meta: values.meta || undefined,
+          meta: metaStr || undefined,
           videoUrl: values.videoUrl || undefined,
           imageUrl,
         });
@@ -307,8 +470,12 @@ const SiteAssetManagement: React.FC = () => {
       if (values.content != null && String(values.content).trim() !== '') {
         formData.append('content', String(values.content));
       }
-      if (values.meta != null && String(values.meta).trim() !== '') {
-        formData.append('meta', String(values.meta));
+      const metaStr = buildSiteAssetMetaPayload(
+        values as Record<string, unknown>,
+        metaParseFailed
+      );
+      if (metaStr != null && metaStr.trim() !== '') {
+        formData.append('meta', metaStr);
       }
       if (rawFile instanceof File) {
         formData.append('image', rawFile);
@@ -414,6 +581,9 @@ const SiteAssetManagement: React.FC = () => {
 
   const hasActiveFilters = Boolean(debouncedKeyword.trim());
 
+  const gk = String(watchedGroupKey ?? '').trim();
+  const isStructuredMeta = gk === 'case_item' || gk === 'stats_metric';
+
   return (
     <AdminListPageShell
       title="站点素材"
@@ -506,16 +676,68 @@ const SiteAssetManagement: React.FC = () => {
                 placeholder="支持多段纯文本，前台按分组与排序展示"
               />
             </Form.Item>
-            <Form.Item
-              name="meta"
-              label="扩展 JSON（可选，用于成功案例 case_item）"
-              extra='示例：{"client":"客户名","category":"分类","date":"2024-01-01","tags":["标签1"]}'
-            >
-              <TextArea
-                rows={3}
-                placeholder='{"client":"","category":"","date":"","tags":[]}'
+            {metaParseFailed && isStructuredMeta ? (
+              <Form.Item
+                name="metaAdvanced"
+                label="扩展 JSON（解析失败，请修正后保存）"
+                extra="须为合法 JSON；修正保存后，下次打开将尝试恢复为表单项"
+              >
+                <TextArea rows={5} />
+              </Form.Item>
+            ) : null}
+            {!metaParseFailed && gk === 'case_item' ? (
+              <>
+                <Form.Item name="caseClient" label="客户 client">
+                  <Input placeholder="如：某知名企业" />
+                </Form.Item>
+                <Form.Item name="caseCategory" label="分类 category">
+                  <Input placeholder="如：家具定制" />
+                </Form.Item>
+                <Form.Item name="caseDate" label="日期 date">
+                  <DatePicker style={{ width: '100%' }} />
+                </Form.Item>
+                <Form.Item name="caseTags" label="标签 tags">
+                  <Select
+                    mode="tags"
+                    placeholder="输入后回车添加标签"
+                    style={{ width: '100%' }}
+                    tokenSeparators={[',']}
+                  />
+                </Form.Item>
+              </>
+            ) : null}
+            {!metaParseFailed && gk === 'stats_metric' ? (
+              <>
+                <Form.Item name="statValue" label="数值 value">
+                  <InputNumber style={{ width: '100%' }} />
+                </Form.Item>
+                <Form.Item
+                  name="statColor"
+                  label="颜色 color"
+                  extra="可使用 CSS 变量，如 var(--app-accent-cinnabar)"
+                >
+                  <Input placeholder="var(--app-accent-cinnabar)" />
+                </Form.Item>
+              </>
+            ) : null}
+            {!isStructuredMeta ? (
+              <Collapse
+                items={[
+                  {
+                    key: 'meta-adv',
+                    label: '高级：扩展 JSON（可选）',
+                    children: (
+                      <Form.Item
+                        name="metaAdvanced"
+                        extra='非 case_item / stats_metric 分组时在此填写；示例：{"key":"value"}'
+                      >
+                        <TextArea rows={4} placeholder="{}" />
+                      </Form.Item>
+                    ),
+                  },
+                ]}
               />
-            </Form.Item>
+            ) : null}
             <Form.Item name="videoUrl" label="视频地址（可选，如首页滚动区）">
               <Input placeholder="https://…" />
             </Form.Item>

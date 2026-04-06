@@ -1,20 +1,7 @@
-import {
-  Layout as AntLayout,
-  Menu,
-  Button,
-  Dropdown,
-  Badge,
-  Popover,
-  Empty,
-  message,
-} from 'antd';
+import { Layout as AntLayout, Button, Empty, message } from 'antd';
 import type { MenuProps } from 'antd';
 import {
-  SearchOutlined,
-  ShoppingCartOutlined,
-  UserOutlined,
   LogoutOutlined,
-  MenuOutlined,
   AppstoreOutlined,
   IdcardOutlined,
 } from '@ant-design/icons';
@@ -31,24 +18,21 @@ import {
 } from 'react';
 import type { CSSProperties } from 'react';
 import { logout } from '@/redux/slices/userSlice';
-import BrandLogo from '@/components/ui/BrandLogo/BrandLogo';
 import ProgressBar from '@/components/ui/ProgressBar';
-import ThemeToggle from '@/components/ui/ThemeToggle';
 import SiteFooter from '@/components/business/SiteFooter/SiteFooter';
+import SiteChrome from './SiteChrome';
 import './index.less';
-
-const { Header: AntHeader } = AntLayout;
 
 /** 纵向位移超过该值才切换顶栏/导航显隐，抑制触控板微抖动 */
 const SCROLL_DIR_THRESHOLD_PX = 10;
 
 /** 首页顶栏「叠视频」混合：scrollY ≤ START 为 1，≥ END 为 0，之间线性 */
 const CHROME_BLEND_SCROLL_START = 72;
-const CHROME_BLEND_SCROLL_END = 260;
+const CHROME_BLEND_SCROLL_END = 280;
 /** rAF 每帧向目标靠拢比例，越小越柔 */
 const CHROME_BLEND_LERP = 0.09;
 /** 平滑 blend ≥ 此值时视为仍在 Hero 顶区：顶栏壳透明，避免与视频色温拼接 */
-const CHROME_ATOP_HERO_THRESHOLD = 0.72;
+const CHROME_ATOP_HERO_THRESHOLD = 0.65;
 
 function computeChromeTargetBlend(scrollY: number): number {
   if (scrollY <= CHROME_BLEND_SCROLL_START) return 1;
@@ -419,99 +403,17 @@ const Layout = () => {
       {/* 页面游览进度条，根据菜单栏显示状态自动控制显示/隐藏 */}
       <ProgressBar isMenuVisible={isNavVisible} />
 
-      {/* 顶栏 + 主导航：单容器固定定位，一层玻璃底，消除两行之间的缝与叠影 */}
-      <div
-        ref={chromeShellRef}
-        className={`site-chrome-shell ${isNavVisible ? '' : 'nav-hidden'}`}
-      >
-        <div className="top-bar">
-          <div className="site-chrome-inner">
-            <div className="top-bar-left">
-              <SearchOutlined className="top-bar-icon" />
-              <span className="phone-number">+86 13910417182</span>
-            </div>
-            <div className="top-bar-center">
-              <button
-                type="button"
-                className="logo-chip"
-                onClick={() => navigate('/')}
-                aria-label="林之源 · 返回首页"
-              >
-                <BrandLogo decorative className="logo" />
-              </button>
-            </div>
-            <div className="top-bar-right">
-              <ThemeToggle />
-              <Popover
-                content={cartPanel}
-                title="购物车"
-                trigger={['click']}
-                placement="bottomRight"
-                overlayClassName="top-bar-cart-popover"
-              >
-                <button
-                  type="button"
-                  className="top-bar-icon-btn cart-trigger"
-                  aria-label="打开购物车预览"
-                  aria-haspopup="dialog"
-                >
-                  <Badge count={cartCount} size="small" offset={[4, 0]}>
-                    <span className="top-bar-badge-anchor">
-                      <ShoppingCartOutlined aria-hidden />
-                    </span>
-                  </Badge>
-                </button>
-              </Popover>
-              <Dropdown
-                menu={{ items: userMenuItems }}
-                trigger={['click']}
-                placement="bottomRight"
-                classNames={{ root: 'top-bar-user-dropdown' }}
-              >
-                <button
-                  type="button"
-                  className="top-bar-icon-btn user-menu-trigger"
-                  aria-label="用户菜单"
-                  aria-haspopup="menu"
-                >
-                  <UserOutlined aria-hidden />
-                </button>
-              </Dropdown>
-              <Button
-                type="primary"
-                className="contact-button"
-                onClick={() => navigate('/contact')}
-              >
-                联系我们
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <AntHeader
-          className={`nav-bar ${isNavVisible ? '' : 'nav-hidden'}`}
-          style={{
-            margin: 0,
-            padding: 0,
-            height: navHeight,
-            border: 'none',
-          }}
-        >
-          <div className="site-chrome-inner site-chrome-inner--nav">
-            <Menu
-              mode="horizontal"
-              items={navItems}
-              selectedKeys={[location.pathname]}
-              className="nav-menu"
-              overflowedIndicator={<MenuOutlined />}
-              style={{
-                flex: 1,
-                minWidth: 0,
-              }}
-            />
-          </div>
-        </AntHeader>
-      </div>
+      <SiteChrome
+        chromeShellRef={chromeShellRef}
+        isNavVisible={isNavVisible}
+        navHeight={navHeight}
+        pathname={location.pathname}
+        navigate={navigate}
+        cartCount={cartCount}
+        cartPanel={cartPanel}
+        userMenuItems={userMenuItems}
+        navItems={navItems}
+      />
 
       {/* 占位元素，避免内容被固定定位的导航栏遮挡 */}
       <div

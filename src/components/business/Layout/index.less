@@ -95,6 +95,8 @@
     background: transparent !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    /* 盖过 .top-layout--marketing-defi 等对壳的 box-shadow，避免顶缘硬线 */
+    box-shadow: none !important;
   }
 
   /* 透明壳时画面透过顶栏：轻字影 / drop-shadow 保菜单与工具行可读 */
@@ -762,6 +764,7 @@
     background: transparent !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
   }
 
   .top-layout .top-bar .logo-chip {

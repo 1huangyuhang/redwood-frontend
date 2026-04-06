@@ -6,7 +6,7 @@ import {
   act,
 } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, MemoryRouter } from 'react-router-dom';
 import store from '@/redux/store';
 import Layout from './index';
 
@@ -16,6 +16,15 @@ const renderLayout = () =>
       <BrowserRouter>
         <Layout />
       </BrowserRouter>
+    </Provider>
+  );
+
+const renderLayoutAt = (path: string) =>
+  render(
+    <Provider store={store}>
+      <MemoryRouter initialEntries={[path]}>
+        <Layout />
+      </MemoryRouter>
     </Provider>
   );
 
@@ -106,6 +115,26 @@ describe('Layout Component - Scroll Interaction', () => {
 
     const navBar = document.querySelector('.nav-bar');
     expect(navBar).not.toHaveClass('nav-hidden');
+  });
+
+  test('sets data-home-atop-hero on home at scroll top for transparent chrome shell', async () => {
+    renderLayoutAt('/');
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const top = document.querySelector('.top-layout') as HTMLElement | null;
+    expect(top).toHaveAttribute('data-home-atop-hero');
+    const blend = top?.style.getPropertyValue('--chrome-media-blend') ?? '';
+    expect(parseFloat(blend)).toBeGreaterThanOrEqual(0.99);
+  });
+
+  test('does not set data-home-atop-hero off home route', async () => {
+    renderLayoutAt('/shop');
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const top = document.querySelector('.top-layout');
+    expect(top).not.toHaveAttribute('data-home-atop-hero');
   });
 });
 

@@ -10,8 +10,9 @@ import {
   message,
   Upload,
   Select,
+  Space,
 } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd/es/upload/interface';
 import axiosInstance, { apiCache } from '../services/axiosInstance';
 import wsService from '../services/websocket';
@@ -191,7 +192,7 @@ const CourseManagement: React.FC = () => {
       students: 0,
       rating: 4.5,
       sortOrder: 0,
-      tagsJson: '["标签一","标签二"]',
+      tagItems: ['标签一', '标签二'],
     });
     setModalOpen(true);
   };
@@ -209,7 +210,7 @@ const CourseManagement: React.FC = () => {
       price: r.price,
       description: r.description,
       sortOrder: r.sortOrder,
-      tagsJson: JSON.stringify(r.tags.length ? r.tags : ['标签']),
+      tagItems: r.tags.length ? r.tags : [''],
     });
     setModalOpen(true);
   };
@@ -228,15 +229,16 @@ const CourseManagement: React.FC = () => {
       fd.append('price', String(v.price));
       fd.append('description', v.description);
       fd.append('sortOrder', String(v.sortOrder ?? 0));
-      const tagsStr = String(v.tagsJson ?? '[]').trim();
-      try {
-        JSON.parse(tagsStr);
-      } catch {
-        message.error('标签须为合法 JSON 数组，例如 ["a","b"]');
+      const tagItems = (v.tagItems ?? []) as string[];
+      const tags = tagItems
+        .map((s) => String(s ?? '').trim())
+        .filter((s) => s.length > 0);
+      if (tags.length === 0) {
+        message.error('请至少填写一个标签');
         setSubmitLoading(false);
         return;
       }
-      fd.append('tags', tagsStr);
+      fd.append('tags', JSON.stringify(tags));
       const f = fileList[0]?.originFileObj;
       if (f) fd.append('image', f);
 
@@ -425,12 +427,57 @@ const CourseManagement: React.FC = () => {
           >
             <Input.TextArea rows={4} />
           </Form.Item>
-          <Form.Item
-            name="tagsJson"
-            label="标签（JSON 数组字符串）"
-            rules={[{ required: true }]}
-          >
-            <Input.TextArea rows={2} placeholder='["标签1","标签2"]' />
+          <Form.Item label="标签" required>
+            <Form.List
+              name="tagItems"
+              rules={[
+                {
+                  validator: async (_, list) => {
+                    const arr = (list ?? []) as string[];
+                    const ok = arr.some(
+                      (s) => String(s ?? '').trim().length > 0
+                    );
+                    if (!ok) {
+                      throw new Error('请至少添加一个标签');
+                    }
+                  },
+                },
+              ]}
+            >
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <Space
+                      key={key}
+                      style={{ display: 'flex', marginBottom: 8 }}
+                      align="baseline"
+                    >
+                      <Form.Item
+                        {...restField}
+                        name={[name]}
+                        style={{ flex: 1, marginBottom: 0 }}
+                      >
+                        <Input placeholder="如：入门、工艺" />
+                      </Form.Item>
+                      <MinusCircleOutlined
+                        onClick={() => remove(name)}
+                        style={{ color: '#999' }}
+                      />
+                    </Space>
+                  ))}
+                  <Form.Item style={{ marginBottom: 0 }}>
+                    <Button
+                      type="dashed"
+                      onClick={() => add()}
+                      block
+                      icon={<PlusOutlined />}
+                    >
+                      添加标签
+                    </Button>
+                  </Form.Item>
+                </>
+              )}
+            </Form.List>
           </Form.Item>
           <Form.Item label="封面图（可选）">
             <Upload

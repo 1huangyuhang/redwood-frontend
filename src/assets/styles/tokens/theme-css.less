@@ -333,8 +333,8 @@ html[data-theme='light'] {
    * Hero 大光比（雾面/天空很亮）：若仍用浅白玻璃，白字菜单会融进背景。
    * 叠视频时用偏深冷灰半透明 + 更强 blur，仍保持「透」但托起白字与浅色图标。
    */
-  /* 日间高亮视频：顶栏勿用过深冷灰块，否则与雾面/天空视频硬分割 */
-  --ly-chrome-liquid-bg-atop-media: color-mix(in srgb, #0f172a 32%, transparent);
+  /* 日间叠视频：略偏暖的中性暗，减轻相对 #0f172a 的冷紫灰条感；内页常态仍用 --ly-chrome-liquid-bg */
+  --ly-chrome-liquid-bg-atop-media: color-mix(in srgb, #292524 26%, transparent);
   --ly-chrome-liquid-blur: 18px;
   --ly-chrome-liquid-blur-atop-media: 14px;
   --ly-chrome-liquid-sat: 1.62;

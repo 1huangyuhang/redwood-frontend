@@ -10,8 +10,9 @@ import {
   message,
   Upload,
   Switch,
+  Space,
 } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd/es/upload/interface';
 import axiosInstance, { apiCache } from '../services/axiosInstance';
 import wsService from '../services/websocket';
@@ -156,7 +157,7 @@ const PricingPlanManagement: React.FC = () => {
     form.setFieldsValue({
       isPopular: false,
       sortOrder: 0,
-      featuresJson: JSON.stringify(['权益一', '权益二']),
+      featureItems: ['权益一', '权益二'],
     });
     setModalOpen(true);
   };
@@ -171,7 +172,7 @@ const PricingPlanManagement: React.FC = () => {
       isPopular: r.isPopular,
       tag: r.tag ?? '',
       sortOrder: r.sortOrder,
-      featuresJson: JSON.stringify(r.features.length ? r.features : ['权益']),
+      featureItems: r.features.length ? r.features : [''],
     });
     setModalOpen(true);
   };
@@ -188,15 +189,16 @@ const PricingPlanManagement: React.FC = () => {
       fd.append('sortOrder', String(v.sortOrder ?? 0));
       const tag = String(v.tag ?? '').trim();
       fd.append('tag', tag);
-      const fj = String(v.featuresJson ?? '').trim();
-      try {
-        JSON.parse(fj);
-      } catch {
-        message.error('权益列表须为合法 JSON 数组');
+      const featureItems = (v.featureItems ?? []) as string[];
+      const features = featureItems
+        .map((s) => String(s ?? '').trim())
+        .filter((s) => s.length > 0);
+      if (features.length === 0) {
+        message.error('请至少填写一项权益');
         setSubmitLoading(false);
         return;
       }
-      fd.append('features', fj);
+      fd.append('features', JSON.stringify(features));
       const f = fileList[0]?.originFileObj;
       if (f) fd.append('image', f);
 
@@ -364,12 +366,57 @@ const PricingPlanManagement: React.FC = () => {
           >
             <Input.TextArea rows={3} />
           </Form.Item>
-          <Form.Item
-            name="featuresJson"
-            label="权益（JSON 数组）"
-            rules={[{ required: true }]}
-          >
-            <Input.TextArea rows={6} />
+          <Form.Item label="权益列表" required>
+            <Form.List
+              name="featureItems"
+              rules={[
+                {
+                  validator: async (_, list) => {
+                    const arr = (list ?? []) as string[];
+                    const ok = arr.some(
+                      (s) => String(s ?? '').trim().length > 0
+                    );
+                    if (!ok) {
+                      throw new Error('请至少添加一项权益');
+                    }
+                  },
+                },
+              ]}
+            >
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <Space
+                      key={key}
+                      style={{ display: 'flex', marginBottom: 8 }}
+                      align="baseline"
+                    >
+                      <Form.Item
+                        {...restField}
+                        name={[name]}
+                        style={{ flex: 1, marginBottom: 0 }}
+                      >
+                        <Input placeholder="单项权益描述" />
+                      </Form.Item>
+                      <MinusCircleOutlined
+                        onClick={() => remove(name)}
+                        style={{ color: '#999' }}
+                      />
+                    </Space>
+                  ))}
+                  <Form.Item style={{ marginBottom: 0 }}>
+                    <Button
+                      type="dashed"
+                      onClick={() => add()}
+                      block
+                      icon={<PlusOutlined />}
+                    >
+                      添加权益
+                    </Button>
+                  </Form.Item>
+                </>
+              )}
+            </Form.List>
           </Form.Item>
           <Form.Item name="isPopular" label="推荐位" valuePropName="checked">
             <Switch />
