@@ -1,6 +1,15 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, {
+  useRef,
+  useEffect,
+  useState,
+  useCallback,
+  useLayoutEffect,
+} from 'react';
 import '../styles/ScrollyVideo.less';
 import { initMobileVideo } from '../utils/mobileVideoInit';
+
+/** 视为「在页面顶部」时的 scrollY 容差，用于 resize 时是否重采锚点 */
+const SCROLL_TOP_EPS = 1;
 
 interface ScrollyVideoProps {
   src: string;
@@ -35,6 +44,19 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
   // 提取滚动处理函数到组件作用域
   const animationFrameIdRef = useRef<number | undefined>(undefined);
   const lastScrollProgressRef = useRef<number>(-1);
+  /** 首屏布局下容器顶相对视口的 top，用于从「当前位置」起算 scrub，避免须滚到 top≤0 才动 */
+  const anchorTopRef = useRef<number | null>(null);
+
+  const captureScrollAnchor = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    anchorTopRef.current = el.getBoundingClientRect().top;
+  }, []);
+
+  // 挂载及换源后按当前视口重采锚点（含滚动恢复后首帧，避免用错误的 0 基准）
+  useLayoutEffect(() => {
+    captureScrollAnchor();
+  }, [src, captureScrollAnchor]);
 
   const handleScroll = useCallback(() => {
     // 使用requestAnimationFrame节流，避免频繁计算
@@ -52,14 +74,27 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
       const viewportHeight = window.innerHeight;
       const containerTop = containerRect.top;
 
-      // 滚动进度计算：
-      // 当页面顶部与视频容器顶部对齐时，进度为0（视频开始）
-      // 当视频容器完全离开视口底部时，进度为1（视频结束）
-      // 简化计算公式，直接使用容器顶部位置
-      const scrollProgress = Math.max(
-        0,
-        Math.min(1, -containerTop / viewportHeight)
-      );
+      const anchorTop = anchorTopRef.current;
+      let scrollProgress: number;
+      if (anchorTop == null) {
+        scrollProgress = Math.max(
+          0,
+          Math.min(1, -containerTop / viewportHeight)
+        );
+      } else {
+        const denom = anchorTop + viewportHeight;
+        if (denom <= 0) {
+          scrollProgress = Math.max(
+            0,
+            Math.min(1, -containerTop / viewportHeight)
+          );
+        } else {
+          scrollProgress = Math.max(
+            0,
+            Math.min(1, (anchorTop - containerTop) / denom)
+          );
+        }
+      }
 
       // 避免微小的进度变化导致频繁更新
       if (Math.abs(scrollProgress - lastScrollProgressRef.current) > 0.001) {
@@ -85,6 +120,18 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
       }
     });
   }, [isVideoEnded]);
+
+  // 视口高度变化且用户大致在页顶时重采锚点，避免移动端地址栏/横竖屏后错位
+  useEffect(() => {
+    const onResize = () => {
+      if (window.scrollY <= SCROLL_TOP_EPS) {
+        captureScrollAnchor();
+        handleScroll();
+      }
+    };
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => window.removeEventListener('resize', onResize);
+  }, [captureScrollAnchor, handleScroll]);
 
   // 滚动同步逻辑
   useEffect(() => {
