@@ -36,8 +36,9 @@ const CHROME_SHELL_CLEAR_LERP = 0.06;
 /** smoothstep 区间：与 --chrome-media-blend 同步抬头，无单独阈值跳变 */
 const CHROME_SHELL_CLEAR_EDGE0 = 0.42;
 const CHROME_SHELL_CLEAR_EDGE1 = 0.88;
-/** 字影 / prefers-reduced-transparency 等：壳已足够透时再挂属性 */
-const CHROME_ATOP_HERO_ATTR_CLEAR = 0.9;
+/** data-home-atop-hero：滞回加宽，避免壳层着色/阴影在 blend 末段反复切换导致闪动 */
+const CHROME_ATOP_HERO_ATTR_ON = 0.95;
+const CHROME_ATOP_HERO_ATTR_OFF = 0.62;
 
 function smoothstepChromeClear(s: number): number {
   const d = CHROME_SHELL_CLEAR_EDGE1 - CHROME_SHELL_CLEAR_EDGE0;
@@ -74,6 +75,7 @@ const Layout = () => {
   const reduceMotionRef = useRef(false);
   const chromeShellRef = useRef<HTMLDivElement | null>(null);
   const chromeMotionSkipMountRef = useRef(true);
+  const chromeAtopHeroAttrRef = useRef(false);
   // 监听窗口大小变化，动态调整顶部栏和导航栏高度
   useEffect(() => {
     const updateHeights = () => {
@@ -118,10 +120,22 @@ const Layout = () => {
         shellClearSmoothed.toFixed(4)
       );
       const onHome = pathnameRef.current === '/';
-      if (onHome && shellClearSmoothed >= CHROME_ATOP_HERO_ATTR_CLEAR) {
-        el.setAttribute('data-home-atop-hero', '');
-      } else {
+      if (!onHome) {
+        chromeAtopHeroAttrRef.current = false;
         el.removeAttribute('data-home-atop-hero');
+      } else {
+        let on = chromeAtopHeroAttrRef.current;
+        if (!on && shellClearSmoothed >= CHROME_ATOP_HERO_ATTR_ON) {
+          on = true;
+        } else if (on && shellClearSmoothed < CHROME_ATOP_HERO_ATTR_OFF) {
+          on = false;
+        }
+        chromeAtopHeroAttrRef.current = on;
+        if (on) {
+          el.setAttribute('data-home-atop-hero', '');
+        } else {
+          el.removeAttribute('data-home-atop-hero');
+        }
       }
     },
     []
@@ -392,6 +406,12 @@ const Layout = () => {
     },
   ];
 
+  /** 与固定顶栏占位一致，不随显隐变高：避免收起/展开时正文被 spacer 过渡上下推挤（亦消除与 rect 的反馈闪动） */
+  const chromeStackPx = useMemo(
+    () => topBarHeight + navHeight,
+    [topBarHeight, navHeight]
+  );
+
   const cartPanel = (
     <div className="top-bar-cart-panel">
       {cartCount === 0 ? (
@@ -431,7 +451,7 @@ const Layout = () => {
       }
       style={
         {
-          '--ly-chrome-stack-h': `${topBarHeight + navHeight}px`,
+          '--ly-chrome-stack-h': `${chromeStackPx}px`,
         } as CSSProperties
       }
     >
@@ -450,12 +470,11 @@ const Layout = () => {
         navItems={navItems}
       />
 
-      {/* 占位元素，避免内容被固定定位的导航栏遮挡 */}
+      {/* 占位：与顶栏显隐同步，收起后高度为 0，避免 Hero 仍按满高负 margin 产生割裂 */}
       <div
-        style={{
-          height: `${topBarHeight + navHeight}px`,
-          width: '100%',
-        }}
+        className="site-chrome-spacer"
+        style={{ height: `${chromeStackPx}px` }}
+        aria-hidden
       />
 
       <main className="site-main">

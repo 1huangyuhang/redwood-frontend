@@ -16,6 +16,7 @@ import { adminListTableLocale } from '../utils/adminTableLocale';
 import { parsePaginatedList } from '../types/api';
 import { emitMgmtStatsSummaryRefresh } from '@/utils/managementStatsRefresh';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { ADMIN_LIST_DEFAULT_PAGE_SIZE } from '../utils/adminListUrlParams';
 
 interface Row {
   id: number;
@@ -32,7 +33,7 @@ interface Row {
 const ContactMessages: React.FC = () => {
   const [rows, setRows] = useState<Row[]>([]);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(ADMIN_LIST_DEFAULT_PAGE_SIZE);
   const [total, setTotal] = useState(0);
   const [unreadOnly, setUnreadOnly] = useState(false);
   const [listLoading, setListLoading] = useState(false);
@@ -217,7 +218,7 @@ const ContactMessages: React.FC = () => {
           columns={columns}
           dataSource={rows}
           pagination={false}
-          loading={listLoading}
+          loading={listLoading && rows.length === 0}
           scroll={{ x: 'max-content' }}
           locale={adminListTableLocale(hasFilters)}
         />

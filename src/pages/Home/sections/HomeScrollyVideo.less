@@ -6,33 +6,40 @@
     --home-hero-breakout-x,
     var(--site-main-pad-x, clamp(16px, 4vw, 48px))
   );
+  /* 仅底部圆角时，顶缘与画布同色可避免侧缘若有 1px 缝时露异色 */
+  --home-hero-video-radius: clamp(16px, 2.8vw, 28px);
   width: calc(100% + 2 * var(--hero-breakout-x));
   max-width: none;
   margin-left: calc(-1 * var(--hero-breakout-x));
   margin-right: calc(-1 * var(--hero-breakout-x));
-  /*
-   * 主视觉顶缘抬到与顶栏占位同高；额外 -2px 盖住固定顶栏与首屏视频之间的亚像素缝（易露出画布/紫灰细线），
-   * 不改变顶栏样式，只让视频多探入 2px。
-   */
-  margin-top: calc(-1 * var(--ly-chrome-stack-h, 116px) - 2px);
-  padding-bottom: 0;
+  /* 顶栏由 Layout 占位撑开，主视觉顶缘与首屏内容对齐，不再负 margin 伸入固定顶栏下方 */
+  margin-top: 0;
+  padding-bottom: clamp(6px, 1.2vw, 14px);
   box-sizing: border-box;
   position: relative;
+  background-color: var(--ly-bg-canvas);
+  overflow-x: clip;
+}
+
+/* 固定高度 Hero 带（非 intrinsic-ar）：与 ScrollyVideo height 一致，首帧前也有占位 */
+/* 叙事 Hero：约 65–88dvh 区间，大屏封顶保留下方内容入口 */
+.home-hero-scrolly__video.scrolly-video-container:not(.scrolly-video-container--intrinsic-ar) {
+  min-height: clamp(460px, min(68dvh, 88dvh), 850px);
 }
 
 .home-hero-scrolly__video.scrolly-video-container {
-  border-radius: 0 0 clamp(18px, 2.8vw, 28px) clamp(18px, 2.8vw, 28px);
+  /*
+   * 顶边与导航占位齐平：无上圆角，避免左右上角被弧切出「三角空白」（浅色画布尤其显眼）。
+   * 底边保留圆角，与下方正文/流动桥形成卡片式收束，符合常见首屏 Hero 做法。
+   */
+  border-radius: 0 0 var(--home-hero-video-radius) var(--home-hero-video-radius);
   overflow: hidden;
-  min-height: calc(
-    clamp(460px, 100dvh, 960px) + var(--ly-chrome-stack-h, 116px) + 2px
-  );
-  /* 与全局 ScrollyVideo 占位渐变协调，略加深底部以贴合红木 Hero */
-  background: linear-gradient(
-    165deg,
-    #0e0807 0%,
-    #1a100d 38%,
-    #221814 100%
-  );
+  border-top: none;
+  /*
+   * 视频用 object-fit: cover 铺满；加载前/极短边时可能露底，用深色底而非页面浅底。
+   */
+  background-color: #070605;
+  background-image: none;
   /* 不用 0 0 0 1px 描边：顶缘会与固定顶栏底边叠成「白/亮线」 */
   box-shadow: 0 24px 56px rgba(0, 0, 0, 0.18);
 
@@ -43,10 +50,12 @@
     left: 0;
     right: 0;
     bottom: 0;
+    top: auto;
     height: clamp(72px, min(16dvh, 12vw), 180px);
     z-index: 2;
     pointer-events: none;
     opacity: 0.94;
+    mix-blend-mode: normal;
     background: linear-gradient(
       180deg,
       transparent 0%,
@@ -60,15 +69,16 @@
   .scrolly-video-overlay {
     z-index: 3;
   }
+
+  /* 若某处启用 intrinsic 布局，仍用 cover + 居中构图 */
+  &.scrolly-video-container--intrinsic-ar .scrolly-video-element {
+    object-position: center center;
+  }
 }
 
 html[data-theme='light'] .home-hero-scrolly__video.scrolly-video-container {
-  background: linear-gradient(
-    165deg,
-    #eef1f5 0%,
-    #e6eaef 45%,
-    #dfe5eb 100%
-  );
+  background-color: var(--ly-bg-canvas, #f7f5f2);
+  background-image: none;
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
 }
 
@@ -83,12 +93,19 @@ html[data-theme='light'] .home-hero-scrolly__video.scrolly-video-container::befo
   background: none;
 }
 
-/* 首页主视觉：关闭全幅 scrim，画面接近原片；可读性靠字影（见标题/副文案） */
-/* 压过 ScrollyVideo 全局「media-ready → scrim opacity:1」 */
-.home-hero-scrolly__video .scrolly-video-overlay__scrim {
+/*
+ * 首页主视觉：彻底关掉 scrim（全局在 media-ready 时 opacity:1，特异性与本规则曾同级，打包顺序会压不住）。
+ * 画面接近原片；可读性靠字影（见标题/副文案）。
+ */
+.home-hero-scrolly__video.scrolly-video-container .scrolly-video-overlay__scrim,
+.home-hero-scrolly__video.scrolly-video-container
+  .scrolly-video-overlay--media-ready
+  .scrolly-video-overlay__scrim {
   opacity: 0 !important;
-  pointer-events: none;
-  transition: none;
+  visibility: hidden !important;
+  background: none !important;
+  pointer-events: none !important;
+  transition: none !important;
 }
 
 .home-hero-scrolly__content {

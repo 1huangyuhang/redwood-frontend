@@ -12,10 +12,13 @@
   top: 0;
   left: 0;
   right: 0;
-  
+
   // 设置为页面最顶层，确保在所有元素之上
   z-index: 10001;
-  
+
+  // 初始隐藏：避免 opacity:0 仍参与合成在视口最顶留下 1px 紫/色边（尤其 WebKit）
+  visibility: hidden;
+
   // 初始隐藏
   opacity: 0;
   
@@ -23,15 +26,21 @@
   height: 4px;
   background-color: rgba(0, 0, 0, 0.05);
   
-  // 平滑的显示/隐藏过渡
-  transition: opacity 0.3s ease;
+  // 平滑的显示/隐藏过渡；隐藏时延后 visibility，避免未显时仍占合成层
+  transition:
+    opacity 0.3s ease,
+    visibility 0s linear 0.3s;
   
   // 鼠标事件穿透，不影响页面交互
   pointer-events: none;
   
   // 可见状态
   &.visible {
+    visibility: visible;
     opacity: 1;
+    transition:
+      opacity 0.3s ease,
+      visibility 0s linear 0s;
   }
 }
 

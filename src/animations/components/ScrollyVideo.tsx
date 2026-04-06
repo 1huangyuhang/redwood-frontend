@@ -8,9 +8,6 @@ import React, {
 import '../styles/ScrollyVideo.less';
 import { initMobileVideo } from '../utils/mobileVideoInit';
 
-/** 视为「在页面顶部」时的 scrollY 容差，用于 resize 时是否重采锚点 */
-const SCROLL_TOP_EPS = 1;
-
 interface ScrollyVideoProps {
   src: string;
   poster?: string;
@@ -20,6 +17,17 @@ interface ScrollyVideoProps {
   id?: string;
   /** 叠在视频上的 Hero 内容（标题、按钮等），置于渐变遮罩之上 */
   children?: React.ReactNode;
+  /** 默认 cover；需整段画面入画无裁切时用 contain（可能出现左右/上下留边） */
+  objectFit?: 'cover' | 'contain';
+  /**
+   * 为 true 时在 loadedmetadata 后按视频原始宽高比设置容器 aspect-ratio（width 100%、height:auto），
+   * 并由 intrinsicMaxHeight / intrinsicMinHeight 约束；适合首页主视觉「原比例」展示。
+   */
+  useVideoAspectLayout?: boolean;
+  /** 与 useVideoAspectLayout 配套，默认 min(100dvh, 960px) */
+  intrinsicMaxHeight?: string;
+  /** 与 useVideoAspectLayout 配套，默认 460px */
+  intrinsicMinHeight?: string;
 }
 
 /**
@@ -33,6 +41,10 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
   width = '100%',
   id,
   children,
+  objectFit,
+  useVideoAspectLayout = false,
+  intrinsicMaxHeight = 'min(100dvh, 960px)',
+  intrinsicMinHeight = '460px',
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -40,6 +52,19 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
   const [bufferProgress, setBufferProgress] = useState(0);
+  const [naturalAspect, setNaturalAspect] = useState<{
+    w: number;
+    h: number;
+  } | null>(null);
+
+  const resolvedObjectFit =
+    objectFit ?? (useVideoAspectLayout ? 'contain' : undefined);
+  const intrinsicActive = Boolean(
+    useVideoAspectLayout &&
+    naturalAspect &&
+    naturalAspect.w > 0 &&
+    naturalAspect.h > 0
+  );
 
   // 提取滚动处理函数到组件作用域
   const animationFrameIdRef = useRef<number | undefined>(undefined);
@@ -53,13 +78,11 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
     anchorTopRef.current = el.getBoundingClientRect().top;
   }, []);
 
-  // 挂载及换源后按当前视口重采锚点（含滚动恢复后首帧，避免用错误的 0 基准）
-  useLayoutEffect(() => {
-    captureScrollAnchor();
-  }, [src, captureScrollAnchor]);
-
+  /**
+   * 稳定引用：避免 isVideoEnded 等 state 导致 handleScroll 重建 → scroll 监听反复卸载，
+   * 并在布局仅变化、未触发 scroll 时仍能复用同一套同步逻辑。
+   */
   const handleScroll = useCallback(() => {
-    // 使用requestAnimationFrame节流，避免频繁计算
     if (animationFrameIdRef.current) {
       cancelAnimationFrame(animationFrameIdRef.current);
     }
@@ -96,41 +119,105 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
         }
       }
 
-      // 避免微小的进度变化导致频繁更新
-      if (Math.abs(scrollProgress - lastScrollProgressRef.current) > 0.001) {
-        // 根据滚动进度更新视频播放位置
-        if (video.duration) {
-          video.currentTime = video.duration * scrollProgress;
-        }
+      const progressMoved =
+        Math.abs(scrollProgress - lastScrollProgressRef.current) > 0.001;
+      const dur = video.duration;
+      const targetTime =
+        Number.isFinite(dur) && dur > 0 ? dur * scrollProgress : NaN;
 
+      /*
+       * duration 稍晚就绪时，scrollProgress 可能已与上次相同，若整段跳过则永远不会 seek。
+       * 因此在时长有效时始终校正 currentTime（与目标差超过一帧再写，减轻解码压力）。
+       */
+      if (Number.isFinite(targetTime)) {
+        if (
+          !Number.isFinite(video.currentTime) ||
+          Math.abs(video.currentTime - targetTime) > 0.05
+        ) {
+          video.currentTime = targetTime;
+        }
+      }
+
+      if (progressMoved) {
         container.style.setProperty(
           '--scrolly-progress',
           scrollProgress.toFixed(4)
         );
 
-        // 根据滚动进度设置视频结束状态
-        // 只有当进度变化超过阈值时才更新状态，减少重渲染
-        if (scrollProgress >= 1.0 && !isVideoEnded) {
-          setIsVideoEnded(true);
-        } else if (scrollProgress < 1.0 && isVideoEnded) {
-          setIsVideoEnded(false);
-        }
+        setIsVideoEnded((prev) => {
+          if (scrollProgress >= 1.0 && !prev) return true;
+          if (scrollProgress < 1.0 && prev) return false;
+          return prev;
+        });
 
         lastScrollProgressRef.current = scrollProgress;
       }
     });
-  }, [isVideoEnded]);
+  }, []);
 
-  // 视口高度变化且用户大致在页顶时重采锚点，避免移动端地址栏/横竖屏后错位
+  // 挂载、换源、宽高比就绪后：重采锚点并立即对齐 currentTime（仅靠 scroll 事件会漏掉「只改高度不滚动」）
+  useLayoutEffect(() => {
+    captureScrollAnchor();
+    handleScroll();
+  }, [src, captureScrollAnchor, naturalAspect, handleScroll]);
+
+  useLayoutEffect(() => {
+    if (!useVideoAspectLayout) {
+      setNaturalAspect(null);
+      return;
+    }
+    setNaturalAspect(null);
+    const video = videoRef.current;
+    if (!video) return;
+
+    const applyMeta = () => {
+      if (video.videoWidth > 0 && video.videoHeight > 0) {
+        setNaturalAspect({ w: video.videoWidth, h: video.videoHeight });
+      }
+    };
+
+    if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
+      applyMeta();
+    }
+    video.addEventListener('loadedmetadata', applyMeta);
+    return () => video.removeEventListener('loadedmetadata', applyMeta);
+  }, [src, useVideoAspectLayout]);
+
+  // 容器高度随 intrinsic / 字体等变化时重采锚点，否则 (anchorTop - rect.top) 与真实滚动脱节
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => {
+      captureScrollAnchor();
+      handleScroll();
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [captureScrollAnchor, handleScroll]);
+
+  // 视口变化（地址栏、横竖屏、窗口缩放）须重采锚点；不限于「在页顶」
   useEffect(() => {
     const onResize = () => {
-      if (window.scrollY <= SCROLL_TOP_EPS) {
-        captureScrollAnchor();
-        handleScroll();
-      }
+      captureScrollAnchor();
+      handleScroll();
     };
     window.addEventListener('resize', onResize, { passive: true });
     return () => window.removeEventListener('resize', onResize);
+  }, [captureScrollAnchor, handleScroll]);
+
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const onVv = () => {
+      captureScrollAnchor();
+      handleScroll();
+    };
+    vv.addEventListener('resize', onVv);
+    vv.addEventListener('scroll', onVv);
+    return () => {
+      vv.removeEventListener('resize', onVv);
+      vv.removeEventListener('scroll', onVv);
+    };
   }, [captureScrollAnchor, handleScroll]);
 
   // 滚动同步逻辑
@@ -180,8 +267,13 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
     };
 
     const handleTimeUpdate = () => {
-      if (video && Math.abs(video.currentTime - video.duration) < 0.5) {
-        // 视频接近结束时，设置为结束状态
+      const d = video.duration;
+      if (
+        video &&
+        Number.isFinite(d) &&
+        d > 0 &&
+        Math.abs(video.currentTime - d) < 0.5
+      ) {
         setIsVideoEnded(true);
       }
     };
@@ -249,17 +341,28 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
     };
   }, [src, handleScroll]);
 
+  const containerStyle: React.CSSProperties = {
+    width,
+    position: 'relative',
+    overflow: 'hidden',
+    ...(intrinsicActive && naturalAspect
+      ? {
+          aspectRatio: `${naturalAspect.w} / ${naturalAspect.h}`,
+          height: 'auto',
+          maxHeight: intrinsicMaxHeight,
+          minHeight: intrinsicMinHeight,
+        }
+      : { height }),
+  };
+
   return (
     <div
       id={id}
-      className={`scrolly-video-container ${className} ${isVideoEnded ? 'video-ended' : ''}`}
+      className={`scrolly-video-container ${className} ${isVideoEnded ? 'video-ended' : ''} ${
+        intrinsicActive ? 'scrolly-video-container--intrinsic-ar' : ''
+      }`}
       ref={containerRef}
-      style={{
-        height,
-        width,
-        position: 'relative',
-        overflow: 'hidden',
-      }}
+      style={containerStyle}
     >
       <video
         ref={videoRef}
@@ -269,7 +372,10 @@ const ScrollyVideo: React.FC<ScrollyVideoProps> = ({
         muted
         playsInline
         preload="auto"
-        style={{ opacity: 1 }}
+        style={{
+          opacity: 1,
+          ...(resolvedObjectFit ? { objectFit: resolvedObjectFit } : {}),
+        }}
       />
 
       {children ? (

@@ -1,5 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import {
   Table,
   Button,
@@ -29,6 +33,7 @@ import AdminListPageShell from '@/components/AdminListPageShell';
 import AdminListSearchBar from '@/components/AdminListSearchBar';
 import ManagementWriteGate from '@/components/ManagementWriteGate';
 import { adminListTableLocale } from '@/utils/adminTableLocale';
+import { parseAdminListUrlParams } from '@/utils/adminListUrlParams';
 import {
   loadColumnVisibility,
   saveColumnVisibility,
@@ -56,8 +61,6 @@ const OPTIONAL_COL_KEYS = [
   'isNew',
   'createdAt',
 ] as const;
-const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
-
 const COL_LABELS: Record<(typeof OPTIONAL_COL_KEYS)[number], string> = {
   name: '产品名称',
   price: '价格',
@@ -67,23 +70,11 @@ const COL_LABELS: Record<(typeof OPTIONAL_COL_KEYS)[number], string> = {
   createdAt: '创建时间',
 };
 
-function parseListParams(searchParams: URLSearchParams) {
-  const page = Math.max(1, Number(searchParams.get('page')) || 1);
-  const rawPs = Number(searchParams.get('pageSize'));
-  const pageSize = PAGE_SIZE_OPTIONS.includes(
-    rawPs as (typeof PAGE_SIZE_OPTIONS)[number]
-  )
-    ? rawPs
-    : 10;
-  const search = searchParams.get('search')?.trim() ?? '';
-  return { page, pageSize, search };
-}
-
 const ProductManagement: React.FC = () => {
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const listParams = useMemo(
-    () => parseListParams(searchParams),
+    () => parseAdminListUrlParams(searchParams),
     [searchParams]
   );
 
@@ -118,9 +109,10 @@ const ProductManagement: React.FC = () => {
     [currentPage, pageSize, urlSearch]
   );
 
-  const { data, isPending, isError, error, refetch } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: queryKeys.products.list(queryListParams),
     queryFn: () => fetchProductsPage(queryListParams),
+    placeholderData: keepPreviousData,
   });
 
   useListQueryErrorToast(
@@ -513,7 +505,7 @@ const ProductManagement: React.FC = () => {
           rowKey="id"
           bordered
           pagination={false}
-          loading={isPending}
+          loading={isLoading}
           scroll={{ x: 'max-content' }}
           locale={adminListTableLocale(Boolean(urlSearch.trim()))}
         />

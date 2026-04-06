@@ -40,6 +40,10 @@ import AdminListPageShell from '../components/AdminListPageShell';
 import ManagementWriteGate from '../components/ManagementWriteGate';
 import AdminListSearchBar from '../components/AdminListSearchBar';
 import { adminListTableLocale } from '../utils/adminTableLocale';
+import {
+  ADMIN_LIST_DEFAULT_PAGE_SIZE,
+  ADMIN_LIST_PAGE_SIZE_OPTIONS_STR,
+} from '../utils/adminListUrlParams';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { queryKeys } from '../queryKeys';
 
@@ -222,12 +226,7 @@ const SiteAssetManagement: React.FC = () => {
   const debouncedKeyword = useDebouncedValue(keywordInput, 300);
   const loadErrorPrint = useRef<string | null>(null);
 
-  const {
-    data,
-    isPending: loading,
-    isError,
-    error,
-  } = useQuery({
+  const { data, isPending, isError, error } = useQuery({
     queryKey: queryKeys.siteAssets.list(pageTab),
     queryFn: () => fetchSiteAssetsList(pageTab),
   });
@@ -617,11 +616,16 @@ const SiteAssetManagement: React.FC = () => {
       <AdminTableSection>
         <Table<SiteAssetRow>
           rowKey="id"
-          loading={loading}
+          loading={isPending && !data}
           columns={columns}
           dataSource={displayRows}
-          pagination={{ pageSize: 20 }}
-          scroll={{ x: 960 }}
+          pagination={{
+            defaultPageSize: ADMIN_LIST_DEFAULT_PAGE_SIZE,
+            showSizeChanger: true,
+            pageSizeOptions: ADMIN_LIST_PAGE_SIZE_OPTIONS_STR,
+            showTotal: (total) => `共 ${total} 条记录`,
+          }}
+          scroll={{ x: 'max-content' }}
           locale={adminListTableLocale(hasActiveFilters)}
         />
       </AdminTableSection>

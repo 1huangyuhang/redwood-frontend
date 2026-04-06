@@ -31,6 +31,15 @@ html {
     color var(--motion-duration-md) var(--motion-ease-soft);
 }
 
+/* 与 body 画布顶色一致，避免视口最顶 1px 透出未上色 html 或合成缝发紫/异色 */
+html[data-theme='dark'] {
+  background-color: #09090b;
+}
+
+html[data-theme='light'] {
+  background-color: #f8fafc;
+}
+
 html[data-theme='light'] body {
   .app-canvas-body-light();
   color: var(--app-text-primary);

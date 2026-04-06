@@ -79,7 +79,8 @@
     &.nav-hidden {
       pointer-events: none;
       transform: translate3d(0, -100%, 0);
-      opacity: 0.86;
+      /* 收起后完全不可见，避免 0.86 在过渡/合成层上像一层影 */
+      opacity: 0;
     }
 
     /*
@@ -144,6 +145,13 @@
   &[data-home-atop-hero] .nav-menu .ant-menu-item,
   &[data-home-atop-hero] .nav-menu .ant-menu-submenu-title {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.42);
+  }
+
+  /* 顶栏占位：高度恒为顶栏+导航总高，与固定壳层对齐；显隐仅由壳体 transform/opacity 承担，避免正文随 spacer 动画上下位移 */
+  .site-chrome-spacer {
+    flex-shrink: 0;
+    width: 100%;
+    min-height: 0;
   }
 
   .site-main {

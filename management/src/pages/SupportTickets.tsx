@@ -26,6 +26,7 @@ import { emitMgmtStatsSummaryRefresh } from '@/utils/managementStatsRefresh';
 import AdminListSearchBar from '../components/AdminListSearchBar';
 import { adminListTableLocale } from '../utils/adminTableLocale';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { ADMIN_LIST_DEFAULT_PAGE_SIZE } from '../utils/adminListUrlParams';
 
 const { Paragraph } = Typography;
 
@@ -89,7 +90,7 @@ function parseStatus(raw: unknown): TicketStatus {
 const SupportTickets: React.FC = () => {
   const [rows, setRows] = useState<ListRow[]>([]);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(ADMIN_LIST_DEFAULT_PAGE_SIZE);
   const [total, setTotal] = useState(0);
   const [statusFilter, setStatusFilter] = useState<TicketStatus | undefined>(
     undefined
@@ -316,7 +317,7 @@ const SupportTickets: React.FC = () => {
           columns={columns}
           dataSource={rows}
           pagination={false}
-          loading={listLoading}
+          loading={listLoading && rows.length === 0}
           scroll={{ x: 960 }}
           locale={adminListTableLocale(hasFilters)}
         />

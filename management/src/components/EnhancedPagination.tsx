@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pagination } from 'antd';
+import { ADMIN_LIST_PAGE_SIZE_OPTIONS_STR } from '@/utils/adminListUrlParams';
 
 // 分页组件属性接口
 interface EnhancedPaginationProps {
@@ -25,7 +26,7 @@ const EnhancedPagination: React.FC<EnhancedPaginationProps> = ({
   pageSize,
   total,
   onChange,
-  pageSizeOptions = ['10', '20', '50', '100'],
+  pageSizeOptions = ADMIN_LIST_PAGE_SIZE_OPTIONS_STR,
   showTotal = (total) => `共 ${total} 条记录`,
 }) => {
   return (

@@ -41,4 +41,9 @@
   /* 侧栏宽度过渡：略长 + 末端减速，收起时更「落稳」 */
   --admin-sider-motion-duration: 0.34s;
   --admin-sider-motion-ease: cubic-bezier(0.22, 1, 0.32, 1);
+  /* 列表表格卡片：空表/加载/切换时避免高度塌成一条 */
+  --admin-table-card-min-h: clamp(280px, 40vh, 520px);
+  --admin-table-spin-min-h: clamp(240px, 36vh, 480px);
+  /* 分页条最小高度，避免换行或文案变化时底栏跳动 */
+  --admin-pagination-bar-min-h: 40px;
 }

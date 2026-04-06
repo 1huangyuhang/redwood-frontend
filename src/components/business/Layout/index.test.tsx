@@ -82,6 +82,39 @@ describe('Layout Component - Scroll Interaction', () => {
     expect(navBar).toHaveClass('nav-hidden');
   });
 
+  test('keeps chrome spacer and --ly-chrome-stack-h constant when navigation hidden (no layout push)', async () => {
+    renderLayout();
+    window.scrollY = 100;
+    fireEvent.scroll(window);
+    await flushNavRaf();
+
+    const spacer = document.querySelector('.site-chrome-spacer');
+    expect(spacer).toHaveStyle({ height: '116px' });
+    const top = document.querySelector('.top-layout') as HTMLElement;
+    expect(top.style.getPropertyValue('--ly-chrome-stack-h')).toBe('116px');
+    expect(document.querySelector('.site-chrome-shell')).toHaveClass(
+      'nav-hidden'
+    );
+  });
+
+  test('spacer height unchanged after scroll up shows navigation again', async () => {
+    renderLayout();
+    window.scrollY = 100;
+    fireEvent.scroll(window);
+    await flushNavRaf();
+    window.scrollY = 50;
+    fireEvent.scroll(window);
+    await flushNavRaf();
+
+    const spacer = document.querySelector('.site-chrome-spacer');
+    expect(spacer).toHaveStyle({ height: '116px' });
+    const top = document.querySelector('.top-layout') as HTMLElement;
+    expect(top.style.getPropertyValue('--ly-chrome-stack-h')).toBe('116px');
+    expect(document.querySelector('.site-chrome-shell')).not.toHaveClass(
+      'nav-hidden'
+    );
+  });
+
   test('should show navigation bar when scrolling up', async () => {
     renderLayout();
     window.scrollY = 100;
@@ -140,6 +173,24 @@ describe('Layout Component - Scroll Interaction', () => {
     expect(
       parseFloat(top?.style.getPropertyValue('--chrome-shell-clear') ?? '0')
     ).toBe(0);
+  });
+
+  test('home route uses same scroll-down-to-hide as other pages (no hero zone lock)', async () => {
+    const hero = document.createElement('section');
+    hero.className = 'home-hero-scrolly';
+    document.body.appendChild(hero);
+
+    try {
+      renderLayoutAt('/');
+      window.scrollY = 140;
+      fireEvent.scroll(window);
+      await flushNavRaf();
+
+      const shell = document.querySelector('.site-chrome-shell');
+      expect(shell).toHaveClass('nav-hidden');
+    } finally {
+      hero.remove();
+    }
   });
 });
 

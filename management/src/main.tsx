@@ -100,7 +100,11 @@ console.groupEnd = createFilteredConsoleMethod(originalConsoleGroupEnd);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ConfigProvider locale={zhCN} theme={antdManagementTheme}>
+    <ConfigProvider
+      locale={zhCN}
+      theme={antdManagementTheme}
+      componentSize="middle"
+    >
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           {/*

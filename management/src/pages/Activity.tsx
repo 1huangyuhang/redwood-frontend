@@ -1,6 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { Table, Button, Modal, Form, Input, message, Upload } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import axiosInstance from '@/services/axiosInstance';
@@ -70,9 +74,10 @@ const ActivityManagement: React.FC = () => {
     [currentPage, pageSize, urlSearch]
   );
 
-  const { data, isPending, isError, error, refetch } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: queryKeys.activities.list(listParams),
     queryFn: () => fetchActivitiesPage(listParams),
+    placeholderData: keepPreviousData,
   });
 
   useListQueryErrorToast(
@@ -329,7 +334,7 @@ const ActivityManagement: React.FC = () => {
           rowKey="id"
           bordered
           pagination={false}
-          loading={isPending}
+          loading={isLoading}
           scroll={{ x: 'max-content' }}
           locale={adminListTableLocale(Boolean(urlSearch.trim()))}
         />

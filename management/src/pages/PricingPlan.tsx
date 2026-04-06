@@ -337,7 +337,7 @@ const PricingPlanManagement: React.FC = () => {
           columns={columns}
           dataSource={rows}
           pagination={false}
-          loading={listLoading}
+          loading={listLoading && rows.length === 0}
           scroll={{ x: 'max-content' }}
           locale={adminListTableLocale(hasListFilters)}
         />

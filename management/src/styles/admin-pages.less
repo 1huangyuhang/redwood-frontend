@@ -148,10 +148,30 @@
   border-radius: var(--admin-radius-md);
   overflow: hidden;
   background: var(--admin-bg-muted);
+  min-height: var(--admin-table-card-min-h);
+
+  .ant-spin-nested-loading {
+    min-height: var(--admin-table-spin-min-h);
+  }
+
+  .ant-spin-nested-loading > .ant-spin-container {
+    min-height: inherit;
+  }
 
   .ant-table-wrapper {
     background: var(--admin-bg-elevated);
   }
+}
+
+/* EnhancedPagination 外层：占位稳定，减少换行时底栏高度抖动 */
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: var(--admin-pagination-bar-min-h);
+  width: 100%;
 }
 
 /* 列表「操作」列：与 AdminTableRowActions 组件配套 */
@@ -281,9 +301,11 @@
   .admin-pagination-bar {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     flex-wrap: wrap;
     gap: 8px;
     width: 100%;
+    min-height: var(--admin-pagination-bar-min-h);
   }
 
   .ant-btn-primary {
@@ -328,10 +350,16 @@
     font-weight: 600;
     color: var(--admin-color-text) !important;
     border-bottom: 1px solid var(--admin-color-border);
+    padding: 12px 16px;
+    line-height: 1.45;
+    vertical-align: middle;
   }
 
   .ant-table-tbody > tr > td {
     border-bottom: 1px solid rgba(228, 221, 214, 0.85);
+    padding: 12px 16px;
+    line-height: 1.5;
+    vertical-align: middle;
   }
 
   .ant-table-tbody > tr:hover > td {
