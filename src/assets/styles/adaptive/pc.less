@@ -1,52 +1,8 @@
 /**
  * rf-adaptive · 仅 PC 端 (min-width: 1200px)
+ * 主内容区横向占满视口；版心由 ly-container / MarketingPageShell 等承担。
+ * （曾在此限制 site-main max-width 导致整站「盒状」留白，已移除。）
  */
 @media (min-width: 1200px) {
-  /* 正文区域最大宽度，避免超宽屏一行过长 */
-  .top-layout .site-main {
-    max-width: var(--rf-container-max);
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-    padding-left: clamp(24px, 3vw, 48px);
-    padding-right: clamp(24px, 3vw, 48px);
-  }
-
-  .page-title {
-    max-width: var(--rf-container-max);
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: clamp(24px, 3vw, 48px);
-    padding-right: clamp(24px, 3vw, 48px);
-    box-sizing: border-box;
-  }
-
-  /* 与 site-main 同宽的页面根（常见 max-width:1200px 的页面） */
-  .shop-page,
-  .contact-page,
-  .courses-page,
-  .prices-page,
-  .help-page,
-  .activities-page,
-  .news-page,
-  .case-page,
-  .about-page,
-  .login-page,
-  .account-page,
-  .applications-page,
-  .dashboard-page {
-    max-width: var(--rf-container-max);
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  /* 大屏留白渐进 */
-  @media (min-width: 1440px) {
-    .top-layout .site-main,
-    .page-title {
-      max-width: min(var(--rf-container-max), 92vw);
-    }
-  }
+  /* site-main 仅使用 Layout 中 --site-main-pad-x，此处不再叠加 max-width / 额外 padding */
 }

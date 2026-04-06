@@ -6,20 +6,22 @@ import {
   PlusOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axiosInstance from '@/services/axiosInstance';
 import type { StatsSummaryResponse } from '@/types/api';
+import { MGMT_STATS_SUMMARY_REFRESH } from '@/utils/managementStatsRefresh';
 
 /**
  * 顶栏下方工作台条：快捷入口（留言/工单带待处理角标）、产品搜索。
  */
 const AdminWorkbenchBar: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const screens = Grid.useBreakpoint();
   const isCompact = screens.lg === false;
 
-  const [contactCount, setContactCount] = useState(0);
-  const [ticketCount, setTicketCount] = useState(0);
+  const [unreadContactCount, setUnreadContactCount] = useState(0);
+  const [pendingTicketCount, setPendingTicketCount] = useState(0);
 
   const loadSummary = useCallback(async () => {
     try {
@@ -28,8 +30,8 @@ const AdminWorkbenchBar: React.FC = () => {
       )) as StatsSummaryResponse;
       const d = res?.data;
       if (!d) return;
-      setContactCount(d.contactMessageCount ?? 0);
-      setTicketCount(d.supportTicketCount ?? 0);
+      setUnreadContactCount(d.unreadContactMessageCount ?? 0);
+      setPendingTicketCount(d.pendingSupportTicketCount ?? 0);
     } catch {
       /* 静默失败，避免与 Dashboard 重复弹窗 */
     }
@@ -37,6 +39,15 @@ const AdminWorkbenchBar: React.FC = () => {
 
   useEffect(() => {
     void loadSummary();
+  }, [loadSummary, location.pathname]);
+
+  useEffect(() => {
+    const onRefresh = () => {
+      void loadSummary();
+    };
+    window.addEventListener(MGMT_STATS_SUMMARY_REFRESH, onRefresh);
+    return () =>
+      window.removeEventListener(MGMT_STATS_SUMMARY_REFRESH, onRefresh);
   }, [loadSummary]);
 
   const onSearch = (raw: string) => {
@@ -50,8 +61,8 @@ const AdminWorkbenchBar: React.FC = () => {
 
   const quick = (
     <Space size="small" wrap>
-      <Tooltip title="联系留言">
-        <Badge count={contactCount} size="small" offset={[-2, 2]}>
+      <Tooltip title="联系留言（未读条数）">
+        <Badge count={unreadContactCount} size="small" offset={[-2, 2]}>
           <Button
             type="primary"
             ghost
@@ -63,8 +74,8 @@ const AdminWorkbenchBar: React.FC = () => {
           </Button>
         </Badge>
       </Tooltip>
-      <Tooltip title="帮助工单">
-        <Badge count={ticketCount} size="small" offset={[-2, 2]}>
+      <Tooltip title="帮助工单（待处理）">
+        <Badge count={pendingTicketCount} size="small" offset={[-2, 2]}>
           <Button
             type="primary"
             ghost

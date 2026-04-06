@@ -24,6 +24,10 @@ export interface StatsSummaryDTO {
   pricingPlanCount: number;
   contactMessageCount: number;
   supportTicketCount: number;
+  /** 未读留言条数（工作台角标） */
+  unreadContactMessageCount: number;
+  /** 待处理工单：OPEN + IN_PROGRESS（工作台角标） */
+  pendingSupportTicketCount: number;
 }
 
 export interface StatsSummaryResponse {

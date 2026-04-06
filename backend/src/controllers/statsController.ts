@@ -14,6 +14,8 @@ export const getStatsSummary = async (_req: Request, res: Response) => {
     pricingPlanCount,
     contactMessageCount,
     supportTicketCount,
+    unreadContactMessageCount,
+    pendingSupportTicketCount,
   ] = await Promise.all([
     prisma.product.count(),
     prisma.activity.count(),
@@ -23,6 +25,10 @@ export const getStatsSummary = async (_req: Request, res: Response) => {
     prisma.pricingPlan.count(),
     prisma.contactMessage.count(),
     prisma.supportTicket.count(),
+    prisma.contactMessage.count({ where: { read: false } }),
+    prisma.supportTicket.count({
+      where: { status: { in: ['OPEN', 'IN_PROGRESS'] } },
+    }),
   ]);
 
   res.json({
@@ -35,6 +41,8 @@ export const getStatsSummary = async (_req: Request, res: Response) => {
       pricingPlanCount,
       contactMessageCount,
       supportTicketCount,
+      unreadContactMessageCount,
+      pendingSupportTicketCount,
     },
   });
 };

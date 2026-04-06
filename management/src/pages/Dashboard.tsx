@@ -24,6 +24,8 @@ const emptyStats: StatsSummaryDTO = {
   pricingPlanCount: 0,
   contactMessageCount: 0,
   supportTicketCount: 0,
+  unreadContactMessageCount: 0,
+  pendingSupportTicketCount: 0,
 };
 
 type StatDef = {
@@ -103,6 +105,8 @@ const Dashboard: React.FC = () => {
         pricingPlanCount: d.pricingPlanCount ?? 0,
         contactMessageCount: d.contactMessageCount ?? 0,
         supportTicketCount: d.supportTicketCount ?? 0,
+        unreadContactMessageCount: d.unreadContactMessageCount ?? 0,
+        pendingSupportTicketCount: d.pendingSupportTicketCount ?? 0,
       });
     } catch (error) {
       console.error('数据加载失败:', error);

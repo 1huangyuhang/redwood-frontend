@@ -7,6 +7,7 @@ import AdminListPageShell from '../components/AdminListPageShell';
 import ManagementWriteGate from '../components/ManagementWriteGate';
 import { canWriteInManagementUi } from '@/utils/managementWriteAccess';
 import { parsePaginatedList } from '../types/api';
+import { emitMgmtStatsSummaryRefresh } from '@/utils/managementStatsRefresh';
 
 const { Paragraph } = Typography;
 
@@ -123,6 +124,7 @@ const SupportTickets: React.FC = () => {
   useEffect(() => {
     const onChange = () => {
       apiCache.clear();
+      emitMgmtStatsSummaryRefresh();
       void load();
     };
     wsService.on('supportTicket:created', onChange);
@@ -168,6 +170,7 @@ const SupportTickets: React.FC = () => {
     try {
       await axiosInstance.patch(`/support-tickets/${id}`, { status });
       message.success('状态已更新');
+      emitMgmtStatsSummaryRefresh();
       void load();
       if (detail?.id === id)
         setDetail((prev) => (prev ? { ...prev, status } : null));
@@ -183,6 +186,7 @@ const SupportTickets: React.FC = () => {
         await axiosInstance.delete(`/support-tickets/${id}`);
         message.success('已删除');
         apiCache.clear();
+        emitMgmtStatsSummaryRefresh();
         setDetailOpen(false);
         setDetail(null);
         void load();

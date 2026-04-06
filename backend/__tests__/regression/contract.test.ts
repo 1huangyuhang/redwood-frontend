@@ -57,6 +57,10 @@ describe('Regression: HTTP contract', () => {
     expect(d).toHaveProperty('pricingPlanCount');
     expect(d).toHaveProperty('contactMessageCount');
     expect(d).toHaveProperty('supportTicketCount');
+    expect(d).toHaveProperty('unreadContactMessageCount');
+    expect(d).toHaveProperty('pendingSupportTicketCount');
+    expect(typeof d.unreadContactMessageCount).toBe('number');
+    expect(typeof d.pendingSupportTicketCount).toBe('number');
   });
 
   test('GET /api/products returns paginated list', async () => {

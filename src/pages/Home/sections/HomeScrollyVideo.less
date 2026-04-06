@@ -1,12 +1,11 @@
 @import (reference) '@/assets/styles/foundation/index.less';
 
-/* 与 Layout site-main 水平内边距对消，主视觉横向满宽 */
+/* site-main 全宽后占满主区内边距盒，不再用负 margin 对消 */
 .home-hero-scrolly {
-  --home-hero-pad-x: var(--site-main-pad-x, clamp(16px, 4vw, 48px));
-  margin-left: calc(-1 * var(--home-hero-pad-x));
-  margin-right: calc(-1 * var(--home-hero-pad-x));
-  width: calc(100% + 2 * var(--home-hero-pad-x));
+  width: 100%;
   max-width: none;
+  margin-left: 0;
+  margin-right: 0;
   margin-top: -24px;
   padding-bottom: 8px;
   box-sizing: border-box;

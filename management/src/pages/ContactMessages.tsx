@@ -6,6 +6,7 @@ import EnhancedPagination from '../components/EnhancedPagination';
 import AdminListPageShell from '../components/AdminListPageShell';
 import ManagementWriteGate from '../components/ManagementWriteGate';
 import { parsePaginatedList } from '../types/api';
+import { emitMgmtStatsSummaryRefresh } from '@/utils/managementStatsRefresh';
 
 interface Row {
   id: number;
@@ -67,6 +68,7 @@ const ContactMessages: React.FC = () => {
   useEffect(() => {
     const onChange = () => {
       apiCache.clear();
+      emitMgmtStatsSummaryRefresh();
       void load();
     };
     wsService.on('contactMessage:created', onChange);
@@ -81,6 +83,7 @@ const ContactMessages: React.FC = () => {
     try {
       await axiosInstance.patch(`/contact-messages/${id}/read`);
       message.success('已标为已读');
+      emitMgmtStatsSummaryRefresh();
       void load();
     } catch {
       message.error('操作失败');
@@ -94,6 +97,7 @@ const ContactMessages: React.FC = () => {
         await axiosInstance.delete(`/contact-messages/${id}`);
         message.success('已删除');
         apiCache.clear();
+        emitMgmtStatsSummaryRefresh();
         void load();
       },
     });
